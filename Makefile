@@ -1,4 +1,4 @@
-OBJS = glad/src/gl.c main.cpp util.cpp triangle.cpp
+OBJS = glad/src/gl.c main.cpp util.cpp triangle.cpp shader.cpp
 
 CC = g++
 

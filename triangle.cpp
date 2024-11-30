@@ -3,92 +3,34 @@
 #include <glad/gl.h>
 #include <iostream>
 
-#include "vertex.h"
-Vertex vertices[] = {
-  {  0.5f,  0.5f },
-  {  0.5f, -0.5f },
-  { -0.5f, -0.5f },
-  { -0.5f,  0.5f }
-};
-unsigned int indices[] = {
-  0, 1, 3,
-  1, 2, 3
+#include "rgba-vertex.h"
+#include "shader.h"
+
+RGBAVertex vertices[] = {
+  { .position = {  0.5f,  0.5f, 0.f }, .rgba = { 1.f, 0.f, 0.f } },
+  { .position = { -0.5f,  0.5f, 0.f }, .rgba = { 0.f, 1.f, 0.f } },
+  { .position = {  0.0f, -0.5f, 0.f }, .rgba = { 0.f, 0.f, 1.f } },
 };
 
-const GLuint POC_LOCATION = 0;
+unsigned int indices[] = {
+  0, 1, 2
+};
 
 Triangle::Triangle()
 {
+  program = new Shader("triangle.glvs", "triangle.glfs");
+  program->use();
+  program->setFloat("xOffset", 0.5f);
 
+  compile();
 }
 
 Triangle::~Triangle()
 {
-
 }
 
 bool Triangle::compile()
 {
-  int success;
-  char infoLog[512];
-
-  const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-
-  unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-  glCompileShader(vertexShader);
-
-  glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-  if(!success)
-  {
-    glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-    std::cout << "Error: vertex compilition failed\n" << infoLog << std::endl;
-
-    return success;
-  }
-
-  const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
-
-  unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-  glCompileShader(fragmentShader);
-
-  glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-  if(!success)
-  {
-    glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-    std::cout << "Error: fragment compilition failed\n" << infoLog << std::endl;
-
-    return success;
-  }
-
-  program = glCreateProgram();
-  glAttachShader(program, vertexShader);
-  glAttachShader(program, fragmentShader);
-  glLinkProgram(program);
-
-  glGetProgramiv(program, GL_LINK_STATUS, &success);
-  if(!success)
-  {
-    glGetProgramInfoLog(program, 512, nullptr, infoLog);
-    std::cout << "Error: program linking failed\n" << infoLog << std::endl;
-
-    return success;
-  }
-
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
-
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
@@ -98,8 +40,16 @@ bool Triangle::compile()
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), (float*)&vertices, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(POC_LOCATION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-  glEnableVertexAttribArray(POC_LOCATION);
+  // position
+  glVertexAttribPointer(
+    0, 3, GL_FLOAT, GL_FALSE, sizeof(RGBAVertex), (void*)offsetof(RGBAVertex, position)
+  );
+  glEnableVertexAttribArray(0);
+
+  glVertexAttribPointer(
+    1, 4, GL_FLOAT, GL_FALSE, sizeof(RGBAVertex), (void*)(offsetof(RGBAVertex, rgba))
+  );
+  glEnableVertexAttribArray(1);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -113,12 +63,12 @@ bool Triangle::compile()
 
 void Triangle::render()
 {
-  glUseProgram(program);
+  program->use();
   glBindVertexArray(VAO);
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
   glBindVertexArray(0);
 }
@@ -128,5 +78,6 @@ void Triangle::free()
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);
-  glDeleteProgram(program);
+  glDeleteProgram(program->ID);
+  delete program;
 }

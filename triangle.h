@@ -1,10 +1,12 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#include "shader.h"
+
 class Triangle
 {
 private:
-  unsigned int program;
+  Shader* program;
   unsigned int VAO;
   unsigned int VBO;
   unsigned int EBO;

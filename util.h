@@ -1,6 +1,7 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 const int INITIAL_WINDOW_WIDTH = 800;

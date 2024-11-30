@@ -1,6 +1,7 @@
 #include <glad/gl.h>
-#include "util.h"
+#include <GLFW/glfw3.h>
 #include <iostream>
+#include "util.h"
 
 void handleInput(GLFWwindow* window)
 {

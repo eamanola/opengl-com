@@ -29,7 +29,6 @@ int main( int argc, char* args[] )
 
   setupViewport(window);
   Triangle triangle;
-  triangle.compile();
 
   while (!glfwWindowShouldClose(window))
   {
@@ -46,6 +45,7 @@ int main( int argc, char* args[] )
   }
 
   triangle.free();
+
   glfwTerminate();
   return 0;
 }
