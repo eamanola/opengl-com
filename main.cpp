@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "util.h"
+#include "triangle.h"
 
 void error_callback(int error, const char* description)
 {
@@ -27,6 +28,8 @@ int main( int argc, char* args[] )
   glfwSetErrorCallback(error_callback);
 
   setupViewport(window);
+  Triangle triangle;
+  triangle.compile();
 
   while (!glfwWindowShouldClose(window))
   {
@@ -36,10 +39,13 @@ int main( int argc, char* args[] )
 
     render();
 
+    triangle.render();
+
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
+  triangle.free();
   glfwTerminate();
   return 0;
 }
