@@ -9,6 +9,7 @@ const int INITIAL_WINDOW_HEIGHT = 600;
 
 GLFWwindow* createWindow();
 bool initGlad();
+void initGL();
 void setupViewport(GLFWwindow* window);
 void handleInput(GLFWwindow* window);
 void update();

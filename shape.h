@@ -1,9 +1,9 @@
-#ifndef TRIANGLE_H
-#define TRIANGLE_H
+#ifndef Shape_H
+#define Shape_H
 
 #include "shader.h"
 
-class Triangle
+class Shape
 {
 private:
   Shader* program;
@@ -15,8 +15,8 @@ private:
   void enterVertices();
   unsigned int createTexture(const char* path, GLenum format = GL_RGB);
 public:
-  Triangle(/* args */);
-  ~Triangle();
+  Shape(/* args */);
+  ~Shape();
 
   void render();
   void free();

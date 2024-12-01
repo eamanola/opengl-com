@@ -1,4 +1,4 @@
-OBJS = glad/src/gl.c stb_image/src/stb_image.c main.cpp util.cpp triangle.cpp shader.cpp
+OBJS = glad/src/gl.c stb_image/src/stb_image.c main.cpp util.cpp shape.cpp shader.cpp
 
 CC = g++
 

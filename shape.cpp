@@ -1,4 +1,4 @@
-#include "triangle.h"
+#include "shape.h"
 
 #include <glad/gl.h>
 #include <stb_image.h>
@@ -13,19 +13,35 @@
 #include <cmath>
 
 Vertex vertices[] = {
-  { .position = {  0.5f,  0.5f }, .rgba = { 1.f, 0.f, 0.f }, .texCoords = { 1.0f, 1.0f } },
-  { .position = {  0.5f, -0.5f }, .rgba = { 0.f, 1.f, 0.f }, .texCoords = { 1.0f, 0.0f } },
-  { .position = { -0.5f, -0.5f }, .rgba = { 0.f, 0.f, 1.f }, .texCoords = { 0.0f, 0.0f } },
-  { .position = { -0.5f,  0.5f }, .rgba = { 1.f, 1.f, 0.f }, .texCoords = { 0.0f, 1.0f } },
+  { .position = {  0.5f,  0.5f, 0.5f }, .rgba = { 1.f, 0.f, 0.f }, .texCoords = { 1.0f, 1.0f } },
+  { .position = {  0.5f, -0.5f, 0.5f }, .rgba = { 0.f, 1.f, 0.f }, .texCoords = { 1.0f, 0.0f } },
+  { .position = { -0.5f, -0.5f, 0.5f }, .rgba = { 0.f, 0.f, 1.f }, .texCoords = { 0.0f, 0.0f } },
+  { .position = { -0.5f,  0.5f, 0.5f }, .rgba = { 1.f, 1.f, 0.f }, .texCoords = { 0.0f, 1.0f } },
+  { .position = {  0.5f,  0.5f, -0.5f }, .rgba = { 1.f, 0.f, 0.f }, .texCoords = { 0.0f, 1.0f } },
+  { .position = {  0.5f, -0.5f, -0.5f }, .rgba = { 0.f, 1.f, 0.f }, .texCoords = { 0.0f, 0.0f } },
+  { .position = { -0.5f, -0.5f, -0.5f }, .rgba = { 0.f, 0.f, 1.f }, .texCoords = { 1.0f, 0.0f } },
+  { .position = { -0.5f,  0.5f, -0.5f }, .rgba = { 1.f, 1.f, 0.f }, .texCoords = { 1.0f, 1.0f } }
 };
 
 unsigned int indices[] = {
-  0, 1, 2, 0, 2, 3
+  0, 1, 2, 0, 2, 3, // front
+  4, 5, 1, 4, 1, 0, // right
+  7, 6, 5, 7, 5, 4, // back
+  3, 2, 6, 3, 6, 7, // left
+  4, 0, 3, 4, 3, 7, // top
+  1, 5, 6, 1, 6, 2  // bottom
 };
 
-Triangle::Triangle()
+Position cubePositions[] = {
+  {  0.0f,  0.0f,  0.0f  },
+  {  2.0f,  5.0f, -15.0f },
+  { -1.5f, -2.2f, -2.5f  },
+  { -3.8f, -2.0f, -12.3f }
+};
+
+Shape::Shape()
 {
-  program = new Shader("triangle.glvs", "triangle.glfs");
+  program = new Shader("shape.glvs", "shape.glfs");
 
   VAO = 0;
   VBO = 0;
@@ -48,11 +64,11 @@ Triangle::Triangle()
   }
 }
 
-Triangle::~Triangle()
+Shape::~Shape()
 {
 }
 
-void Triangle::enterVertices()
+void Shape::enterVertices()
 {
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
@@ -87,7 +103,7 @@ void Triangle::enterVertices()
   glBindVertexArray(0);
 }
 
-unsigned int Triangle::createTexture(const char * path, GLenum format)
+unsigned int Shape::createTexture(const char * path, GLenum format)
 {
   unsigned int texture;
   glGenTextures(1, &texture);
@@ -118,17 +134,16 @@ unsigned int Triangle::createTexture(const char * path, GLenum format)
   return texture;
 }
 
-void Triangle::render()
+void Shape::render()
 {
+  // float time = (float)glfwGetTime();
   program->use();
-  float time = (float)glfwGetTime();
-  glm::mat4 transform = glm::mat4(1.f);
-  transform = glm::translate(transform, glm::vec3(0.5f, 0.f, 0.0f));
-  transform = glm::rotate(transform, time, glm::vec3(0.f, 0.f, 1.f));
-  transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
-  program->setMat4fv("transform", glm::value_ptr(transform));
-  // program->setFloat("time", time);
-  // program->setFloat("yOffset", std::cos(timeValue) / 2);
+  glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -3.f));
+  glm::mat4 projection = glm::perspective(glm::radians(85.f), 800.f / 600.f, 0.1f, 100.f);
+
+  program->setMat4fv("view", glm::value_ptr(view));
+  program->setMat4fv("projection", glm::value_ptr(projection));
+
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, wallTexture);
   glActiveTexture(GL_TEXTURE1);
@@ -136,19 +151,23 @@ void Triangle::render()
   glBindVertexArray(VAO);
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  for(unsigned int i = 0; i < 4; i ++) {
+    glm::mat4 model = glm::mat4(1.f);
 
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-  transform = glm::mat4(1.f);
-  transform = glm::translate(transform, glm::vec3(-0.5f, 0.5f, 0.0f));
-  const float scale = std::abs(std::sin(time));
-  transform = glm::scale(transform, glm::vec3(scale, scale, scale));
-  program->setMat4fv("transform", glm::value_ptr(transform));
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    Position position = cubePositions[i];
+    model = glm::translate(model, glm::vec3(position.x, position.y, position.z));
 
+    float angle = 20.0f * i;
+    model = glm::rotate(model, glm::radians(angle), glm::vec3(1.f, 0.3f, 0.5f));
+
+    program->setMat4fv("model", glm::value_ptr(model));
+
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+  }
   glBindVertexArray(0);
 }
 
-void Triangle::free()
+void Shape::free()
 {
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);

@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "util.h"
-#include "triangle.h"
+#include "shape.h"
 
 void error_callback(int error, const char* description)
 {
@@ -28,7 +28,10 @@ int main( int argc, char* args[] )
   glfwSetErrorCallback(error_callback);
 
   setupViewport(window);
-  Triangle triangle;
+
+  Shape shape;
+
+  initGL();
 
   while (!glfwWindowShouldClose(window))
   {
@@ -38,13 +41,13 @@ int main( int argc, char* args[] )
 
     render();
 
-    triangle.render();
+    shape.render();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
-  triangle.free();
+  shape.free();
 
   glfwTerminate();
   return 0;

@@ -16,8 +16,7 @@ void update()
 
 void render()
 {
-  glClearColor(0.5f, 0.5f, 0.5f, 1.f);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 GLFWwindow* createWindow()
@@ -31,6 +30,12 @@ GLFWwindow* createWindow()
     INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, "OpenGL", NULL, NULL
   );
   return window;
+}
+
+void initGL()
+{
+  glClearColor(0.5f, 0.5f, 0.5f, 1.f);
+  glEnable(GL_DEPTH_TEST);
 }
 
 bool initGlad()
@@ -48,7 +53,7 @@ void setupViewport(GLFWwindow* window)
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);
 
-  glViewport(0, 0, width, height);
+  framebuffer_size_callback(window, width, height);
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 }
