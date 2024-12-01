@@ -10,11 +10,14 @@ private:
   unsigned int VAO;
   unsigned int VBO;
   unsigned int EBO;
+  unsigned int wallTexture;
+  unsigned int faceTexture;
+  void enterVertices();
+  unsigned int createTexture(const char* path, GLenum format = GL_RGB);
 public:
   Triangle(/* args */);
   ~Triangle();
 
-  bool compile();
   void render();
   void free();
 };

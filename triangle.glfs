@@ -3,9 +3,17 @@
 out vec4 FragColor;
 
 in vec4 color;
-in vec3 position;
+in vec2 texCoord;
+
+uniform sampler2D faceTexture;
+uniform sampler2D wallTexture;
+uniform float texRatio;
 
 void main()
 {
-  FragColor = vec4(position, 1.0);
+  FragColor = mix(
+    texture(wallTexture, texCoord),
+    texture(faceTexture, vec2(1.0 - texCoord.x, texCoord.y)),
+    texRatio
+  ) * color;
 }

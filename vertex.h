@@ -1,11 +1,15 @@
 #ifndef VERTEX_H
 #define VERTEX_H
 
+#include "position.h"
+#include "rgba.h"
+#include "texcoords.h"
+
 struct Vertex
 {
-  float x;
-  float y;
-  float z = 0.f;
+  Position position;
+  RGBA rgba;
+  TexCoords texCoords;
 };
 
 #endif
