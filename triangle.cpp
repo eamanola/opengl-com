@@ -3,11 +3,14 @@
 #include <glad/gl.h>
 #include <stb_image.h>
 #include <iostream>
-#include <cmath>
 
 #include "vertex.h"
 #include "shader.h"
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <cmath>
 
 Vertex vertices[] = {
   { .position = {  0.5f,  0.5f }, .rgba = { 1.f, 0.f, 0.f }, .texCoords = { 1.0f, 1.0f } },
@@ -118,8 +121,13 @@ unsigned int Triangle::createTexture(const char * path, GLenum format)
 void Triangle::render()
 {
   program->use();
-  // float timeValue = glfwGetTime();
-  // program->setFloat("xOffset", std::sin(timeValue) / 2);
+  float time = (float)glfwGetTime();
+  glm::mat4 transform = glm::mat4(1.f);
+  transform = glm::translate(transform, glm::vec3(0.5f, 0.f, 0.0f));
+  transform = glm::rotate(transform, time, glm::vec3(0.f, 0.f, 1.f));
+  transform = glm::scale(transform, glm::vec3(0.5f, 0.5f, 0.5f));
+  program->setMat4fv("transform", glm::value_ptr(transform));
+  // program->setFloat("time", time);
   // program->setFloat("yOffset", std::cos(timeValue) / 2);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, wallTexture);
@@ -129,6 +137,12 @@ void Triangle::render()
 
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+  transform = glm::mat4(1.f);
+  transform = glm::translate(transform, glm::vec3(-0.5f, 0.5f, 0.0f));
+  const float scale = std::abs(std::sin(time));
+  transform = glm::scale(transform, glm::vec3(scale, scale, scale));
+  program->setMat4fv("transform", glm::value_ptr(transform));
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
   glBindVertexArray(0);
