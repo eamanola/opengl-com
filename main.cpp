@@ -2,6 +2,8 @@
 
 #include "util.h"
 #include "shape.h"
+#include "camera.h"
+
 
 void error_callback(int error, const char* description)
 {
@@ -28,20 +30,29 @@ int main( int argc, char* args[] )
   glfwSetErrorCallback(error_callback);
 
   setupViewport(window);
-
-  Shape shape;
+  setupMouse(window);
 
   initGL();
 
+  Shape shape;
+  Camera camera;
+  setCamera(&camera);
+  setShape(&shape);
+
+  float deltaTime = 0.f;
+  float lastFrame = 0.f;
+
   while (!glfwWindowShouldClose(window))
   {
-    handleInput(window);
+    const float time = (float)glfwGetTime();
+    deltaTime = time - lastFrame;
+    lastFrame = time;
+
+    handleInput(window, deltaTime);
 
     update();
 
     render();
-
-    shape.render();
 
     glfwSwapBuffers(window);
     glfwPollEvents();

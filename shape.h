@@ -2,6 +2,7 @@
 #define Shape_H
 
 #include "shader.h"
+#include <glm/glm.hpp>
 
 class Shape
 {
@@ -20,6 +21,8 @@ public:
 
   void render();
   void free();
+  void setView(glm::mat4 view);
+  void setProjection(glm::mat4 projection);
 };
 
 #endif

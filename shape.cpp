@@ -6,7 +6,6 @@
 
 #include "vertex.h"
 #include "shader.h"
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -136,13 +135,7 @@ unsigned int Shape::createTexture(const char * path, GLenum format)
 
 void Shape::render()
 {
-  // float time = (float)glfwGetTime();
   program->use();
-  glm::mat4 view = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.f, -3.f));
-  glm::mat4 projection = glm::perspective(glm::radians(85.f), 800.f / 600.f, 0.1f, 100.f);
-
-  program->setMat4fv("view", glm::value_ptr(view));
-  program->setMat4fv("projection", glm::value_ptr(projection));
 
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, wallTexture);
@@ -165,6 +158,18 @@ void Shape::render()
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
   }
   glBindVertexArray(0);
+}
+
+void Shape::setView(glm::mat4 view)
+{
+  program->use();
+  program->setMat4fv("view", glm::value_ptr(view));
+}
+
+void Shape::setProjection(glm::mat4 projection)
+{
+  program->use();
+  program->setMat4fv("projection", glm::value_ptr(projection));
 }
 
 void Shape::free()
