@@ -5,7 +5,7 @@ const glm::vec3 UP = glm::vec3(0.f, 1.f, 0.f); // world UP
 
 Camera::Camera(/* args */)
 {
-  position = glm::vec3(0.f, 0.f, 3.f);
+  position = glm::vec3(0.f, 0.f, 6.f);
   updateVectors(glm::vec3(0.f, 0.f, -1.f));
 
   pitch = 0.f;

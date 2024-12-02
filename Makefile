@@ -3,7 +3,7 @@ OBJS = glad/src/gl.c stb_image/src/stb_image.c \
 
 CC = g++
 
-COMPILER_FLAGS = -Wall -Werror
+COMPILER_FLAGS = -Wall -Werror #-g
 
 LINKER_FLAGS = -lglfw# -lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 

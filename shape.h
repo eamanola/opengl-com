@@ -1,28 +1,22 @@
-#ifndef Shape_H
-#define Shape_H
+#ifndef SHAPE_H
+#define SHAPE_H
 
 #include "shader.h"
 #include <glm/glm.hpp>
 
 class Shape
 {
-private:
-  Shader* program;
-  unsigned int VAO;
-  unsigned int VBO;
-  unsigned int EBO;
-  unsigned int wallTexture;
-  unsigned int faceTexture;
-  void enterVertices();
-  unsigned int createTexture(const char* path, GLenum format = GL_RGB);
 public:
-  Shape(/* args */);
-  ~Shape();
+  Shape(const char* vShader, const char* fShader);
+  virtual ~Shape();
 
-  void render();
-  void free();
+  virtual void free();
+  void setModel(glm::mat4 model);
   void setView(glm::mat4 view);
   void setProjection(glm::mat4 projection);
+  Shader* program;
+
+  virtual void render() = 0;
 };
 
 #endif

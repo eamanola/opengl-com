@@ -1,9 +1,10 @@
 #include <iostream>
 
 #include "util.h"
-#include "shape.h"
+#include "cube.h"
 #include "camera.h"
-
+#include "shape.h"
+#include "light.h"
 
 void error_callback(int error, const char* description)
 {
@@ -34,11 +35,6 @@ int main( int argc, char* args[] )
 
   initGL();
 
-  Shape shape;
-  Camera camera;
-  setCamera(&camera);
-  setShape(&shape);
-
   float deltaTime = 0.f;
   float lastFrame = 0.f;
 
@@ -58,7 +54,7 @@ int main( int argc, char* args[] )
     glfwPollEvents();
   }
 
-  shape.free();
+  shutdown();
 
   glfwTerminate();
   return 0;

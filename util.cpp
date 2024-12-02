@@ -3,9 +3,56 @@
 #include <iostream>
 #include "util.h"
 #include "camera.h"
+#include "cube.h"
+#include "light.h"
+#include <glm/glm.hpp>
 
 Camera* camera;
-Shape* shape;
+Cube* cube;
+Light* light;
+glm::mat4 lightModel(1.0f);
+
+void initGL()
+{
+  glClearColor(0.5f, 0.5f, 0.5f, 1.f);
+  glEnable(GL_DEPTH_TEST);
+
+  light = new Light("shape.glvs", "light.glfs");
+  cube = new Cube("shape.glvs", "shape.glfs");
+  camera = new Camera();
+
+
+  glm::vec3 lightPosition(1.2f, 1.0f, 2.0f);
+  lightModel = glm::translate(lightModel, lightPosition);
+  lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+  light->setModel(lightModel);
+
+  cube->setModel(glm::mat4(1.0));
+
+  glm::vec3 lightColor(1.f, 1.f, 1.f);
+  light->program->use();
+  light->program->setVec3("lightColor", glm::value_ptr(lightColor));
+
+  cube->program->use();
+  cube->program->setVec3("lightColor", glm::value_ptr(lightColor));
+}
+
+void update()
+{
+  cube->setView(camera->view());
+  cube->setProjection(camera->projection());
+
+  light->setView(camera->view());
+  light->setProjection(camera->projection());
+}
+
+void render()
+{
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  cube->render();
+  light->render();
+}
 
 void handleInput(GLFWwindow* window, float deltaTime)
 {
@@ -25,19 +72,6 @@ void handleInput(GLFWwindow* window, float deltaTime)
     camera->moveRight(2.5f * deltaTime);
 }
 
-void update()
-{
-  shape->setView(camera->view());
-  shape->setProjection(camera->projection());
-}
-
-void render()
-{
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  shape->render();
-}
-
 GLFWwindow* createWindow()
 {
   glfwInit();
@@ -49,12 +83,6 @@ GLFWwindow* createWindow()
     INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, "OpenGL", NULL, NULL
   );
   return window;
-}
-
-void initGL()
-{
-  glClearColor(0.5f, 0.5f, 0.5f, 1.f);
-  glEnable(GL_DEPTH_TEST);
 }
 
 bool initGlad()
@@ -108,12 +136,13 @@ void setupMouse(GLFWwindow* window)
   glfwSetScrollCallback(window, scroll_callback);
 }
 
-void setCamera(Camera* aCamera)
+void shutdown()
 {
-  camera = aCamera;
-}
+  cube->free();
+  delete cube;
 
-void setShape(Shape* aShape)
-{
-  shape = aShape;
+  light->free();
+  delete light;
+
+  delete camera;
 }
