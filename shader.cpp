@@ -22,15 +22,12 @@ Shader::Shader(const char* vPath, const char* fPath)
   }
   const unsigned int vShader = compile(GL_VERTEX_SHADER, vSource.c_str());
   if (!vShader) {
-    std::cout << "Vertex shader compilation failed";
     glDeleteShader(vShader);
     return;
   }
 
   const unsigned int fShader = compile(GL_FRAGMENT_SHADER, fSource.c_str());
   if (!fShader) {
-    std::cout << "Fragment shader compilation failed";
-
     glDeleteShader(vShader);
     glDeleteShader(fShader);
     return;
@@ -48,11 +45,11 @@ Shader::Shader(const char* vPath, const char* fPath)
   glGetProgramiv(ID, GL_LINK_STATUS, &success);
   if(!success)
   {
-    int maxLength;
-	  glGetProgramiv(ID, GL_INFO_LOG_LENGTH, &maxLength);
+    int maxLength = 1024;
+	  // glGetProgramiv(ID, GL_INFO_LOG_LENGTH, &maxLength);
     char infoLog[maxLength];
     glGetProgramInfoLog(ID, maxLength, nullptr, infoLog);
-    std::cout << "Linking failed" << infoLog << std::endl;
+    std::cout << "Linking failed:\n" << infoLog << std::endl;
 
     glDeleteProgram(ID);
     return;
@@ -113,13 +110,13 @@ const unsigned int Shader::compile(GLenum type, const char* source)
   int success;
   glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
   if (!success) {
-    int maxLength;
-	  glGetShaderiv(ID, GL_INFO_LOG_LENGTH, &maxLength);
+    int maxLength = 1024;
+	  // glGetShaderiv(ID, GL_INFO_LOG_LENGTH, &maxLength);
     char infoLog[maxLength];
     glGetShaderInfoLog(shaderId, maxLength, nullptr, infoLog);
 
-    std::cout << "Shader compilation failed\n"
-      << (type == GL_VERTEX_SHADER ? "Vertex" : "fragment") << "\n"
+    std::cout << "Shader compilation failed ("
+      << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << "): \n"
       << infoLog << std::endl;
 
     return 0;

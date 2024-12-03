@@ -16,6 +16,8 @@ class Cube : public Shape
     unsigned int VAO;
     unsigned int VBO;
     unsigned int EBO;
+    unsigned int diffuseMap;
+    unsigned int specularMap;
 };
 
 #endif

@@ -16,8 +16,6 @@ glm::vec3 lightPos(0.0f, 1.0f, 1.0f);
 
 
 const glm::vec3 lightColor(1.f);
-const RGBA CORAL { 1.f, 0.5f, 0.31f };
-const RGBA SPECULAR { 0.5f, 0.5f, 0.5f };
 const float SHININESS = 32.f;
 const glm::vec3 LIGHT_AMBIENT(0.2f);
 const glm::vec3 LIGHT_DIFFUSE(0.5f);
@@ -36,9 +34,6 @@ void initGL()
 
   cube->program.use();
   cube->setModel(glm::mat4(1.0));
-  cube->program.setVec3("material.ambient", (float *)&CORAL);
-  cube->program.setVec3("material.diffuse", (float *)&CORAL);
-  cube->program.setVec3("material.specular", (float *)&SPECULAR);
   cube->program.setFloat("material.shininess", SHININESS);
   cube->program.setVec3("light.ambient", (float *)glm::value_ptr(lightColor * LIGHT_AMBIENT));
   cube->program.setVec3("light.diffuse", (float *)glm::value_ptr(lightColor * LIGHT_DIFFUSE));
