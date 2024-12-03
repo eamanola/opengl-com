@@ -41,7 +41,7 @@ unsigned int lindices[] = {
 
 void Light::enterVertices()
 {
-  program->use();
+  program.use();
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
@@ -67,7 +67,7 @@ void Light::enterVertices()
 
 void Light::render()
 {
-  program->use();
+  program.use();
   glBindVertexArray(VAO);
 
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

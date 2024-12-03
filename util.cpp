@@ -7,43 +7,55 @@
 #include "light.h"
 #include <glm/glm.hpp>
 
-Camera* camera;
+Camera camera;
 Cube* cube;
 Light* light;
-glm::mat4 lightModel(1.0f);
+
+glm::vec3 lightPos(0.0f, 1.0f, 1.0f);
+const glm::vec3 lightColor(1.f, 1.f, 1.f);
 
 void initGL()
 {
   glClearColor(0.5f, 0.5f, 0.5f, 1.f);
   glEnable(GL_DEPTH_TEST);
 
-  light = new Light("shape.glvs", "light.glfs");
-  cube = new Cube("shape.glvs", "shape.glfs");
-  camera = new Camera();
+  light = new Light();
+  cube = new Cube("./shaders/phong.glvs", "./shaders/phong.glfs");
+  // camera = new Camera();
 
+  light->program.use();
+  light->program.setVec3("lightColor", (float *)glm::value_ptr(lightColor));
 
-  glm::vec3 lightPosition(1.2f, 1.0f, 2.0f);
-  lightModel = glm::translate(lightModel, lightPosition);
-  lightModel = glm::scale(lightModel, glm::vec3(0.2f));
-  light->setModel(lightModel);
-
+  cube->program.use();
   cube->setModel(glm::mat4(1.0));
-
-  glm::vec3 lightColor(1.f, 1.f, 1.f);
-  light->program->use();
-  light->program->setVec3("lightColor", glm::value_ptr(lightColor));
-
-  cube->program->use();
-  cube->program->setVec3("lightColor", glm::value_ptr(lightColor));
+  cube->program.setVec3("lightColor", (float *)glm::value_ptr(lightColor));
 }
 
 void update()
 {
-  cube->setView(camera->view());
-  cube->setProjection(camera->projection());
+  const glm::mat4 view = camera.view();
+  const glm::mat4 projection = camera.projection();
+  const glm::vec3 cameraPosition = camera.getPosition();
 
-  light->setView(camera->view());
-  light->setProjection(camera->projection());
+  light->program.use();
+  light->setView(view);
+  light->setProjection(projection);
+
+  lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
+  lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
+  glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightPos);
+  lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+  light->setModel(lightModel);
+
+  cube->program.use();
+  cube->setView(view);
+  cube->setProjection(projection);
+
+  glm::vec3 viewLightPos = (view * glm::vec4(lightPos, 1.0));
+  cube->program.setVec3("lightPos", glm::value_ptr(viewLightPos));
+
+  glm::vec3 viewCameraPos = (view * glm::vec4(cameraPosition, 1.0));
+  cube->program.setVec3("viewPos", glm::value_ptr(viewCameraPos));
 }
 
 void render()
@@ -60,16 +72,16 @@ void handleInput(GLFWwindow* window, float deltaTime)
     glfwSetWindowShouldClose(window, true);
 
   if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    camera->moveForward(2.5f * deltaTime);
+    camera.moveForward(2.5f * deltaTime);
 
   if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    camera->moveBackward(2.5f * deltaTime);
+    camera.moveBackward(2.5f * deltaTime);
 
   if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    camera->moveLeft(2.5f * deltaTime);
+    camera.moveLeft(2.5f * deltaTime);
 
   if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    camera->moveRight(2.5f * deltaTime);
+    camera.moveRight(2.5f * deltaTime);
 }
 
 GLFWwindow* createWindow()
@@ -121,12 +133,12 @@ void mouse_callback(GLFWwindow* window, double x, double y)
   lastX = x;
   lastY = y;
 
-  camera->changeDirection(xoffset, yoffset);
+  camera.changeDirection(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double x, double y)
 {
-  camera->zoom((float)y);
+  camera.zoom((float)y);
 }
 
 void setupMouse(GLFWwindow* window)
@@ -143,6 +155,4 @@ void shutdown()
 
   light->free();
   delete light;
-
-  delete camera;
 }

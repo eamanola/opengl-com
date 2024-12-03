@@ -19,29 +19,51 @@ Cube::Cube(const char* vShader, const char* fShader) : Shape(vShader, fShader)
   enterVertices();
 }
 
+const RGBA CORAL { 1.f, 0.5f, 0.31f };
 Vertex vertices[] = {
-  { .position = {  0.5f,  0.5f,  0.5f }, .rgba = { 1.f, 0.f, 0.f } },
-  { .position = {  0.5f, -0.5f,  0.5f }, .rgba = { 0.f, 1.f, 0.f } },
-  { .position = { -0.5f, -0.5f,  0.5f }, .rgba = { 0.f, 0.f, 1.f } },
-  { .position = { -0.5f,  0.5f,  0.5f }, .rgba = { 1.f, 1.f, 0.f } },
-  { .position = {  0.5f,  0.5f, -0.5f }, .rgba = { 1.f, 0.f, 0.f } },
-  { .position = {  0.5f, -0.5f, -0.5f }, .rgba = { 0.f, 1.f, 0.f } },
-  { .position = { -0.5f, -0.5f, -0.5f }, .rgba = { 0.f, 0.f, 1.f } },
-  { .position = { -0.5f,  0.5f, -0.5f }, .rgba = { 1.f, 1.f, 0.f } }
+  { .position { -0.5f, -0.5f, -0.5f }, .rgba { CORAL }, .normal {  0.0f,  0.0f, -1.0f } },
+  { .position {  0.5f, -0.5f, -0.5f }, .rgba { CORAL }, .normal {  0.0f,  0.0f, -1.0f } },
+  { .position {  0.5f,  0.5f, -0.5f }, .rgba { CORAL }, .normal {  0.0f,  0.0f, -1.0f } },
+  { .position { -0.5f,  0.5f, -0.5f }, .rgba { CORAL }, .normal {  0.0f,  0.0f, -1.0f } },
+
+  { .position { -0.5f, -0.5f,  0.5f }, .rgba { CORAL }, .normal {  0.0f,  0.0f,  1.0f } },
+  { .position {  0.5f, -0.5f,  0.5f }, .rgba { CORAL }, .normal {  0.0f,  0.0f,  1.0f } },
+  { .position {  0.5f,  0.5f,  0.5f }, .rgba { CORAL }, .normal {  0.0f,  0.0f,  1.0f } },
+  { .position { -0.5f,  0.5f,  0.5f }, .rgba { CORAL }, .normal {  0.0f,  0.0f,  1.0f } },
+
+  { .position { -0.5f, -0.5f, -0.5f }, .rgba { CORAL }, .normal { -1.0f,  0.0f,  0.0f } },
+  { .position { -0.5f,  0.5f, -0.5f }, .rgba { CORAL }, .normal { -1.0f,  0.0f,  0.0f } },
+  { .position { -0.5f,  0.5f,  0.5f }, .rgba { CORAL }, .normal { -1.0f,  0.0f,  0.0f } },
+  { .position { -0.5f, -0.5f,  0.5f }, .rgba { CORAL }, .normal { -1.0f,  0.0f,  0.0f } },
+
+  { .position {  0.5f, -0.5f, -0.5f }, .rgba { CORAL }, .normal {  1.0f,  0.0f,  0.0f } },
+  { .position {  0.5f,  0.5f, -0.5f }, .rgba { CORAL }, .normal {  1.0f,  0.0f,  0.0f } },
+  { .position {  0.5f,  0.5f,  0.5f }, .rgba { CORAL }, .normal {  1.0f,  0.0f,  0.0f } },
+  { .position {  0.5f, -0.5f,  0.5f }, .rgba { CORAL }, .normal {  1.0f,  0.0f,  0.0f } },
+
+  { .position { -0.5f, -0.5f, -0.5f }, .rgba { CORAL }, .normal {  0.0f, -1.0f,  0.0f } },
+  { .position {  0.5f, -0.5f, -0.5f }, .rgba { CORAL }, .normal {  0.0f, -1.0f,  0.0f } },
+  { .position {  0.5f, -0.5f,  0.5f }, .rgba { CORAL }, .normal {  0.0f, -1.0f,  0.0f } },
+  { .position { -0.5f, -0.5f,  0.5f }, .rgba { CORAL }, .normal {  0.0f, -1.0f,  0.0f } },
+
+  { .position { -0.5f,  0.5f, -0.5f }, .rgba { CORAL }, .normal {  0.0f,  1.0f,  0.0f } },
+  { .position {  0.5f,  0.5f, -0.5f }, .rgba { CORAL }, .normal {  0.0f,  1.0f,  0.0f } },
+  { .position {  0.5f,  0.5f,  0.5f }, .rgba { CORAL }, .normal {  0.0f,  1.0f,  0.0f } },
+  { .position { -0.5f,  0.5f,  0.5f }, .rgba { CORAL }, .normal {  0.0f,  1.0f,  0.0f } },
 };
 
 unsigned int indices[] = {
-  0, 1, 2, 0, 2, 3, // front
-  4, 5, 1, 4, 1, 0, // right
-  7, 6, 5, 7, 5, 4, // back
-  3, 2, 6, 3, 6, 7, // left
-  4, 0, 3, 4, 3, 7, // top
-  1, 5, 6, 1, 6, 2  // bottom
+  0,  1,  2,  0,  2,  3,
+  4,  5,  6,  4,  6,  7,
+  8,  9,  10, 8,  10, 11,
+  12, 13, 14, 12, 14, 15,
+  16, 17, 18, 16, 18, 19,
+  20, 21, 22, 20, 22, 23
 };
 
 void Cube::enterVertices()
 {
-  program->use();
+  program.use();
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
@@ -62,6 +84,11 @@ void Cube::enterVertices()
   );
   glEnableVertexAttribArray(1);
 
+  glVertexAttribPointer(
+    2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal))
+  );
+  glEnableVertexAttribArray(2);
+
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
@@ -72,7 +99,7 @@ void Cube::enterVertices()
 
 void Cube::render()
 {
-  program->use();
+  program.use();
   glBindVertexArray(VAO);
 
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

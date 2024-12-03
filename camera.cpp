@@ -17,14 +17,19 @@ Camera::~Camera()
 {
 }
 
-glm::mat4 Camera::view() const
+const glm::mat4 Camera::view() const
 {
   return glm::lookAt(position, position + front, up);
 }
 
-glm::mat4 Camera::projection() const
+const glm::mat4 Camera::projection() const
 {
   return glm::perspective(glm::radians(fov), 800.f / 600.f, 0.1f, 100.f);
+}
+
+const glm::vec3 Camera::getPosition() const
+{
+  return position;
 }
 
 void Camera::moveForward(const float speed)
@@ -51,7 +56,7 @@ void Camera::updateVectors(const glm::vec3 &direction)
 {
   front = glm::normalize(direction);
   right = glm::normalize(glm::cross(front, UP));
-  up = glm::normalize(glm::cross(right, front));
+  up = UP; // glm::normalize(glm::cross(right, front));
 }
 
 void Camera::changeDirection(const float xoffset, const float yoffset)

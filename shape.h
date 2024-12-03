@@ -14,7 +14,7 @@ public:
   void setModel(glm::mat4 model);
   void setView(glm::mat4 view);
   void setProjection(glm::mat4 projection);
-  Shader* program;
+  Shader program;
 
   virtual void render() = 0;
 };

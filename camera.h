@@ -11,8 +11,9 @@ public:
   Camera(/* args */);
   ~Camera();
 
-  glm::mat4 view() const;
-  glm::mat4 projection() const;
+  const glm::mat4 view() const;
+  const glm::mat4 projection() const;
+  const glm::vec3 getPosition() const;
   void moveForward(const float speed = 0.05f);
   void moveBackward(const float speed = 0.05f);
   void moveLeft(const float speed = 0.05f);

@@ -6,7 +6,10 @@
 class Light : public Shape
 {
   public:
-    Light(const char* vShader, const char* fShader);
+    Light(
+      const char* vShader = "./shaders/light.glvs",
+      const char* fShader = "./shaders/light.glfs"
+    );
 
     void render();
     void free();
