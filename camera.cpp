@@ -5,7 +5,7 @@ const glm::vec3 UP = glm::vec3(0.f, 1.f, 0.f); // world UP
 
 Camera::Camera(/* args */)
 {
-  position = glm::vec3(0.f, 0.f, 6.f);
+  mPosition = glm::vec3(0.f, 0.f, 6.f);
   updateVectors(glm::vec3(0.f, 0.f, -1.f));
 
   pitch = 0.f;
@@ -19,7 +19,7 @@ Camera::~Camera()
 
 const glm::mat4 Camera::view() const
 {
-  return glm::lookAt(position, position + front, up);
+  return glm::lookAt(mPosition, mPosition + mFront, up);
 }
 
 const glm::mat4 Camera::projection() const
@@ -27,36 +27,41 @@ const glm::mat4 Camera::projection() const
   return glm::perspective(glm::radians(fov), 800.f / 600.f, 0.1f, 100.f);
 }
 
-const glm::vec3 Camera::getPosition() const
+const glm::vec3 Camera::position() const
 {
-  return position;
+  return mPosition;
+}
+
+const glm::vec3 Camera::front() const
+{
+  return mFront;
 }
 
 void Camera::moveForward(const float speed)
 {
-  position += front * speed;
+  mPosition += mFront * speed;
 }
 
 void Camera::moveBackward(const float speed)
 {
-  position -= front * speed;
+  mPosition -= mFront * speed;
 }
 
 void Camera::moveLeft(const float speed)
 {
-  position -= right * speed;
+  mPosition -= right * speed;
 }
 
 void Camera::moveRight(const float speed)
 {
-  position += right * speed;
+  mPosition += right * speed;
 }
 
 void Camera::updateVectors(const glm::vec3 &direction)
 {
-  front = glm::normalize(direction);
-  right = glm::normalize(glm::cross(front, UP));
-  up = UP; // glm::normalize(glm::cross(right, front));
+  mFront = glm::normalize(direction);
+  right = glm::normalize(glm::cross(mFront, UP));
+  up = glm::normalize(glm::cross(right, mFront));
 }
 
 void Camera::changeDirection(const float xoffset, const float yoffset)
