@@ -4,12 +4,12 @@
 #include <stb_image.h>
 #include <iostream>
 
-#include "vertex.h"
 #include "shader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <cmath>
+#include "position.h"
 
 Light::Light(const char* vShader, const char* fShader) : Shape(vShader, fShader)
 {
@@ -18,6 +18,11 @@ Light::Light(const char* vShader, const char* fShader) : Shape(vShader, fShader)
   EBO = 0;
   enterVertices();
 }
+
+struct Vertex
+{
+  Position position;
+};
 
 Vertex lvertices[] = {
   { .position = {  0.5f,  0.5f,  0.5f } },

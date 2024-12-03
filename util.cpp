@@ -6,13 +6,22 @@
 #include "cube.h"
 #include "light.h"
 #include <glm/glm.hpp>
+#include "rgba.h"
 
 Camera camera;
 Cube* cube;
 Light* light;
 
 glm::vec3 lightPos(0.0f, 1.0f, 1.0f);
-const glm::vec3 lightColor(1.f, 1.f, 1.f);
+
+
+const glm::vec3 lightColor(1.f);
+const RGBA CORAL { 1.f, 0.5f, 0.31f };
+const RGBA SPECULAR { 0.5f, 0.5f, 0.5f };
+const float SHININESS = 32.f;
+const glm::vec3 LIGHT_AMBIENT(0.2f);
+const glm::vec3 LIGHT_DIFFUSE(0.5f);
+const glm::vec3 LIGHT_SPECULAR(1.0f);
 
 void initGL()
 {
@@ -21,41 +30,47 @@ void initGL()
 
   light = new Light();
   cube = new Cube("./shaders/phong.glvs", "./shaders/phong.glfs");
-  // camera = new Camera();
 
   light->program.use();
   light->program.setVec3("lightColor", (float *)glm::value_ptr(lightColor));
 
   cube->program.use();
   cube->setModel(glm::mat4(1.0));
-  cube->program.setVec3("lightColor", (float *)glm::value_ptr(lightColor));
+  cube->program.setVec3("material.ambient", (float *)&CORAL);
+  cube->program.setVec3("material.diffuse", (float *)&CORAL);
+  cube->program.setVec3("material.specular", (float *)&SPECULAR);
+  cube->program.setFloat("material.shininess", SHININESS);
+  cube->program.setVec3("light.ambient", (float *)glm::value_ptr(lightColor * LIGHT_AMBIENT));
+  cube->program.setVec3("light.diffuse", (float *)glm::value_ptr(lightColor * LIGHT_DIFFUSE));
+  cube->program.setVec3("light.specular", (float *)glm::value_ptr(LIGHT_SPECULAR));
 }
 
 void update()
 {
+  const float time = glfwGetTime();
+
   const glm::mat4 view = camera.view();
   const glm::mat4 projection = camera.projection();
   const glm::vec3 cameraPosition = camera.getPosition();
 
+  lightPos.x = 1.0f + sin(time) * 2.0f;
+  lightPos.y = sin(time / 2.0f) * 1.0f;
+  glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightPos);
+  lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+
+  const glm::vec3 viewLightPos = (view * glm::vec4(lightPos, 1.0));
+  const glm::vec3 viewCameraPos = (view * glm::vec4(cameraPosition, 1.0));
+
   light->program.use();
   light->setView(view);
   light->setProjection(projection);
-
-  lightPos.x = 1.0f + sin(glfwGetTime()) * 2.0f;
-  lightPos.y = sin(glfwGetTime() / 2.0f) * 1.0f;
-  glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightPos);
-  lightModel = glm::scale(lightModel, glm::vec3(0.2f));
   light->setModel(lightModel);
 
   cube->program.use();
   cube->setView(view);
   cube->setProjection(projection);
-
-  glm::vec3 viewLightPos = (view * glm::vec4(lightPos, 1.0));
-  cube->program.setVec3("lightPos", glm::value_ptr(viewLightPos));
-
-  glm::vec3 viewCameraPos = (view * glm::vec4(cameraPosition, 1.0));
-  cube->program.setVec3("viewPos", glm::value_ptr(viewCameraPos));
+  cube->program.setVec3("light.position", (float *)glm::value_ptr(viewLightPos));
+  cube->program.setVec3("viewPos", (float *)glm::value_ptr(viewCameraPos));
 }
 
 void render()
