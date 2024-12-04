@@ -32,6 +32,7 @@ int main( int argc, char* args[] )
 
   setupViewport(window);
   setupMouse(window);
+  setupKeyboard(window);
 
   initGL();
 

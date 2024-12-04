@@ -6,9 +6,12 @@
 class Cube : public Shape
 {
   public:
-    Cube(const char* vShader, const char* fShader);
+    Cube(
+      const char* vShader = "./shaders/lighting.glvs",
+      const char* fShader = "./shaders/lighting.glfs"
+    );
 
-    void render();
+    void render() const;
     void free();
 
   private:

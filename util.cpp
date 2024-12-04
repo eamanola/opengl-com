@@ -7,106 +7,42 @@
 #include "light.h"
 #include <glm/glm.hpp>
 #include "rgba.h"
-
-
-// #define DIRECTIONAL_LIGHT
-#define SPOT_LIGHT
-// #define POINT_LIGHT
-
-#ifdef POINT_LIGHT
-#define USE_ATTENUATION
-#endif
-
-#ifdef SPOT_LIGHT
-#define USE_ATTENUATION
-#endif
+#include <sstream>
 
 Camera camera;
 Cube* cube;
-
-#ifdef POINT_LIGHT
 Light* light;
+
+#define DIRECTIONAL_LIGHT
+#define SPOT_LIGHT
+#define POINT_LIGHT
+
+#ifdef DIRECTIONAL_LIGHT
+const glm::vec3 lightColor(1.f);
 #endif
 
-glm::vec3 lightPos(0.0f, 1.0f, 1.0f);
+#ifdef SPOT_LIGHT
+const glm::vec3 spotLightColor(1.f);
+bool spotLightOff = true;
+#endif
 
+#ifdef POINT_LIGHT
+const unsigned int NUM_POINT_LIGHTS = 4;
+glm::vec3 lightPositions[] = {
+	glm::vec3( 0.7f,  0.2f,  2.0f),
+	glm::vec3( 2.3f, -3.3f, -4.0f),
+	glm::vec3(-4.0f,  2.0f, -12.0f),
+	glm::vec3( 0.0f,  0.0f, -2.0f)
+};
+glm::vec3 lightColors[] = {
+  glm::vec3(1.0f, 1.0f, 1.0f),
+  glm::vec3(1.0f, 0.0f, 0.0f),
+  glm::vec3(0.0f, 1.0f, 0.0f),
+  glm::vec3(0.0f, 0.0f, 1.0f),
+};
+#endif
 
-const glm::vec3 lightColor(1.f);
-const float SHININESS = 32.f;
-const glm::vec3 LIGHT_AMBIENT(0.2f);
-const glm::vec3 LIGHT_DIFFUSE(0.5f);
-const glm::vec3 LIGHT_SPECULAR(1.0f);
-
-void initGL()
-{
-  glClearColor(0.5f, 0.5f, 0.5f, 1.f);
-  glEnable(GL_DEPTH_TEST);
-
-  #if defined(POINT_LIGHT)
-  light = new Light();
-  light->program.use();
-  light->program.setVec3("lightColor", (float *)glm::value_ptr(lightColor));
-
-  const char* fshader = "./shaders/point-light.glfs";
-  #elif defined(DIRECTIONAL_LIGHT)
-  const char* fshader = "./shaders/directional-light.glfs";
-  #elif defined(SPOT_LIGHT)
-  const char* fshader = "./shaders/spot-light.glfs";
-  #endif
-
-  cube = new Cube("./shaders/phong.glvs", fshader);
-
-  cube->program.use();
-  cube->program.setFloat("material.shininess", SHININESS);
-  cube->program.setVec3("light.ambient", (float *)glm::value_ptr(lightColor * LIGHT_AMBIENT));
-  cube->program.setVec3("light.diffuse", (float *)glm::value_ptr(lightColor * LIGHT_DIFFUSE));
-  cube->program.setVec3("light.specular", (float *)glm::value_ptr(LIGHT_SPECULAR));
-  #ifdef USE_ATTENUATION
-  cube->program.setFloat("light.attenuation.contant", 1.f);
-  cube->program.setFloat("light.attenuation.linear", 0.09f);
-  cube->program.setFloat("light.attenuation.quadratic", 0.032f);
-  #endif
-  #ifdef DIRECTIONAL_LIGHT
-  cube->program.setVec3("light.direction", (float*)glm::value_ptr(glm::vec3(-0.2f, -1.0f, -0.3f)));
-  #endif
-  #ifdef SPOT_LIGHT
-  cube->program.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-  cube->program.setFloat("light.outerCutOff", glm::cos(glm::radians(17.f)));
-  #endif
-}
-
-void update()
-{
-  const glm::mat4 view = camera.view();
-  const glm::mat4 projection = camera.projection();
-
-  #ifdef POINT_LIGHT
-  const float time = glfwGetTime();
-  lightPos.x = 1.0f + sin(time) * 2.0f;
-  lightPos.y = sin(time / 2.0f) * 1.0f;
-  glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightPos);
-  lightModel = glm::scale(lightModel, glm::vec3(0.2f));
-
-  light->program.use();
-  light->setView(view);
-  light->setProjection(projection);
-  light->setModel(lightModel);
-  #endif
-
-  cube->program.use();
-  cube->setView(view);
-  cube->setProjection(projection);
-  cube->program.setVec3("viewPos", (float *)glm::value_ptr(camera.position()));
-  #ifdef POINT_LIGHT
-  cube->program.setVec3("light.position", (float *)glm::value_ptr(lightPos));
-  #endif
-
-  #ifdef SPOT_LIGHT
-  cube->program.setVec3("light.position", (float *)glm::value_ptr(camera.position()));
-  cube->program.setVec3("light.direction", (float*)glm::value_ptr(camera.front()));
-  #endif
-}
-
+const unsigned int NUM_CUBES = 10;
 glm::vec3 cubePositions[] = {
     glm::vec3( 0.0f,  0.0f,  0.0f),
     glm::vec3( 2.0f,  5.0f, -15.0f),
@@ -120,22 +56,132 @@ glm::vec3 cubePositions[] = {
     glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
+const glm::vec3 LIGHT_AMBIENT(0.2f);
+const glm::vec3 LIGHT_DIFFUSE(0.5f);
+const glm::vec3 LIGHT_SPECULAR(1.0f);
+
+void initGL()
+{
+  glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+  glEnable(GL_DEPTH_TEST);
+
+  #ifdef POINT_LIGHT
+  light = new Light();
+  #endif
+
+  cube = new Cube();
+
+  cube->use();
+
+  #ifdef DIRECTIONAL_LIGHT
+  cube->setVec3("dirLight.direction", (float*)glm::value_ptr(glm::vec3(-0.2f, -1.0f, -0.3f)));
+  // cube->setBool("dirLight.off", true);
+  cube->setVec3("dirLight.light.ambient", (float *)glm::value_ptr(lightColor * LIGHT_AMBIENT));
+  cube->setVec3("dirLight.light.diffuse", (float *)glm::value_ptr(lightColor * LIGHT_DIFFUSE));
+  cube->setVec3("dirLight.light.specular", (float *)glm::value_ptr(LIGHT_SPECULAR));
+  #endif
+
+  #ifdef POINT_LIGHT
+  for(unsigned int i = 0; i < NUM_POINT_LIGHTS; i++)
+  {
+    std::stringstream key;
+    key << "pointLights[" << i << "]";
+    cube->setVec3(key.str() + ".position", (float *)glm::value_ptr(lightPositions[i]));
+
+    cube->setFloat(key.str() + ".attenuation.contant", 1.f);
+    cube->setFloat(key.str() + ".attenuation.linear", 0.09f);
+    cube->setFloat(key.str() + ".attenuation.quadratic", 0.032f);
+
+    // if(i > 0)
+      // cube->setBool(key.str() + ".light.off", true);
+    cube->setVec3(key.str() + ".light.ambient", (float *)glm::value_ptr(lightColors[i] * LIGHT_AMBIENT));
+    cube->setVec3(key.str() + ".light.diffuse", (float *)glm::value_ptr(lightColors[i] * LIGHT_DIFFUSE));
+    cube->setVec3(key.str() + ".light.specular", (float *)glm::value_ptr(lightColors[i] * LIGHT_SPECULAR));
+  }
+  #endif
+
+  #ifdef SPOT_LIGHT
+  cube->setVec3("spotLight.direction", (float*)glm::value_ptr(camera.front()));
+  cube->setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+  cube->setFloat("spotLight.outerCutOff", glm::cos(glm::radians(17.f)));
+  cube->setVec3("spotLight.position", (float *)glm::value_ptr(camera.position()));
+
+  cube->setFloat("spotLight.attenuation.contant", 1.f);
+  cube->setFloat("spotLight.attenuation.linear", 0.09f);
+  cube->setFloat("spotLight.attenuation.quadratic", 0.032f);
+
+  cube->setVec3("spotLight.light.ambient", (float *)glm::value_ptr(spotLightColor * LIGHT_AMBIENT));
+  cube->setVec3("spotLight.light.diffuse", (float *)glm::value_ptr(spotLightColor * LIGHT_DIFFUSE));
+  cube->setVec3("spotLight.light.specular", (float *)glm::value_ptr(LIGHT_SPECULAR));
+  cube->setBool("spotLight.light.off", spotLightOff);
+  #endif
+
+  cube->use(false);
+}
+
+void update()
+{
+  #ifdef POINT_LIGHT
+  const float time = glfwGetTime();
+  lightPositions[0].x = 1.0f + sin(time) * 2.0f;
+  lightPositions[0].y = sin(time / 2.0f) * 1.0f;
+  #endif
+}
+
 void render()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  cube->program.use();
-  for(unsigned int i = 0; i < 10; i++)
+  const glm::mat4 view = camera.view();
+  const glm::mat4 projection = camera.projection();
+
+  cube->use();
+  cube->setView(view);
+  cube->setProjection(projection);
+
+  cube->setVec3("viewPos", (float *)glm::value_ptr(camera.position()));
+
+  #ifdef POINT_LIGHT
+  cube->setVec3("pointLights[0].position", (float *)glm::value_ptr(lightPositions[0]));
+  #endif
+
+  #ifdef SPOT_LIGHT
+  cube->setVec3("spotLight.position", (float *)glm::value_ptr(camera.position()));
+  cube->setVec3("spotLight.direction", (float*)glm::value_ptr(camera.front()));
+  cube->setBool("spotLight.light.off", spotLightOff);
+  #endif
+
+  for(unsigned int i = 0; i < NUM_CUBES; i++)
   {
     glm::mat4 boxModel = glm::translate(glm::mat4(1.0), cubePositions[i]);
     boxModel = glm::rotate(boxModel, glm::radians(20.f  * i), glm::vec3(1.0f, 0.3f, 0.5f));
+
     cube->setModel(boxModel);
     cube->render();
   }
 
+  cube->use(false);
+
   #ifdef POINT_LIGHT
-  light->render();
+  light->use();
+  light->setView(view);
+  light->setProjection(projection);
+  for(unsigned int i = 0; i < NUM_POINT_LIGHTS; i++)
+  {
+    glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightPositions[i]);
+    lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+
+    light->setVec3("color", (float *)glm::value_ptr(lightColors[i]));
+    light->setModel(lightModel);
+    light->render();
+  }
   #endif
+  light->use(false);
+}
+
+void switchSpotLight()
+{
+  spotLightOff = !spotLightOff;
 }
 
 void handleInput(GLFWwindow* window, float deltaTime)
@@ -218,6 +264,18 @@ void setupMouse(GLFWwindow* window)
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetScrollCallback(window, scroll_callback);
+}
+
+void character_callback(GLFWwindow* window, unsigned int codepoint)
+{
+  if((char)codepoint == 'f') {
+    switchSpotLight();
+  }
+}
+
+void setupKeyboard(GLFWwindow* window)
+{
+  glfwSetCharCallback(window, character_callback);
 }
 
 void shutdown()

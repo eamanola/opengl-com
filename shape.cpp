@@ -10,7 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb_image.h>
 
-Shape::Shape(const char* vShader, const char* fShader) : program(Shader(vShader, fShader))
+Shape::Shape(const char* vShader, const char* fShader) : Shader(vShader, fShader)
 {
 }
 
@@ -18,32 +18,28 @@ Shape::~Shape()
 {
 }
 
-void Shape::setModel(glm::mat4 model)
+void Shape::setModel(glm::mat4 model) const
 {
-  program.use();
-  program.setMat4fv("model", glm::value_ptr(model));
+  setMat4fv("model", glm::value_ptr(model));
 }
 
-void Shape::setView(glm::mat4 view)
+void Shape::setView(glm::mat4 view) const
 {
-  program.use();
-  program.setMat4fv("view", glm::value_ptr(view));
+  setMat4fv("view", glm::value_ptr(view));
 }
 
-void Shape::setProjection(glm::mat4 projection)
+void Shape::setProjection(glm::mat4 projection) const
 {
-  program.use();
-  program.setMat4fv("projection", glm::value_ptr(projection));
+  setMat4fv("projection", glm::value_ptr(projection));
 }
 
 void Shape::free()
 {
-  glDeleteProgram(program.ID);
+  Shader::free();
 }
 
-unsigned int Shape::loadTexture(const char * path)
+unsigned int Shape::loadTexture(const char * path) const
 {
-  program.use();
   unsigned int texture;
   glGenTextures(1, &texture);
 

@@ -7,11 +7,11 @@ class Light : public Shape
 {
   public:
     Light(
-      const char* vShader = "./shaders/light.glvs",
-      const char* fShader = "./shaders/light.glfs"
+      const char* vShader = "./shaders/plain.glvs",
+      const char* fShader = "./shaders/single-color.glfs"
     );
 
-    void render();
+    void render() const;
     void free();
 
   private:

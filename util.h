@@ -12,6 +12,7 @@ bool initGlad();
 void initGL();
 void setupViewport(GLFWwindow* window);
 void setupMouse(GLFWwindow* window);
+void setupKeyboard(GLFWwindow* window);
 void handleInput(GLFWwindow* window, float deltaTime);
 void update();
 void render();

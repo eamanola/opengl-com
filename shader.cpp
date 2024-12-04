@@ -56,9 +56,14 @@ Shader::Shader(const char* vPath, const char* fPath)
   }
 }
 
-void Shader::use()
+void Shader::use(bool useThis)
 {
-  glUseProgram(ID);
+  glUseProgram(useThis ? ID : 0);
+}
+
+void Shader::free()
+{
+  glDeleteProgram(ID);
 }
 
 void Shader::setBool(const std::string &name, bool value) const
