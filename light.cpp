@@ -9,7 +9,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <cmath>
-#include "position.h"
 
 Light::Light(const char* vShader, const char* fShader) : Shape(vShader, fShader)
 {
@@ -24,9 +23,16 @@ Light::Light(const char* vShader, const char* fShader) : Shape(vShader, fShader)
   use(false);
 }
 
+struct vec3
+{
+  float x;
+  float y;
+  float z;
+};
+
 struct Vertex
 {
-  Position position;
+  vec3 position;
 };
 
 void Light::enterVertices()

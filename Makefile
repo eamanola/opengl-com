@@ -5,7 +5,7 @@ CC = g++
 
 COMPILER_FLAGS = -Wall -Werror #-g
 
-LINKER_FLAGS = -lglfw# -lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl
+LINKER_FLAGS = -lglfw -lassimp# -lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 
 OBJ_NAME = output
 

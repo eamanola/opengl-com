@@ -1,8 +1,8 @@
 #version 330 core
 
 struct Material {
-  sampler2D diffuse;
-  sampler2D specular;
+  sampler2D texture_diffuse0;
+  sampler2D texture_specular0;
   float     shininess;
 };
 
@@ -52,8 +52,7 @@ in vec3 inNormal;
 in vec3 inFragPos;
 in vec2 texCoords;
 
-uniform vec3 viewPos; // is origin / (0, 0, 0), in view coord
-
+uniform vec3 viewPos;
 uniform Material material;
 uniform DirLight dirLight;
 #define NR_POINT_LIGHTS 4
@@ -113,8 +112,8 @@ mat3 calcDirLight(DirLight dir, vec3 normal, vec3 viewDir)
   vec3 reflectDir = reflect(-lightDir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 
-  vec3 diffuseColor = vec3(texture(material.diffuse, texCoords));
-  vec3 specularColor = vec3(texture(material.specular, texCoords));
+  vec3 diffuseColor = vec3(texture(material.texture_diffuse0, texCoords));
+  vec3 specularColor = vec3(texture(material.texture_specular0, texCoords));
 
   Light light = dir.light;
   vec3 ambient = light.ambient * diffuseColor;
@@ -128,9 +127,9 @@ mat3 calcPointLight(PointLight poi, vec3 normal, vec3 viewDir, vec3 fragPos)
 {
   vec3 lightDiff = poi.position - fragPos;
   vec3 lightDir = normalize(lightDiff);
+  float lightDist = length(lightDiff);
 
-  float distance = length(lightDiff);
-  float attenuation = calcAttenuation(poi.attenuation, distance);
+  float attenuation = calcAttenuation(poi.attenuation, lightDist);
 
   return calcDirLight(
     DirLight(-lightDir, poi.light),

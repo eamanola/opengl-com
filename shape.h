@@ -13,7 +13,7 @@ public:
   void setModel(glm::mat4 model) const;
   void setView(glm::mat4 view) const;
   void setProjection(glm::mat4 projection) const;
-  unsigned int loadTexture(const char * path) const;
+  static unsigned int loadTexture(std::string path, std::string directory = ".");
 
   virtual void render() const = 0;
   virtual void free();

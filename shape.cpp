@@ -3,7 +3,6 @@
 #include <glad/gl.h>
 #include <iostream>
 
-#include "vertex.h"
 #include "shader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -38,14 +37,14 @@ void Shape::free()
   Shader::free();
 }
 
-unsigned int Shape::loadTexture(const char * path) const
+unsigned int Shape::loadTexture(std::string path, std::string directory)
 {
   unsigned int texture;
   glGenTextures(1, &texture);
 
   int width, height, nrChannel;
   stbi_set_flip_vertically_on_load(true);
-  unsigned char* data = stbi_load(path, &width, &height, &nrChannel, 0);
+  unsigned char* data = stbi_load((directory + '/' + path).c_str(), &width, &height, &nrChannel, 0);
   if (data) {
     GLenum format;
 
