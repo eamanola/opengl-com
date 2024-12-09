@@ -10,6 +10,7 @@ const int INITIAL_WINDOW_HEIGHT = 600;
 GLFWwindow* createWindow();
 bool initGlad();
 void initGL();
+void setup();
 void setupViewport(GLFWwindow* window);
 void setupMouse(GLFWwindow* window);
 void setupKeyboard(GLFWwindow* window);

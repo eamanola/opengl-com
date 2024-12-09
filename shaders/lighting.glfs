@@ -50,7 +50,7 @@ float calcAttenuation(Attenuation attenuation, float distance);
 
 in vec3 inNormal;
 in vec3 inFragPos;
-in vec2 texCoords;
+in vec2 inTexCoords;
 
 uniform vec3 viewPos;
 uniform Material material;
@@ -112,8 +112,8 @@ mat3 calcDirLight(DirLight dir, vec3 normal, vec3 viewDir)
   vec3 reflectDir = reflect(-lightDir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 
-  vec3 diffuseColor = vec3(texture(material.texture_diffuse0, texCoords));
-  vec3 specularColor = vec3(texture(material.texture_specular0, texCoords));
+  vec3 diffuseColor = vec3(texture(material.texture_diffuse0, inTexCoords));
+  vec3 specularColor = vec3(texture(material.texture_specular0, inTexCoords));
 
   Light light = dir.light;
   vec3 ambient = light.ambient * diffuseColor;

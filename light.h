@@ -1,24 +1,21 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "shape.h"
+#include "mesh.h"
+#include "shader.h"
 
-class Light : public Shape
+class Light
 {
   public:
-    Light(
-      const char* vShader = "./shaders/plain.glvs",
-      const char* fShader = "./shaders/single-color.glfs"
-    );
+    Light();
+    ~Light();
 
-    void render() const;
+    void draw(Shader &shader);
     void free();
 
   private:
-    void enterVertices();
-    unsigned int VAO;
-    unsigned int VBO;
-    unsigned int EBO;
+    void setup();
+    Mesh* mesh;
 };
 
 #endif

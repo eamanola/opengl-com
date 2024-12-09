@@ -1,32 +1,20 @@
-#include <fstream>
-#include <sstream>
 #include <iostream>
 #include <glad/gl.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
+#include "shader-utils.h"
 
 Shader::Shader(const char* vPath, const char* fPath)
 {
-  std::string vSource;
-  std::string fSource;
-
-  try
-  {
-    vSource = readFile(vPath);
-    fSource = readFile(fPath);
-  }
-  catch(std::ifstream::failure& e)
-  {
-    std::cout << "Error loading shader" << e.what() << std::endl;
-    return;
-  }
-  const unsigned int vShader = compile(GL_VERTEX_SHADER, vSource.c_str());
+  const unsigned int vShader = ShaderUtils::compileShader(GL_VERTEX_SHADER, vPath);
   if (!vShader) {
     glDeleteShader(vShader);
     return;
   }
 
-  const unsigned int fShader = compile(GL_FRAGMENT_SHADER, fSource.c_str());
+  const unsigned int fShader = ShaderUtils::compileShader(GL_FRAGMENT_SHADER, fPath);
   if (!fShader) {
     glDeleteShader(vShader);
     glDeleteShader(fShader);
@@ -81,51 +69,12 @@ void Shader::setFloat(const std::string &name, float value) const
   glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setMat4fv(const std::string &name, float* value) const
+void Shader::setMat4fv(const std::string &name, glm::mat4 value) const
 {
-  glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, value);
+  glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Shader::setVec3(const std::string &name, float* value) const
+void Shader::setVec3fv(const std::string &name, glm::vec3 value) const
 {
-  glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, value);
-}
-
-const std::string Shader::readFile(const char* path)
-{
-  std::ifstream file;
-  file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-  file.open(path);
-
-  std::stringstream stream;
-  stream << file.rdbuf();
-
-  file.close();
-
-  return stream.str();
-}
-
-const unsigned int Shader::compile(GLenum type, const char* source)
-{
-  unsigned int shaderId = glCreateShader(type);
-  glShaderSource(shaderId, 1, &source, nullptr);
-  glCompileShader(shaderId);
-
-  int success;
-  glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
-  if (!success) {
-    int maxLength = 1024;
-	  // glGetShaderiv(ID, GL_INFO_LOG_LENGTH, &maxLength);
-    char infoLog[maxLength];
-    glGetShaderInfoLog(shaderId, maxLength, nullptr, infoLog);
-
-    std::cout << "Shader compilation failed ("
-      << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << "): \n"
-      << infoLog << std::endl;
-
-    return 0;
-  }
-
-  return shaderId;
+  glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, (float*)glm::value_ptr(value));
 }

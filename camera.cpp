@@ -1,5 +1,6 @@
 #include "camera.h"
 #include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
 
 const glm::vec3 UP = glm::vec3(0.f, 1.f, 0.f); // world UP
 

@@ -6,15 +6,15 @@
 
 class Box
 {
-public:
-  Box(/* args */);
-  ~Box();
-  void draw(Shader &shader);
-  void free();
+  public:
+    Box(/* args */);
+    ~Box();
+    void draw(Shader &shader);
+    void free();
 
-private:
-  void setup();
-  Mesh* mesh;
+  private:
+    void setup();
+    Mesh* mesh;
 };
 
 

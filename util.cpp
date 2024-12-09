@@ -1,150 +1,95 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "util.h"
 #include "camera.h"
-// #include "cube.h"
 #include "box.h"
 #include "light.h"
-#include <glm/glm.hpp>
-#include <sstream>
 #include "model.h"
-#include "lighting-shader.h"
+#include "lighting.h"
 
 Camera camera;
-Box* box;
-LightingShader* program;
+Shader* program;
+Lighting* lighting;
+Shader* plainProgram;
 Light* light;
-Model* backpack;
+Box* box;
+Model* m2b;
 
-const glm::vec3 LIGHT_AMBIENT(0.2f);
-const glm::vec3 LIGHT_DIFFUSE(0.5f);
-const glm::vec3 LIGHT_SPECULAR(1.0f);
-
-#define DIRECTIONAL_LIGHT
 #define SPOT_LIGHT
 #define POINT_LIGHT
 
-#ifdef DIRECTIONAL_LIGHT
-const glm::vec3 lightColor(1.f);
-LightingShader::DirLight dirLight {
-  .direction = glm::vec3(-0.2f, -1.0f, -0.3f),
-  .light = LightingShader::Light {
-    // .off = true,
-    .ambient = lightColor * LIGHT_AMBIENT,
-    .diffuse = lightColor * LIGHT_DIFFUSE,
-    .specular = LIGHT_SPECULAR
-  }
-};
-#endif
-
 #ifdef SPOT_LIGHT
-const glm::vec3 spotLightColor(1.f);
 bool spotLightOff = true;
 #endif
 
-#ifdef POINT_LIGHT
-const unsigned int NUM_POINT_LIGHTS = 4;
-glm::vec3 lightPositions[] = {
-	glm::vec3( 0.7f,  0.2f,  2.0f),
-	glm::vec3( 2.3f, -3.3f, -4.0f),
-	glm::vec3(-4.0f,  2.0f, -12.0f),
-	glm::vec3( 0.0f,  0.0f, -2.0f)
-};
-glm::vec3 lightColors[] = {
-  glm::vec3(1.0f, 1.0f, 1.0f),
-  glm::vec3(1.0f, 0.0f, 0.0f),
-  glm::vec3(0.0f, 1.0f, 0.0f),
-  glm::vec3(0.0f, 0.0f, 1.0f),
-};
-LightingShader::PointLight pointLights[NUM_POINT_LIGHTS];
-#endif
-
-const unsigned int NUM_CUBES = 10;
-glm::vec3 cubePositions[] = {
-    glm::vec3( 0.0f,  0.0f,  0.0f),
-    glm::vec3( 2.0f,  5.0f, -15.0f),
-    glm::vec3(-1.5f, -2.2f, -2.5f),
-    glm::vec3(-3.8f, -2.0f, -12.3f),
-    glm::vec3( 2.4f, -0.4f, -3.5f),
-    glm::vec3(-1.7f,  3.0f, -7.5f),
-    glm::vec3( 1.3f, -2.0f, -2.5f),
-    glm::vec3( 1.5f,  2.0f, -2.5f),
-    glm::vec3( 1.5f,  0.2f, -1.5f),
-    glm::vec3(-1.3f,  1.0f, -1.5f)
+unsigned int selectedBox = -1;
+const unsigned int NUM_BOXES = 10;
+glm::vec3 boxPositions[] = {
+  glm::vec3( 0.0f,  0.0f,  0.0f),
+  glm::vec3( 2.0f,  5.0f, -15.0f),
+  glm::vec3(-1.5f, -2.2f, -2.5f),
+  glm::vec3(-3.8f, -2.0f, -12.3f),
+  glm::vec3( 2.4f, -0.4f, -3.5f),
+  glm::vec3(-1.7f,  3.0f, -7.5f),
+  glm::vec3( 1.3f, -2.0f, -2.5f),
+  glm::vec3( 1.5f,  2.0f, -2.5f),
+  glm::vec3( 1.5f,  0.2f, -1.5f),
+  glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
-void initGL()
+void setup()
 {
-  glClearColor(0.1f, 0.1f, 0.1f, 1.f);
-  glEnable(GL_DEPTH_TEST);
-
-
   #ifdef POINT_LIGHT
+  plainProgram = new Shader("./shaders/plain.glvs", "./shaders/single-color.glfs");
   light = new Light();
   #endif
 
-  program = new LightingShader();
-
+  program = new Shader("./shaders/lighting.glvs", "./shaders/lighting.glfs");
   program->use();
-  backpack = new Model("./assets/backpack/backpack.obj");
-  box = new Box();
-  #ifdef DIRECTIONAL_LIGHT
-  program->setDirLight(dirLight);
-  #endif
-
-  #ifdef POINT_LIGHT
-  for(unsigned int i = 0; i < NUM_POINT_LIGHTS; i++)
-  {
-    pointLights[i] = {
-      .position = lightPositions[i],
-      .attenuation = {
-        .constant = 1.f,
-        .linear = 0.09f,
-        .quadratic = 0.032f,
-      },
-      .light = {
-        .ambient = lightColors[i] * LIGHT_AMBIENT,
-        .diffuse = lightColors[i] * LIGHT_DIFFUSE,
-        .specular = lightColors[i] * LIGHT_SPECULAR,
-      }
-    };
-  }
-
-  program->setPointLights(pointLights, NUM_POINT_LIGHTS);
-  #endif
-
-  #ifdef SPOT_LIGHT
-  program->setSpotLight(
-    LightingShader::SpotLight {
-      .direction = camera.front(),
-      .cutOff = glm::cos(glm::radians(12.5f)),
-      .outerCutOff = glm::cos(glm::radians(17.5f)),
-      .position = camera.position(),
-      .attenuation = {
-        .constant = 1.f,
-        .linear = 0.09f,
-        .quadratic = 0.032f
-      },
-      .light = {
-        .off = spotLightOff,
-        .ambient = spotLightColor * LIGHT_AMBIENT,
-        .diffuse = spotLightColor * LIGHT_DIFFUSE,
-        .specular = LIGHT_SPECULAR
-      }
-    }
-  );
-  #endif
-
+  lighting = new Lighting(*program);
   program->use(false);
+  m2b = new Model("assets/2b-jumps2/scene.gltf");
+  box = new Box();
+}
+
+void highlight(Box &box, glm::mat4 model)
+{
+  glEnable(GL_STENCIL_TEST);
+  glClear(GL_STENCIL_BUFFER_BIT);
+
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+  glStencilFunc(GL_ALWAYS, 1, 0xFF);
+  glStencilMask(0xFF);
+  program->use();
+  program->setMat4fv("model", model);
+  box.draw(*program);
+  program->use(false);
+
+  glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+  glStencilMask(0x00);
+  // glDisable(GL_DEPTH_TEST); ?
+    plainProgram->use();
+    plainProgram->setVec3fv("color", glm::vec3(1.0, 1.0, 1.0));
+    plainProgram->setMat4fv("model", glm::scale(model, glm::vec3(1.1)));
+    box.draw(*plainProgram);
+    plainProgram->use(false);
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+  // glEnable(GL_DEPTH_TEST);
+
+  glDisable(GL_STENCIL_TEST);
 }
 
 void update()
 {
   #ifdef POINT_LIGHT
   const float time = glfwGetTime();
-  pointLights[0].position.x = 1.0f + sin(time) * 2.0f;
-  pointLights[0].position.y = sin(time / 2.0f) * 1.0f;
+  lighting->mLights.positions[0].x = 1.0f + sin(time) * 2.0f;
+  lighting->mLights.positions[0].y = sin(time / 2.0f) * 1.0f;
   #endif
 }
 
@@ -156,57 +101,55 @@ void render()
   const glm::mat4 projection = camera.projection();
 
   program->use();
-  program->setView(view);
-  program->setProjection(projection);
+  program->setMat4fv("view", view);
+  program->setMat4fv("projection", projection);
 
-  program->setViewPosition(camera.position());
+  lighting->setViewPosition(camera.position());
 
   #ifdef POINT_LIGHT
-  program->setPointLight0Position(pointLights[0].position);
+  lighting->updatePointLight0Position();
   #endif
 
   #ifdef SPOT_LIGHT
-  program->updateSpotLight(
-    camera.position(),
-    camera.front(),
-    spotLightOff
-  );
+  lighting->updateSpotLight(camera.position(), camera.front(), spotLightOff);
   #endif
 
-  for(unsigned int i = 0; i < NUM_CUBES; i++)
+  for(unsigned int i = 0; i < NUM_BOXES; i++)
   {
-    glm::mat4 boxModel = glm::translate(glm::mat4(1.0), cubePositions[i]);
+    glm::mat4 boxModel = glm::translate(glm::mat4(1.0), boxPositions[i]);
     boxModel = glm::rotate(boxModel, glm::radians(20.f  * i), glm::vec3(1.0f, 0.3f, 0.5f));
 
-    program->setModel(boxModel);
-    box->draw(*program);
+    if(i == selectedBox)
+    {
+      highlight(*box, boxModel);
+      program->use();
+    } else {
+      program->setMat4fv("model", boxModel);
+      box->draw(*program);
+    }
   }
+
+  glm::mat4 m2bm = glm::translate(glm::mat4(1.0), glm::vec3(0.f, 1.f, 1.5f));
+  program->setMat4fv("model", m2bm);
+  m2b->draw(*program);
 
   program->use(false);
 
   #ifdef POINT_LIGHT
-  light->use();
-  light->setView(view);
-  light->setProjection(projection);
-  for(unsigned int i = 0; i < NUM_POINT_LIGHTS; i++)
+  plainProgram->use();
+  plainProgram->setMat4fv("view", view);
+  plainProgram->setMat4fv("projection", projection);
+  for(unsigned int i = 0; i < lighting->NR_POINT_LIGHTS; i++)
   {
-    glm::mat4 lightModel = glm::translate(glm::mat4(1.0), pointLights[i].position);
+    glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lighting->mLights.positions[i]);
     lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
-    light->setVec3("color", (float *)glm::value_ptr(lightColors[i]));
-    light->setModel(lightModel);
-    light->render();
+    plainProgram->setVec3fv("color", lighting->mLights.colors[i]);
+    plainProgram->setMat4fv("model", lightModel);
+    light->draw(*plainProgram);
   }
-  light->use(false);
+  plainProgram->use(false);
   #endif
-
-  glm::mat4 bpm = glm::translate(glm::mat4(1.0), glm::vec3(0.f, 0.f, 2.f));
-  bpm = glm::scale(bpm, glm::vec3(0.2f));
-
-  program->use();
-  program->setModel(bpm);
-  backpack->draw(*program);
-  program->use(false);
 }
 
 #ifdef SPOT_LIGHT
@@ -215,6 +158,14 @@ void switchSpotLight()
   spotLightOff = !spotLightOff;
 }
 #endif
+
+void selectNext()
+{
+  selectedBox ++;
+  if(selectedBox >= NUM_BOXES) selectedBox = 0;
+
+  std::cout << selectedBox;
+}
 
 void handleInput(GLFWwindow* window, float deltaTime)
 {
@@ -250,6 +201,12 @@ GLFWwindow* createWindow()
 bool initGlad()
 {
   return gladLoadGL(glfwGetProcAddress);
+}
+
+void initGL()
+{
+  glClearColor(0.1f, 0.1f, 0.1f, 1.f);
+  glEnable(GL_DEPTH_TEST);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -305,6 +262,10 @@ void character_callback(GLFWwindow* window, unsigned int codepoint)
     switchSpotLight();
   }
   #endif
+  if((char)codepoint == 'n') {
+    selectNext();
+  }
+
 }
 
 void setupKeyboard(GLFWwindow* window)
@@ -315,18 +276,24 @@ void setupKeyboard(GLFWwindow* window)
 void shutdown()
 {
   #ifdef POINT_LIGHT
-  light->use();
+  plainProgram->use();
+
   light->free();
   delete light;
+
+  plainProgram->free();
+  delete plainProgram;
   #endif
 
   program->use();
 
-  backpack->free();
-  delete backpack;
+  m2b->free();
+  delete m2b;
 
   box->free();
   delete box;
+
+  delete lighting;
 
   program->free();
   delete program;

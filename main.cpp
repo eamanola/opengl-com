@@ -1,10 +1,6 @@
 #include <iostream>
 
 #include "util.h"
-#include "cube.h"
-#include "camera.h"
-#include "shape.h"
-#include "light.h"
 
 void error_callback(int error, const char* description)
 {
@@ -36,6 +32,7 @@ int main( int argc, char* args[] )
 
   initGL();
 
+  setup();
   float deltaTime = 0.f;
   float lastFrame = 0.f;
 

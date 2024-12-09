@@ -2,7 +2,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "shape.h"
+#include "shader-utils.h"
 
 Model::Model(const char* path)
 {
@@ -125,7 +125,7 @@ std::vector<Texture> Model::loadMaterialTextures(
     std::cout << "loading: " << directory << '/' << str.C_Str() << std::endl;
 
     Texture texture {
-      .id = Shape::loadTexture(str.C_Str(), directory),
+      .id = ShaderUtils::loadTexture(str.C_Str(), directory),
       .type = type,
       .path = str.C_Str()
     };

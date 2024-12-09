@@ -1,7 +1,7 @@
 #include "box.h"
 #include "vertex.h"
 #include "texture.h"
-#include "shape.h"
+#include "shader-utils.h"
 #include <vector>
 #include <iterator>
 
@@ -60,12 +60,12 @@ void Box::setup()
 
   std::vector<Texture> textures = {
     {
-      .id = Shape::loadTexture("assets/container2.png"),
+      .id = ShaderUtils::loadTexture("assets/container2.png"),
       .type = TEXTURE_TYPE_DIFFUSE,
       .path = "assets/container2.png"
     },
     {
-      .id = Shape::loadTexture("assets/container2_specular.png"),
+      .id = ShaderUtils::loadTexture("assets/container2_specular.png"),
       .type = TEXTURE_TYPE_SPECULAR,
       .path = "assets/container2_specular.png"
     }
