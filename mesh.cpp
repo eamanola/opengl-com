@@ -72,7 +72,7 @@ void Mesh::draw(Shader &shader)
       name = "texture_specular";
     }
 
-    shader.setInt(("material." + name + number).c_str(), i);
+    shader.setInt(("u_material." + name + number).c_str(), i);
     glBindTexture(GL_TEXTURE_2D, textures[i].id);
   }
   glBindVertexArray(VAO);

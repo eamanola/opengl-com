@@ -76,7 +76,7 @@ void setup()
   lighting2 = new Lighting(*skeletal);
   for(unsigned int i = 0; i < 100; i++)
   {
-    skeletal->setMat4fv("bone_transforms[" + std::to_string(i) + "]", glm::mat4(0.f));
+    skeletal->setMat4fv("u_bone_transforms[" + std::to_string(i) + "]", glm::mat4(0.f));
   }
   skeletal->use(false);
   tifa = new SkeletalModel();
@@ -101,7 +101,7 @@ void highlight(Box &box, glm::mat4 model)
   glStencilFunc(GL_ALWAYS, 1, 0xFF);
   glStencilMask(0xFF);
   program->use();
-  program->setMat4fv("model", model);
+  program->setMat4fv("u_model", model);
   box.draw(*program);
   program->use(false);
 
@@ -110,7 +110,7 @@ void highlight(Box &box, glm::mat4 model)
   // glDisable(GL_DEPTH_TEST); ?
     plainProgram->use();
     plainProgram->setVec3fv("color", glm::vec3(1.0, 1.0, 1.0));
-    plainProgram->setMat4fv("model", glm::scale(model, glm::vec3(1.1)));
+    plainProgram->setMat4fv("u_model", glm::scale(model, glm::vec3(1.1)));
     box.draw(*plainProgram);
     plainProgram->use(false);
     glStencilMask(0xFF);
@@ -144,11 +144,12 @@ void render()
 
   const glm::mat4 view = camera.view();
   const glm::mat4 projection = camera.projection();
-
+  const glm::mat4 u_proj_x_view = projection * view;
   program->use();
   // mult view proj?
-  program->setMat4fv("view", view);
-  program->setMat4fv("projection", projection);
+  // program->setMat4fv("view", view);
+  // program->setMat4fv("projection", projection);
+  program->setMat4fv("u_proj_x_view", u_proj_x_view);
 
   lighting->setViewPosition(camera.position());
   #ifdef POINT_LIGHT
@@ -169,28 +170,27 @@ void render()
       highlight(*box, boxModel);
       program->use();
     } else {
-      program->setMat4fv("model", boxModel);
+      program->setMat4fv("u_model", boxModel);
       box->draw(*program);
     }
   }
 
   glm::mat4 m2bm = glm::translate(glm::mat4(1.0), glm::vec3(0.f, 1.f, 0.f));
-  program->setMat4fv("model", m2bm);
+  program->setMat4fv("u_model", m2bm);
   m2b->draw(*program);
 
   program->use(false);
 
   #ifdef POINT_LIGHT
   plainProgram->use();
-  plainProgram->setMat4fv("view", view);
-  plainProgram->setMat4fv("projection", projection);
+  plainProgram->setMat4fv("u_proj_x_view", u_proj_x_view);
   for(unsigned int i = 0; i < lighting->NR_POINT_LIGHTS; i++)
   {
     glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lighting->mLights.positions[i]);
     lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
     plainProgram->setVec3fv("color", lighting->mLights.colors[i]);
-    plainProgram->setMat4fv("model", lightModel);
+    plainProgram->setMat4fv("u_model", lightModel);
     light->draw(*plainProgram);
   }
   plainProgram->use(false);
@@ -201,8 +201,7 @@ void render()
   lighting2->setViewPosition(camera.position());
   lighting2->updatePointLight0Position();
 
-  skeletal->setMat4fv("view", view);
-  skeletal->setMat4fv("projection", projection);
+  skeletal->setMat4fv("u_proj_x_view", u_proj_x_view);
 
   glm::mat4 skeletalm;
 
@@ -210,38 +209,38 @@ void render()
   const std::vector<glm::mat4> runnerTransforms = runner->pose();
   for(unsigned int i = 0; i < runnerTransforms.size(); i++)
   {
-    skeletal->setMat4fv("bone_transforms[" + std::to_string(i) + "]", runnerTransforms[i]);
+    skeletal->setMat4fv("u_bone_transforms[" + std::to_string(i) + "]", runnerTransforms[i]);
   }
   skeletalm = glm::mat4(1.0);
   skeletalm = glm::translate(skeletalm, glm::vec3(0.f, -1.f, 1.f));
   skeletalm = glm::rotate(skeletalm, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
   skeletalm = glm::scale(skeletalm, glm::vec3(0.25f));
-  skeletal->setMat4fv("model", skeletalm);
+  skeletal->setMat4fv("u_model", skeletalm);
   runner->draw(*skeletal);
 
   // whipper
   const std::vector<glm::mat4> whipperTransforms = whipper->pose();
   for(unsigned int i = 0; i < whipperTransforms.size(); i++)
   {
-    skeletal->setMat4fv("bone_transforms[" + std::to_string(i) + "]", whipperTransforms[i]);
+    skeletal->setMat4fv("u_bone_transforms[" + std::to_string(i) + "]", whipperTransforms[i]);
   }
   skeletalm = glm::mat4(1.0);
   skeletalm = glm::translate(skeletalm, glm::vec3(1.5f, -1.f, 1.f));
   skeletalm = glm::rotate(skeletalm, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
   skeletalm = glm::scale(skeletalm, glm::vec3(0.15f));
-  skeletal->setMat4fv("model", skeletalm);
+  skeletal->setMat4fv("u_model", skeletalm);
   // whipper->draw(*skeletal);
 
   // tifa
   const std::vector<glm::mat4> tifaTransforms = tifa->pose();
   for(unsigned int i = 0; i < tifaTransforms.size(); i++)
   {
-    skeletal->setMat4fv("bone_transforms[" + std::to_string(i) + "]", tifaTransforms[i]);
+    skeletal->setMat4fv("u_bone_transforms[" + std::to_string(i) + "]", tifaTransforms[i]);
   }
   skeletalm = glm::mat4(1.0);
   skeletalm = glm::translate(skeletalm, glm::vec3(-1.5f, -1.f, 1.f));
   skeletalm = glm::rotate(skeletalm, glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
-  skeletal->setMat4fv("model", skeletalm);
+  skeletal->setMat4fv("u_model", skeletalm);
   tifa->draw(*skeletal);
 
   skeletal->use(false);

@@ -1,21 +1,20 @@
 #version 330 core
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec3 aNormal;
-layout (location = 2) in vec2 aTexCoords;
+layout (location = 0) in vec3 in_position;
+layout (location = 1) in vec3 in_normal;
+layout (location = 2) in vec2 in_tex_coords;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+out vec3 v_normal;
+out vec3 v_frag_pos;
+out vec2 v_tex_coords;
 
-out vec3 inNormal;
-out vec3 inFragPos;
-out vec2 inTexCoords;
+uniform mat4 u_proj_x_view;
+uniform mat4 u_model;
 
 void main()
 {
-  inNormal = mat3(transpose(inverse(model))) * aNormal;
-  inFragPos = vec3(model * vec4(aPos, 1.0));
-  inTexCoords = aTexCoords;
+  v_normal = mat3(transpose(inverse(u_model))) * in_normal;
+  v_frag_pos = vec3(u_model * vec4(in_position, 1.0));
+  v_tex_coords = in_tex_coords;
 
-  gl_Position = projection * view * model * vec4(aPos, 1.0f);
+  gl_Position = u_proj_x_view * u_model * vec4(in_position, 1.0f);
 }
