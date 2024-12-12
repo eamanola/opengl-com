@@ -10,6 +10,13 @@
 #include "model.h"
 #include "lighting.h"
 
+#define SKELETAL
+
+#ifdef SKELETAL
+#include "skeletal/skeletal-model.h"
+#endif
+
+
 Camera camera;
 Shader* program;
 Lighting* lighting;
@@ -17,6 +24,14 @@ Shader* plainProgram;
 Light* light;
 Box* box;
 Model* m2b;
+
+#ifdef SKELETAL
+Shader* skeletal;
+SkeletalModel* tifa;
+SkeletalModel* runner;
+SkeletalModel* whipper;
+Lighting* lighting2;
+#endif
 
 #define SPOT_LIGHT
 #define POINT_LIGHT
@@ -51,8 +66,29 @@ void setup()
   program->use();
   lighting = new Lighting(*program);
   program->use(false);
-  m2b = new Model("assets/2b-jumps2/scene.gltf");
+  m2b = new Model();
+  m2b->loadModel("assets/2b-jumps2/scene.gltf");
   box = new Box();
+
+#ifdef SKELETAL
+  skeletal = new Shader("./skeletal/skeletal.glvs", "./shaders/lighting.glfs");
+  skeletal->use();
+  lighting2 = new Lighting(*skeletal);
+  for(unsigned int i = 0; i < 100; i++)
+  {
+    skeletal->setMat4fv("bone_transforms[" + std::to_string(i) + "]", glm::mat4(0.f));
+  }
+  skeletal->use(false);
+  tifa = new SkeletalModel();
+  tifa->loadModel("assets/tifa/scene.gltf");
+
+  runner = new SkeletalModel();
+  runner->loadModel("assets/dae-runner/model.dae");
+
+  whipper = new SkeletalModel();
+  whipper->loadModel("assets/whipper/scene.gltf");
+  whipper->setAnimation(11);
+#endif
 }
 
 void highlight(Box &box, glm::mat4 model)
@@ -90,7 +126,16 @@ void update()
   const float time = glfwGetTime();
   lighting->mLights.positions[0].x = 1.0f + sin(time) * 2.0f;
   lighting->mLights.positions[0].y = sin(time / 2.0f) * 1.0f;
+
+  lighting2->mLights.positions[0].x = 1.0f + sin(time) * 2.0f;
+  lighting2->mLights.positions[0].y = sin(time / 2.0f) * 1.0f;
   #endif
+
+#ifdef SKELETAL
+  tifa->update(time);
+  runner->update(time);
+  whipper->update(time);
+#endif
 }
 
 void render()
@@ -101,11 +146,11 @@ void render()
   const glm::mat4 projection = camera.projection();
 
   program->use();
+  // mult view proj?
   program->setMat4fv("view", view);
   program->setMat4fv("projection", projection);
 
   lighting->setViewPosition(camera.position());
-
   #ifdef POINT_LIGHT
   lighting->updatePointLight0Position();
   #endif
@@ -129,7 +174,7 @@ void render()
     }
   }
 
-  glm::mat4 m2bm = glm::translate(glm::mat4(1.0), glm::vec3(0.f, 1.f, 1.5f));
+  glm::mat4 m2bm = glm::translate(glm::mat4(1.0), glm::vec3(0.f, 1.f, 0.f));
   program->setMat4fv("model", m2bm);
   m2b->draw(*program);
 
@@ -150,6 +195,57 @@ void render()
   }
   plainProgram->use(false);
   #endif
+#ifdef SKELETAL
+  skeletal->use();
+
+  lighting2->setViewPosition(camera.position());
+  lighting2->updatePointLight0Position();
+
+  skeletal->setMat4fv("view", view);
+  skeletal->setMat4fv("projection", projection);
+
+  glm::mat4 skeletalm;
+
+  // dae
+  const std::vector<glm::mat4> runnerTransforms = runner->pose();
+  for(unsigned int i = 0; i < runnerTransforms.size(); i++)
+  {
+    skeletal->setMat4fv("bone_transforms[" + std::to_string(i) + "]", runnerTransforms[i]);
+  }
+  skeletalm = glm::mat4(1.0);
+  skeletalm = glm::translate(skeletalm, glm::vec3(0.f, -1.f, 1.f));
+  skeletalm = glm::rotate(skeletalm, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+  skeletalm = glm::scale(skeletalm, glm::vec3(0.25f));
+  skeletal->setMat4fv("model", skeletalm);
+  runner->draw(*skeletal);
+
+  // whipper
+  const std::vector<glm::mat4> whipperTransforms = whipper->pose();
+  for(unsigned int i = 0; i < whipperTransforms.size(); i++)
+  {
+    skeletal->setMat4fv("bone_transforms[" + std::to_string(i) + "]", whipperTransforms[i]);
+  }
+  skeletalm = glm::mat4(1.0);
+  skeletalm = glm::translate(skeletalm, glm::vec3(1.5f, -1.f, 1.f));
+  skeletalm = glm::rotate(skeletalm, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+  skeletalm = glm::scale(skeletalm, glm::vec3(0.15f));
+  skeletal->setMat4fv("model", skeletalm);
+  // whipper->draw(*skeletal);
+
+  // tifa
+  const std::vector<glm::mat4> tifaTransforms = tifa->pose();
+  for(unsigned int i = 0; i < tifaTransforms.size(); i++)
+  {
+    skeletal->setMat4fv("bone_transforms[" + std::to_string(i) + "]", tifaTransforms[i]);
+  }
+  skeletalm = glm::mat4(1.0);
+  skeletalm = glm::translate(skeletalm, glm::vec3(-1.5f, -1.f, 1.f));
+  skeletalm = glm::rotate(skeletalm, glm::radians(0.f), glm::vec3(0.f, 1.f, 0.f));
+  skeletal->setMat4fv("model", skeletalm);
+  tifa->draw(*skeletal);
+
+  skeletal->use(false);
+#endif
 }
 
 #ifdef SPOT_LIGHT
@@ -297,4 +393,17 @@ void shutdown()
 
   program->free();
   delete program;
+
+#ifdef SKELETAL
+  skeletal->use();
+  tifa->free();
+  runner->free();
+  whipper->free();
+  delete tifa;
+  delete runner;
+  delete whipper;
+  skeletal->free();
+  delete lighting2;
+  delete skeletal;
+#endif
 }

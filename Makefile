@@ -1,9 +1,8 @@
-OBJS = glad/src/gl.c stb_image/src/stb_image.c \
-*.cpp #main.cpp util.cpp shape.cpp shader.cpp
+OBJS = glad/src/gl.c stb_image/src/stb_image.c *.cpp skeletal/*.cpp
 
 CC = g++
 
-COMPILER_FLAGS = -Wall -Werror #-g
+COMPILER_FLAGS = -Wall -Werror -g
 
 LINKER_FLAGS = -lglfw -lassimp# -lglfw3 -lGL -lX11 -lpthread -lXrandr -lXi -ldl
 

@@ -14,13 +14,15 @@ public:
     std::vector<unsigned int> indices,
     std::vector<Texture> textures
   );
-  ~Mesh();
+  virtual ~Mesh();
 
   void draw(Shader &shader);
   void free();
 
+  unsigned int VAO;
+
 private:
-  unsigned int VAO, VBO, EBO;
+  unsigned int VBO, EBO;
   void setupMesh();
 
   std::vector<Vertex>       vertices;

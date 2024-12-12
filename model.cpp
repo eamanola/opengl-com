@@ -4,22 +4,12 @@
 #include <assimp/postprocess.h>
 #include "shader-utils.h"
 
-Model::Model(const char* path)
+Model::Model()
 {
-  loadModel(path);
 }
 
 Model::~Model()
 {
-}
-
-
-void Model::draw(Shader &shader)
-{
-  for(unsigned int i = 0; i < meshes.size(); i++)
-  {
-    meshes[i].draw(shader);
-  }
 }
 
 void Model::loadModel(const std::string path)
@@ -35,6 +25,11 @@ void Model::loadModel(const std::string path)
 
   directory = path.substr(0, path.find_last_of('/'));
 
+  processScene(scene);
+}
+
+void Model::processScene(const aiScene* scene)
+{
   processNode(scene->mRootNode, scene);
 }
 
@@ -134,6 +129,14 @@ std::vector<Texture> Model::loadMaterialTextures(
   }
 
   return textures;
+}
+
+void Model::draw(Shader &shader)
+{
+  for(unsigned int i = 0; i < meshes.size(); i++)
+  {
+    meshes[i].draw(shader);
+  }
 }
 
 void Model::free()

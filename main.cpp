@@ -27,7 +27,7 @@ int main( int argc, char* args[] )
   glfwSetErrorCallback(error_callback);
 
   setupViewport(window);
-  setupMouse(window);
+  // setupMouse(window);
   setupKeyboard(window);
 
   initGL();

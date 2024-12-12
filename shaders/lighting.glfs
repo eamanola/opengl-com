@@ -1,8 +1,8 @@
 #version 330 core
 
 struct Material {
-  sampler2D texture_diffuse0;
-  sampler2D texture_specular0;
+  sampler2D texture_diffuse1;
+  sampler2D texture_specular1;
   float     shininess;
 };
 
@@ -61,6 +61,7 @@ uniform SpotLight spotLight;
 
 out vec4 FragColor;
 
+in vec4 color;
 void main()
 {
   vec3 normal = normalize(inNormal);
@@ -112,8 +113,8 @@ mat3 calcDirLight(DirLight dir, vec3 normal, vec3 viewDir)
   vec3 reflectDir = reflect(-lightDir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 
-  vec3 diffuseColor = vec3(texture(material.texture_diffuse0, inTexCoords));
-  vec3 specularColor = vec3(texture(material.texture_specular0, inTexCoords));
+  vec3 diffuseColor = vec3(texture(material.texture_diffuse1, inTexCoords));
+  vec3 specularColor = vec3(texture(material.texture_specular1, inTexCoords));
 
   Light light = dir.light;
   vec3 ambient = light.ambient * diffuseColor;

@@ -2,3 +2,4 @@ glad/
 stb_image/
 output
 assets/
+skeletal/assimp_glm_helpers.h

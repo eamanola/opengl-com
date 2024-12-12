@@ -9,18 +9,21 @@
 class Model
 {
 public:
-  Model(const char* path);
-  ~Model();
+  Model();
+  virtual ~Model();
 
+  void loadModel(const std::string path);
   void draw(Shader &shader);
-  void free();
+  virtual void free();
+
+protected:
+  std::vector<Mesh> meshes;
+  virtual void processScene(const aiScene* scene);
 
 private:
-  std::vector<Mesh> meshes;
   std::string directory;
   std::vector<Texture> textures_loaded;
 
-  void loadModel(const std::string path);
   void processNode(aiNode* node, const aiScene* scene);
   Mesh processMesh(aiMesh* mesh, const aiScene* scene);
   std::vector<Texture> loadMaterialTextures(
