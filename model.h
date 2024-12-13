@@ -18,16 +18,15 @@ public:
 
 protected:
   std::vector<Mesh> meshes;
-  virtual void processScene(const aiScene* scene);
+  virtual void processScene(const aiScene* const scene);
 
 private:
   std::string directory;
   std::vector<Texture> textures_loaded;
 
-  void processNode(aiNode* node, const aiScene* scene);
-  Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+  Mesh processMesh(const aiMesh* const mesh, const aiScene* const scene);
   std::vector<Texture> loadMaterialTextures(
-    aiMaterial *material, aiTextureType aiType, TEXTURE_TYPE type
+    const aiMaterial* const material, const aiTextureType aiType, const TEXTURE_TYPE type
   );
 };
 

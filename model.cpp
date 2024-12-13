@@ -15,7 +15,8 @@ Model::~Model()
 void Model::loadModel(const std::string path)
 {
   Assimp::Importer importer;
-  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+  unsigned int postProcess = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals;
+  const aiScene* scene = importer.ReadFile(path, postProcess);
 
   if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
   {
@@ -28,25 +29,16 @@ void Model::loadModel(const std::string path)
   processScene(scene);
 }
 
-void Model::processScene(const aiScene* scene)
+void Model::processScene(const aiScene* const scene)
 {
-  processNode(scene->mRootNode, scene);
-}
-
-void Model::processNode(aiNode* node, const aiScene* scene)
-{
-  for(unsigned int i = 0; i < node->mNumMeshes; i++)
+  for(unsigned int i = 0; i < scene->mNumMeshes; i++)
   {
-    aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+    aiMesh* mesh = scene->mMeshes[i];
     meshes.push_back(processMesh(mesh, scene));
   }
-  for(unsigned int i = 0; i < node->mNumChildren; i++)
-  {
-    processNode(node->mChildren[i], scene);
-  }
 }
 
-Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
+Mesh Model::processMesh(const aiMesh* const mesh, const aiScene* const scene)
 {
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
@@ -93,7 +85,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 }
 
 std::vector<Texture> Model::loadMaterialTextures(
-  aiMaterial *material, aiTextureType aiType, TEXTURE_TYPE type
+  const aiMaterial* const material, const aiTextureType aiType, const TEXTURE_TYPE type
 )
 {
   std::vector<Texture> textures;

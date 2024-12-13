@@ -7,7 +7,7 @@
 class Lighting
 {
 public:
-  Lighting(Shader &shader);
+  Lighting();
   ~Lighting();
 
   struct Lights {
@@ -28,15 +28,15 @@ public:
   const unsigned int NR_POINT_LIGHTS = 4;
   Lights mLights;
 
-  void setViewPosition(glm::vec3 position);
-  void updatePointLight0Position();
-  void updateSpotLight(glm::vec3 position, glm::vec3 direction, bool off);
+  void setup(Shader &shader);
+  void setViewPosition(Shader &shader, const glm::vec3& position);
+  void updatePointLight0Position(Shader &shader);
+  void updateSpotLight(Shader &shader, const glm::vec3& position, const glm::vec3& direction, bool off);
 
 private:
-  void initDirLight();
-  void initSpotLight();
-  void initPointLights();
-  Shader mShader;
+  void initDirLight(Shader &shader);
+  void initSpotLight(Shader &shader);
+  void initPointLights(Shader &shader);
 };
 
 #endif

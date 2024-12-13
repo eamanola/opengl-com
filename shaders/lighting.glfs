@@ -43,9 +43,9 @@ struct SpotLight {
   Light light;
 };
 
-mat3 calcDirLight(DirLight light, vec3 normal, vec3 viewDir);
-mat3 calcPointLight(PointLight light, vec3 normal, vec3 viewDir, vec3 fragPos);
-mat3 calcSpotLight(SpotLight light, vec3 normal, vec3 viewDir, vec3 fragPos);
+mat3 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir);
+mat3 calcPointLight(PointLight pointLight, vec3 normal, vec3 viewDir, vec3 fragPos);
+mat3 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPos);
 float calcAttenuation(Attenuation attenuation, float distance);
 
 in vec3 v_normal;
@@ -67,30 +67,30 @@ void main()
   vec3 normal = normalize(v_normal);
   vec3 viewDir = normalize(u_view_pos - v_frag_pos);
 
-  vec3 output = vec3(0, 0, 0);
+  vec3 color = vec3(0, 0, 0);
 
   if(!u_dir_light.light.off)
   {
-    mat3 dir = calcDirLight(u_dir_light, normal, viewDir);
-    output += dir[0] + dir[1] + dir[2];
+    mat3 dirLightColor = calcDirLight(u_dir_light, normal, viewDir);
+    color += dirLightColor[0] + dirLightColor[1] + dirLightColor[2];
   }
 
   for(int i = 0; i < NR_POINT_LIGHTS; i++)
   {
     if(!u_point_lights[i].light.off)
     {
-      mat3 poi = calcPointLight(u_point_lights[i], normal, viewDir, v_frag_pos);
-      output += poi[0] + poi[1] + poi[2];
+      mat3 pointLightColor = calcPointLight(u_point_lights[i], normal, viewDir, v_frag_pos);
+      color += pointLightColor[0] + pointLightColor[1] + pointLightColor[2];
     }
   }
 
   if(!u_spot_light.light.off)
   {
-    mat3 spo = calcSpotLight(u_spot_light, normal, viewDir, v_frag_pos);
-    output += spo[0] + spo[1] + spo[2];
+    mat3 spotLightColor = calcSpotLight(u_spot_light, normal, viewDir, v_frag_pos);
+    color += spotLightColor[0] + spotLightColor[1] + spotLightColor[2];
   }
 
-  f_color = vec4(output, 1.0);
+  f_color = vec4(color, 1.0);
 }
 
 float calcAttenuation(Attenuation attenuation, float distance)
@@ -102,9 +102,9 @@ float calcAttenuation(Attenuation attenuation, float distance)
   );
 }
 
-mat3 calcDirLight(DirLight dir, vec3 normal, vec3 viewDir)
+mat3 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
 {
-  vec3 lightDir = normalize(-dir.direction);
+  vec3 lightDir = normalize(-dirLight.direction);
 
   // diffuse shading
   float diff = max(dot(normal, lightDir), 0.0);
@@ -116,7 +116,7 @@ mat3 calcDirLight(DirLight dir, vec3 normal, vec3 viewDir)
   vec3 diffuseColor = vec3(texture(u_material.texture_diffuse1, v_tex_coords));
   vec3 specularColor = vec3(texture(u_material.texture_specular1, v_tex_coords));
 
-  Light light = dir.light;
+  Light light = dirLight.light;
   vec3 ambient = light.ambient * diffuseColor;
   vec3 diffuse = light.diffuse * diff * diffuseColor;
   vec3 specular = light.specular * spec * specularColor;
@@ -124,32 +124,32 @@ mat3 calcDirLight(DirLight dir, vec3 normal, vec3 viewDir)
   return mat3(ambient, diffuse, specular);
 }
 
-mat3 calcPointLight(PointLight poi, vec3 normal, vec3 viewDir, vec3 fragPos)
+mat3 calcPointLight(PointLight pointLight, vec3 normal, vec3 viewDir, vec3 fragPos)
 {
-  vec3 lightDiff = poi.position - fragPos;
+  vec3 lightDiff = pointLight.position - fragPos;
   vec3 lightDir = normalize(lightDiff);
   float lightDist = length(lightDiff);
 
-  float attenuation = calcAttenuation(poi.attenuation, lightDist);
+  float attenuation = calcAttenuation(pointLight.attenuation, lightDist);
 
   return calcDirLight(
-    DirLight(-lightDir, poi.light),
+    DirLight(-lightDir, pointLight.light),
     normal,
     viewDir
   ) * attenuation;
 }
 
-mat3 calcSpotLight(SpotLight spo, vec3 normal, vec3 viewDir, vec3 fragPos)
+mat3 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPos)
 {
-  vec3 lightDiff = spo.position - fragPos;
+  vec3 lightDiff = spotLight.position - fragPos;
   vec3 lightDir = normalize(lightDiff);
 
-  float theta = dot(lightDir, normalize(-spo.direction));
-  float epsilon = (spo.cutOff - spo.outerCutOff);
-  float intensity = clamp((theta - spo.outerCutOff) / epsilon, 0.0, 1.0);
+  float theta = dot(lightDir, normalize(-spotLight.direction));
+  float epsilon = (spotLight.cutOff - spotLight.outerCutOff);
+  float intensity = clamp((theta - spotLight.outerCutOff) / epsilon, 0.0, 1.0);
 
   return calcPointLight(
-    PointLight(spo.position, spo.attenuation, spo.light),
+    PointLight(spotLight.position, spotLight.attenuation, spotLight.light),
     normal,
     viewDir,
     fragPos

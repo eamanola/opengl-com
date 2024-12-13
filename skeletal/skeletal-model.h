@@ -32,7 +32,7 @@ public:
   bool setAnimation(const unsigned int animationIndex);
 
 protected:
-  void processScene(const aiScene* scene) override;
+  void processScene(const aiScene* const scene) override;
 
 private:
   unsigned int mAnimationIndex;

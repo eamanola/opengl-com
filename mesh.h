@@ -19,10 +19,10 @@ public:
   void draw(Shader &shader);
   void free();
 
-  unsigned int VAO;
+  const unsigned int vao() const;
 
 private:
-  unsigned int VBO, EBO;
+  unsigned int VAO, VBO, EBO;
   void setupMesh();
 
   std::vector<Vertex>       vertices;

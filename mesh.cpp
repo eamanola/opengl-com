@@ -79,7 +79,16 @@ void Mesh::draw(Shader &shader)
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 
-  glActiveTexture(GL_TEXTURE0);
+  if(textures.size())
+  {
+    glActiveTexture(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
+}
+
+const unsigned int Mesh::vao() const
+{
+  return VAO;
 }
 
 void Mesh::free()

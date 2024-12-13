@@ -17,7 +17,7 @@ SkeletalModel::~SkeletalModel()
 {
 }
 
-void SkeletalModel::processScene(const aiScene* scene)
+void SkeletalModel::processScene(const aiScene* const scene)
 {
   Model::processScene(scene);
 
@@ -50,7 +50,7 @@ void SkeletalModel::processScene(const aiScene* scene)
 
     readBoneData(mesh, boneData, mBoneInfoMap);
 
-    mMeshes.push_back(SkeletalMesh(meshes[i].VAO, boneData));
+    mMeshes.push_back(SkeletalMesh(meshes[i].vao(), boneData));
   }
 
   readSkeleton(scene->mRootNode, mRootBone);
