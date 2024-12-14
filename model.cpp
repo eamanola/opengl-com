@@ -71,12 +71,12 @@ Mesh Model::processMesh(const aiMesh* const mesh, const aiScene* const scene)
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
     std::vector<Texture> dMaps = loadMaterialTextures(
-      material, aiTextureType_DIFFUSE, TEXTURE_TYPE_DIFFUSE
+      scene, material, aiTextureType_DIFFUSE, TEXTURE_TYPE_DIFFUSE
     );
     textures.insert(textures.end(), dMaps.begin(), dMaps.end());
 
     std::vector<Texture> sMaps = loadMaterialTextures(
-      material, aiTextureType_SPECULAR, TEXTURE_TYPE_SPECULAR
+      scene, material, aiTextureType_SPECULAR, TEXTURE_TYPE_SPECULAR
     );
     textures.insert(textures.end(), sMaps.begin(), sMaps.end());
   }
@@ -85,7 +85,8 @@ Mesh Model::processMesh(const aiMesh* const mesh, const aiScene* const scene)
 }
 
 std::vector<Texture> Model::loadMaterialTextures(
-  const aiMaterial* const material, const aiTextureType aiType, const TEXTURE_TYPE type
+  const aiScene* const scene, const aiMaterial* const material,
+  const aiTextureType aiType, const TEXTURE_TYPE type
 )
 {
   std::vector<Texture> textures;
@@ -111,8 +112,27 @@ std::vector<Texture> Model::loadMaterialTextures(
     }
     std::cout << "loading: " << directory << '/' << str.C_Str() << std::endl;
 
+    unsigned int textureId;
+    const aiTexture* embedded = scene->GetEmbeddedTexture(str.C_Str());
+    if(embedded != nullptr)
+    {
+      // Points to an array of mWidth * mHeight aiTexel's.
+      // The format of the texture data is always ARGB8888
+      // If mHeight = 0 this is a pointer to a memory buffer of size mWidth containing the
+      // compressed texture data.
+      unsigned int length = embedded->mWidth;
+      if(embedded->mHeight > 0) length *= embedded->mHeight;
+
+      textureId = ShaderUtils::loadTexture((unsigned char*)embedded->pcData, length);
+    }
+    else
+    {
+      textureId = ShaderUtils::loadTexture((directory + '/' + str.C_Str()).c_str());
+    }
+
+    std::cout << i;
     Texture texture {
-      .id = ShaderUtils::loadTexture(str.C_Str(), directory),
+      .id = textureId,
       .type = type,
       .path = str.C_Str()
     };

@@ -13,6 +13,7 @@ public:
 
   void setModelMatrix(glm::mat4 &modelMatrix);
   bool setAnimation(unsigned int animationIndex);
+  void setSpeed(unsigned int speed);
   void update(float time);
   virtual void draw(Shader &shader);
   virtual void free();

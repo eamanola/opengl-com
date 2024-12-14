@@ -9,7 +9,8 @@ mAnimations({}),
 mMeshes({}),
 mBoneInfoMap({}),
 mRootBone({}),
-mCurrentPose({})
+mCurrentPose({}),
+mSpeed(1000)
 {
 }
 
@@ -346,7 +347,7 @@ void SkeletalModel::getPose(
 void SkeletalModel::update(float timeInMSec)
 {
   glm::mat4 identity = glm::mat4(1.0f);
-  getPose(mAnimations[mAnimationIndex], mRootBone, timeInMSec * 1000, identity, mCurrentPose);
+  getPose(mAnimations[mAnimationIndex], mRootBone, timeInMSec * mSpeed, identity, mCurrentPose);
 }
 
 const std::vector<glm::mat4> SkeletalModel::pose() const
@@ -363,6 +364,11 @@ bool SkeletalModel::setAnimation(const unsigned int animationIndex)
   }
 
   return false;
+}
+
+void SkeletalModel::setSpeed(const unsigned int speed)
+{
+  mSpeed = speed;
 }
 
 void SkeletalModel::free()

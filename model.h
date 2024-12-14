@@ -26,7 +26,8 @@ private:
 
   Mesh processMesh(const aiMesh* const mesh, const aiScene* const scene);
   std::vector<Texture> loadMaterialTextures(
-    const aiMaterial* const material, const aiTextureType aiType, const TEXTURE_TYPE type
+    const aiScene* const scene, const aiMaterial* const material,
+    const aiTextureType aiType, const TEXTURE_TYPE type
   );
 };
 

@@ -20,6 +20,11 @@ bool Character::setAnimation(unsigned int animationIndex)
   return mModel.setAnimation(animationIndex);
 }
 
+void Character::setSpeed(unsigned int speed)
+{
+  mModel.setSpeed(speed);
+}
+
 void Character::update(float time)
 {
   mModel.update(time);

@@ -21,37 +21,65 @@ const unsigned int ShaderUtils::compileShader(GLenum type, const char* path)
   return ShaderUtils::compile(type, source.c_str());
 }
 
-unsigned int ShaderUtils::loadTexture(std::string path, std::string directory)
+unsigned int ShaderUtils::loadTexture(const char* path)
 {
-  unsigned int texture;
-  glGenTextures(1, &texture);
+  unsigned int texture = 0;
 
   stbi_set_flip_vertically_on_load(true);
   int width, height, nrChannel;
-  unsigned char* data = stbi_load((directory + '/' + path).c_str(), &width, &height, &nrChannel, 0);
+  unsigned char* data = stbi_load(path, &width, &height, &nrChannel, 0);
   if (data) {
-    GLenum format;
-
-    if(nrChannel == 3) format = GL_RGB;
-    else if (nrChannel == 4) format = GL_RGBA;
-
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    texture = ShaderUtils::getTexture(width, height, nrChannel, data);
   }
   else
   {
     std::cout << "Failed to load texture" << std::endl;
-    glDeleteTextures(1, &texture);
-    texture = 0;
   }
 
   stbi_image_free(data);
+
+  return texture;
+}
+
+unsigned int ShaderUtils::loadTexture(const unsigned char* const buffer, const unsigned int len)
+{
+  unsigned int texture = 0;
+
+  stbi_set_flip_vertically_on_load(true);
+  int width, height, nrChannel;
+  unsigned char* data = stbi_load_from_memory(buffer, len, &width, &height, &nrChannel, 0);
+  if (data) {
+    texture = ShaderUtils::getTexture(width, height, nrChannel, data);
+  }
+  else
+  {
+    std::cout << "Failed to load texture" << std::endl;
+  }
+
+  stbi_image_free(data);
+
+  return texture;
+}
+
+const unsigned int ShaderUtils::getTexture(int width, int height, int nrChannel, unsigned char* data)
+{
+  unsigned int texture = 0;
+
+  GLenum format;
+
+  if(nrChannel == 3) format = GL_RGB;
+  else if (nrChannel == 4) format = GL_RGBA;
+
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
   glBindTexture(GL_TEXTURE_2D, 0);
 
   return texture;

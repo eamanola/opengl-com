@@ -30,6 +30,7 @@ public:
 
   const std::vector<glm::mat4> pose() const;
   bool setAnimation(const unsigned int animationIndex);
+  void setSpeed(const unsigned int speed);
 
 protected:
   void processScene(const aiScene* const scene) override;
@@ -41,6 +42,7 @@ private:
   std::unordered_map<std::string, BoneInfo> mBoneInfoMap;
   Bone mRootBone;
   std::vector<glm::mat4> mCurrentPose;
+  unsigned int mSpeed;
 
   void readAnimation(const aiAnimation* scene, Animation& outAnimation);
   void readBoneData(
