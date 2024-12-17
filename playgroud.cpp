@@ -21,6 +21,7 @@ box()
   lightingSettings.setup(skeletal);
 
   m2b.loadModel("assets/2b-jumps2/scene.gltf");
+
   lightingProgram.use();
   lightingSettings.setup(lightingProgram);
 
@@ -39,6 +40,16 @@ box()
       glm::vec3(-1.3f,  1.0f, -1.5f)
     }
   );
+
+#ifdef FOLLOW_WHIPPER
+  glm::vec3 cameraPos = whipper.position() + glm::vec3(0.f, 0.f, 8.f);
+  glm::vec3 cameraDir = glm::normalize(whipper.position() - cameraPos);
+#else
+  glm::vec3 cameraPos = glm::vec3(0.f) + glm::vec3(0.f, 0.f, 8.f);
+  glm::vec3 cameraDir = glm::normalize(glm::vec3(0.f) - cameraPos);
+#endif
+  camera.setPosition(cameraPos, true);
+  camera.setDirection(cameraDir, true);
 }
 
 
@@ -56,9 +67,24 @@ void Playground::update(const float &time)
   lightingSettings.mLights.positions[0].x = 1.0f + sin(time) * 2.0f;
   lightingSettings.mLights.positions[0].y = sin(time / 2.0f) * 1.0f;
 
+  camera.updatePosition(time);
+  camera.updateDirection(time);
+
   tifa.update(time);
   dae.update(time);
   whipper.update(time);
+
+#ifdef FOLLOW_WHIPPER
+  if(time > 2.f)
+  {
+    glm::vec3 cameraPos = whipper.position() + glm::vec3(0.f, 0.f, 8.f);
+    camera.setPosition(cameraPos, false);
+    // whipperPos = camera.position() + glm::vec3(0.f, 0.f, -8.f);
+
+    glm::vec3 cameraDir = glm::normalize(whipper.position() - camera.position());
+    camera.setDirection(cameraDir, false);
+  }
+#endif
 }
 
 void Playground::render()
@@ -67,6 +93,7 @@ void Playground::render()
   const glm::mat4 projection = camera.projection();
   const glm::mat4 proj_x_view = projection * view;
   const glm::vec3 view_pos = camera.position();
+  glm::mat4 identity = glm::mat4(1.f);
 
   skeletal.use();
   skeletal.setMat4fv("u_proj_x_view", proj_x_view);
@@ -74,13 +101,19 @@ void Playground::render()
   lightingSettings.updatePointLight0Position(skeletal);
   lightingSettings.updateSpotLight(skeletal, view_pos, camera.front(), !mSpotlightOn);
   // tifa
-  tifa.draw(skeletal);
+  const glm::mat4 tifaTransform = glm::translate(identity, glm::vec3(-1.5f, 0.f, 1.f));
+  tifa.draw(skeletal, tifaTransform);
 
   // dae
-  dae.draw(skeletal);
+  const glm::mat4 daeTransform = glm::translate(identity, glm::vec3(0.f, 0.f, 1.f));
+  dae.draw(skeletal, daeTransform);
 
   // whipper
-  whipper.draw(skeletal);
+  glm::mat4 whipperTransform = glm::translate(identity, whipper.position());
+  whipperTransform = glm::rotate(
+    whipperTransform, glm::radians(whipper.rotation()), glm::vec3(0.f, 1.f, 0.f)
+  );
+  whipper.draw(skeletal, whipperTransform);
 
   lightingProgram.use();
   lightingProgram.setMat4fv("u_proj_x_view", proj_x_view);
@@ -88,7 +121,8 @@ void Playground::render()
   lightingSettings.updatePointLight0Position(lightingProgram);
   lightingSettings.updateSpotLight(lightingProgram, view_pos, camera.front(), !mSpotlightOn);
 
-  glm::mat4 m2bm = glm::translate(glm::mat4(1.0), glm::vec3(0.f, 1.f, 0.f));
+  glm::mat4 m2bm = glm::translate(glm::mat4(1.0), glm::vec3(0.f, -1.f, 2.f));
+  // m2bm = glm::rotate(m2bm, glm::radians(-90.f), glm::vec3(1.0f, 0.f, 0.f));
   lightingProgram.setMat4fv("u_model", m2bm);
   m2b.draw(lightingProgram);
 
@@ -166,31 +200,31 @@ void Playground::highlight(Box &box, glm::mat4 model)
   glDisable(GL_STENCIL_TEST);
 }
 
-float deltaTime = 0.f;
 float lastFrame = 0.f;
 void Playground::handleInput(GLFWwindow* window)
 {
+#ifdef FOLLOW_WHIPPER
+  whipper.handleInput(window, camera);
+#else
   const float time = glfwGetTime();
   const float deltaTime = time - lastFrame;
   lastFrame = time;
 
-  if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    camera.moveForward(2.5f * deltaTime);
-
-  if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    camera.moveBackward(2.5f * deltaTime);
-
-  if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    camera.moveLeft(2.5f * deltaTime);
-
-  if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    camera.moveRight(2.5f * deltaTime);
+  if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.moveForward(2.5f * deltaTime);
+  else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.moveBackward(2.5f * deltaTime);
+  else if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.moveLeft(2.5f * deltaTime);
+  else if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.moveRight(2.5f * deltaTime);
+#endif
 }
 
 void Playground::onChar(const char c)
 {
   if(c == 'f') {
     toggleSpotLight();
+  }
+  else if(c == ' ')
+  {
+    std::cout << " ";
   }
 }
 

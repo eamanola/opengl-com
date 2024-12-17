@@ -15,7 +15,10 @@ Model::~Model()
 void Model::loadModel(const std::string path)
 {
   Assimp::Importer importer;
-  unsigned int postProcess = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals;
+  unsigned int postProcess =
+    aiProcess_Triangulate |
+    // aiProcess_FlipUVs | //puts (0,0) to top left (DirectX stuff)
+    aiProcess_GenSmoothNormals;
   const aiScene* scene = importer.ReadFile(path, postProcess);
 
   if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -66,7 +69,7 @@ Mesh Model::processMesh(const aiMesh* const mesh, const aiScene* const scene)
     }
   }
 
-  if(mesh->mMaterialIndex > 0)
+  if(scene->HasMaterials())
   {
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
@@ -130,12 +133,7 @@ std::vector<Texture> Model::loadMaterialTextures(
       textureId = ShaderUtils::loadTexture((directory + '/' + str.C_Str()).c_str());
     }
 
-    std::cout << i;
-    Texture texture {
-      .id = textureId,
-      .type = type,
-      .path = str.C_Str()
-    };
+    Texture texture { .id = textureId, .type = type, .path = str.C_Str() };
     textures.push_back(texture);
     textures_loaded.push_back(texture);
   }

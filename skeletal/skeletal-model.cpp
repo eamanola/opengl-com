@@ -9,8 +9,7 @@ mAnimations({}),
 mMeshes({}),
 mBoneInfoMap({}),
 mRootBone({}),
-mCurrentPose({}),
-mSpeed(1000)
+mCurrentPose({})
 {
 }
 
@@ -245,7 +244,7 @@ std::pair<int, float> SkeletalModel::getTimeFraction(
 ) const
 {
   unsigned int segment = 0;
-  while (animTime > times[segment]) segment ++;
+  while (animTime >= times[segment]) segment ++;
 
   float start = times[segment - 1];
   float end = times[segment];
@@ -276,7 +275,7 @@ void SkeletalModel::getPose(
   const glm::mat4 IDENTITY = glm::mat4(1.f);
   const BoneTransform& bt = animation.boneTransforms[bone.name];
   const BoneInfo& boneInfo = mBoneInfoMap[bone.name];
-  const float animationTime = fmod(timeInSec, animation.duration);
+  const float animationTime = fmod(timeInSec * animation.ticksPerSecond, animation.duration);
 
   //local transform
   glm::mat4 positionMat = IDENTITY;
@@ -347,7 +346,12 @@ void SkeletalModel::getPose(
 void SkeletalModel::update(float timeInMSec)
 {
   glm::mat4 identity = glm::mat4(1.0f);
-  getPose(mAnimations[mAnimationIndex], mRootBone, timeInMSec * mSpeed, identity, mCurrentPose);
+  getPose(
+    mAnimations[mAnimationIndex],
+    mRootBone, timeInMSec,
+    identity,
+    mCurrentPose
+  );
 }
 
 const std::vector<glm::mat4> SkeletalModel::pose() const
@@ -355,20 +359,15 @@ const std::vector<glm::mat4> SkeletalModel::pose() const
   return mCurrentPose;
 }
 
-bool SkeletalModel::setAnimation(const unsigned int animationIndex)
+Animation* const SkeletalModel::setAnimation(const unsigned int animationIndex)
 {
   if(animationIndex < mAnimations.size())
   {
     mAnimationIndex = animationIndex;
-    return true;
+    return &mAnimations[animationIndex];
   }
 
-  return false;
-}
-
-void SkeletalModel::setSpeed(const unsigned int speed)
-{
-  mSpeed = speed;
+  return nullptr;
 }
 
 void SkeletalModel::free()

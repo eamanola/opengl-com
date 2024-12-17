@@ -12,6 +12,12 @@ Camera::Camera(/* args */)
   pitch = 0.f;
   yaw = -90.f;
   fov = 45.f;
+
+  mAnimatePos = false;
+  mDurationPos = 1.f;
+
+  mAnimateDir = false;
+  mDurationDir = 1.f;
 }
 
 Camera::~Camera()
@@ -20,7 +26,7 @@ Camera::~Camera()
 
 const glm::mat4 Camera::view() const
 {
-  return glm::lookAt(mPosition, mPosition + mFront, up);
+  return glm::lookAt(mPosition, mPosition + mFront, mUp);
 }
 
 const glm::mat4 Camera::projection() const
@@ -38,31 +44,43 @@ const glm::vec3 Camera::front() const
   return mFront;
 }
 
+const glm::vec3 Camera::right() const
+{
+  return mRight;
+}
+
 void Camera::moveForward(const float speed)
 {
-  mPosition += mFront * speed;
+  move(mFront, speed);
 }
 
 void Camera::moveBackward(const float speed)
 {
-  mPosition -= mFront * speed;
+  const glm::vec3 back = -mFront;
+  move(back, speed);
 }
 
 void Camera::moveLeft(const float speed)
 {
-  mPosition -= right * speed;
+  const glm::vec3 left = -mRight;
+  move(left, speed);
 }
 
 void Camera::moveRight(const float speed)
 {
-  mPosition += right * speed;
+  move(mRight, speed);
+}
+
+void Camera::move(const glm::vec3 &direction, const float speed)
+{
+  mPosition += direction * speed;
 }
 
 void Camera::updateVectors(const glm::vec3 &direction)
 {
   mFront = glm::normalize(direction);
-  right = glm::normalize(glm::cross(mFront, UP));
-  up = glm::normalize(glm::cross(right, mFront));
+  mRight = glm::normalize(glm::cross(mFront, UP));
+  mUp = glm::normalize(glm::cross(mRight, mFront));
 }
 
 void Camera::changeDirection(const float xoffset, const float yoffset)
@@ -97,5 +115,79 @@ void Camera::zoom(const float yoffset)
   else if(fov > 45.f)
   {
     fov = 45.f;
+  }
+}
+
+void Camera::setPosition(glm::vec3& position, bool animate)
+{
+  mAnimatePos = animate;
+
+  if(animate)
+  {
+    mStartPos = mPosition;
+    mTargetPos = position;
+    mStartTimePos = ANIMATION_TIME_NOT_STARTED;
+  }
+  else
+  {
+    mPosition = position;
+  }
+}
+
+void Camera::setPosition(glm::vec3& position)
+{
+  setPosition(position, false);
+}
+
+void Camera::updatePosition(float time)
+{
+  if(mAnimatePos)
+  {
+    if(mStartTimePos == ANIMATION_TIME_NOT_STARTED)
+    {
+      mStartTimePos = time;
+    }
+
+    const float frac = std::min((time - mStartTimePos) / mDurationPos, 1.f);
+    mPosition = glm::mix(mStartPos, mTargetPos, frac);
+    mAnimatePos = mPosition != mTargetPos;
+  }
+}
+
+
+void Camera::setDirection(glm::vec3& direction, bool animate)
+{
+  mAnimateDir = animate;
+
+  if(animate)
+  {
+    mStartDir = mFront;
+    mTargetDir = glm::normalize(direction);
+    mStartTimeDir = ANIMATION_TIME_NOT_STARTED;
+  }
+  else
+  {
+    updateVectors(direction);
+  }
+}
+
+void Camera::setDirection(glm::vec3& direction)
+{
+  setDirection(direction, false);
+}
+
+void Camera::updateDirection(float time)
+{
+  if(mAnimateDir)
+  {
+    if(mStartTimeDir == ANIMATION_TIME_NOT_STARTED)
+    {
+      mStartTimeDir = time;
+    }
+
+    const float frac = std::min((time - mStartTimeDir) / mDurationDir, 1.f);
+    const glm::vec3 direction = glm::mix(mStartDir, mTargetDir, frac);
+    updateVectors(direction);
+    mAnimateDir = mFront != mTargetDir;
   }
 }

@@ -9,7 +9,6 @@ public:
   Dae();
   ~Dae();
 
-  void draw(Shader &shader) override;
   void free() override;
 
 private:

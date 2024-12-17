@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 
 Character::Character(const char* path)
+: mCurrentAnimation(0)
 {
   mModel.loadModel(path);
 }
@@ -17,12 +18,15 @@ void Character::setModelMatrix(glm::mat4 &modelMatrix)
 
 bool Character::setAnimation(unsigned int animationIndex)
 {
-  return mModel.setAnimation(animationIndex);
-}
+  Animation* animation = mModel.setAnimation(animationIndex);
+  if(animation != 0)
+  {
+    mCurrentAnimation = animation;
+    mStartTime = glfwGetTime();
+    return true;
+  }
 
-void Character::setSpeed(unsigned int speed)
-{
-  mModel.setSpeed(speed);
+  return false;
 }
 
 void Character::update(float time)
@@ -30,7 +34,7 @@ void Character::update(float time)
   mModel.update(time);
 }
 
-void Character::draw(Shader &shader)
+void Character::draw(Shader &shader, const glm::mat4 &transform)
 {
   shader.use();
 
@@ -39,9 +43,15 @@ void Character::draw(Shader &shader)
   {
     shader.setMat4fv("u_bone_transforms[" + std::to_string(i) + "]", transforms[i]);
   }
-  shader.setMat4fv("u_model", mModelMatrix);
+  glm::mat4 model = transform * mModelMatrix;
+  shader.setMat4fv("u_model", model);
 
   mModel.draw(shader);
+}
+
+void Character::handleInput(GLFWwindow* window, Camera &camera)
+{
+
 }
 
 void Character::free()
