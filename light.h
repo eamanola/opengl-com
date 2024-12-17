@@ -2,20 +2,19 @@
 #define LIGHT_H
 
 #include "mesh.h"
-#include "shader.h"
 
 class Light
 {
-  public:
-    Light();
-    ~Light();
+public:
+  Light();
+  ~Light();
 
-    void draw(Shader &shader);
-    void free();
+  void draw(Shader &shader);
+  void free();
 
-  private:
-    void setup();
-    Mesh* mesh;
+private:
+  void setup();
+  Mesh* mMesh;
 };
 
 #endif

@@ -9,6 +9,11 @@ Dae::Dae() : Character("assets/dae-runner/model.dae")
   model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
   model = glm::scale(model, glm::vec3(0.25f));
   setModelMatrix(model);
+
+  // Animation staticPose;
+  // staticPose.duration = 1.f;
+  // unsigned int index = mModel.addAnimation(staticPose);
+  // setAnimation(index);
 }
 
 Dae::~Dae()
@@ -18,6 +23,4 @@ Dae::~Dae()
 void Dae::free()
 {
   Character::free();
-
-  glDeleteTextures(1, &textureId);
 }

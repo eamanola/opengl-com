@@ -27,7 +27,7 @@ void Model::loadModel(const std::string path)
     return;
   }
 
-  directory = path.substr(0, path.find_last_of('/'));
+  mDirectory = path.substr(0, path.find_last_of('/'));
 
   processScene(scene);
 }
@@ -39,13 +39,33 @@ void Model::processScene(const aiScene* const scene)
     aiMesh* mesh = scene->mMeshes[i];
     meshes.push_back(processMesh(mesh, scene));
   }
+
+  if(scene->HasMaterials())
+  {
+    for(unsigned int i = 0; i < scene->mNumMeshes; i++)
+    {
+      std::vector<unsigned int> textureMapping;
+      aiMesh* mesh = scene->mMeshes[i];
+
+      std::vector<unsigned int> dMaps = loadMaterialTextures(
+        scene, mesh, aiTextureType_DIFFUSE, TEXTURE_TYPE_DIFFUSE
+      );
+      textureMapping.insert(textureMapping.end(), dMaps.begin(), dMaps.end());
+
+      std::vector<unsigned int> sMaps = loadMaterialTextures(
+        scene, mesh, aiTextureType_SPECULAR, TEXTURE_TYPE_SPECULAR
+      );
+      textureMapping.insert(textureMapping.end(), sMaps.begin(), sMaps.end());
+
+      mMeshTextureMap.push_back(textureMapping);
+    }
+  }
 }
 
 Mesh Model::processMesh(const aiMesh* const mesh, const aiScene* const scene)
 {
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
-  std::vector<Texture> textures;
 
   for(unsigned int i = 0; i < mesh->mNumVertices; i++)
   {
@@ -69,41 +89,28 @@ Mesh Model::processMesh(const aiMesh* const mesh, const aiScene* const scene)
     }
   }
 
-  if(scene->HasMaterials())
-  {
-    aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-    std::vector<Texture> dMaps = loadMaterialTextures(
-      scene, material, aiTextureType_DIFFUSE, TEXTURE_TYPE_DIFFUSE
-    );
-    textures.insert(textures.end(), dMaps.begin(), dMaps.end());
-
-    std::vector<Texture> sMaps = loadMaterialTextures(
-      scene, material, aiTextureType_SPECULAR, TEXTURE_TYPE_SPECULAR
-    );
-    textures.insert(textures.end(), sMaps.begin(), sMaps.end());
-  }
-
-  return Mesh(vertices, indices, textures);
+  return Mesh(vertices, indices);
 }
 
-std::vector<Texture> Model::loadMaterialTextures(
-  const aiScene* const scene, const aiMaterial* const material,
+std::vector<unsigned int> Model::loadMaterialTextures(
+  const aiScene* const scene, const aiMesh* const mesh,
   const aiTextureType aiType, const TEXTURE_TYPE type
 )
 {
-  std::vector<Texture> textures;
+  std::vector<unsigned int> textureMapping;
+  aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
   for(unsigned int i = 0; i < material->GetTextureCount(aiType); i++)
   {
     aiString str;
     material->GetTexture(aiType, i, &str);
 
     bool skip = false;
-    for(unsigned int j = 0; j < textures_loaded.size(); j++)
+    for(unsigned int j = 0; j < mTextures.size(); j++)
     {
-      if(std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
+      if(std::strcmp(mTextures[j].path.data(), str.C_Str()) == 0)
       {
-        textures.push_back(textures_loaded[j]);
+        textureMapping.push_back(j);
         skip = true;
         break;
       }
@@ -113,7 +120,7 @@ std::vector<Texture> Model::loadMaterialTextures(
     {
       continue;
     }
-    std::cout << "loading: " << directory << '/' << str.C_Str() << std::endl;
+    std::cout << "loading: " << mDirectory << '/' << str.C_Str() << std::endl;
 
     unsigned int textureId;
     const aiTexture* embedded = scene->GetEmbeddedTexture(str.C_Str());
@@ -130,22 +137,28 @@ std::vector<Texture> Model::loadMaterialTextures(
     }
     else
     {
-      textureId = ShaderUtils::loadTexture((directory + '/' + str.C_Str()).c_str());
+      textureId = ShaderUtils::loadTexture((mDirectory + '/' + str.C_Str()).c_str());
     }
 
     Texture texture { .id = textureId, .type = type, .path = str.C_Str() };
-    textures.push_back(texture);
-    textures_loaded.push_back(texture);
+    mTextures.push_back(texture);
+    textureMapping.push_back(mTextures.size() - 1);
   }
 
-  return textures;
+  return textureMapping;
 }
 
 void Model::draw(Shader &shader)
 {
   for(unsigned int i = 0; i < meshes.size(); i++)
   {
-    meshes[i].draw(shader);
+    std::vector<Texture> textures;
+    for(unsigned int j = 0; j < mMeshTextureMap[i].size(); j++)
+    {
+      textures.push_back(mTextures[mMeshTextureMap[i][j]]);
+    }
+
+    meshes[i].draw(shader, textures);
   }
 }
 
@@ -154,5 +167,10 @@ void Model::free()
   for(unsigned int i = 0; i < meshes.size(); i++)
   {
     meshes[i].free();
+  }
+
+  for(unsigned int i = 0; i < mTextures.size(); i ++)
+  {
+    glDeleteTextures(1, &i);
   }
 }

@@ -1,10 +1,5 @@
 #include "light.h"
-
-#include "vertex.h"
-#include "texture.h"
 #include "shader-utils.h"
-#include <vector>
-#include <iterator>
 
 Light::Light()
 {
@@ -13,7 +8,7 @@ Light::Light()
 
 Light::~Light()
 {
-  delete mesh;
+  delete mMesh;
 }
 
 void Light::setup()
@@ -38,17 +33,16 @@ void Light::setup()
     1, 5, 6, 1, 6, 2  // bottom
   };
 
-  std::vector<Texture> textures;
-
-  mesh = new Mesh(vertices, indices, textures);
+  mMesh = new Mesh(vertices, indices);
 }
 
 void Light::draw(Shader &shader)
 {
-  mesh->draw(shader);
+  std::vector<Texture> textures;
+  mMesh->draw(shader, textures);
 }
 
 void Light::free()
 {
-  mesh->free();
+  mMesh->free();
 }

@@ -2,9 +2,11 @@
 
 Mesh::Mesh(
   std::vector<Vertex> vertices,
-  std::vector<unsigned int> indices,
-  std::vector<Texture> textures
-) : vertices(vertices), indices(indices), textures(textures)
+  std::vector<unsigned int> indices
+)
+:
+vertices(vertices),
+indices(indices)
 {
   setupMesh();
 }
@@ -50,7 +52,7 @@ void Mesh::setupMesh()
   glBindVertexArray(0);
 }
 
-void Mesh::draw(Shader &shader)
+void Mesh::draw(Shader &shader, std::vector<Texture> &textures)
 {
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
@@ -94,10 +96,6 @@ const unsigned int Mesh::vao() const
 
 void Mesh::free()
 {
-  for(unsigned int i = 0; i < textures.size(); i ++)
-  {
-    glDeleteTextures(1, &i);
-  }
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);

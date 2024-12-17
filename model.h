@@ -21,12 +21,13 @@ protected:
   virtual void processScene(const aiScene* const scene);
 
 private:
-  std::string directory;
-  std::vector<Texture> textures_loaded;
+  std::string mDirectory;
+  std::vector<Texture> mTextures;
+  std::vector<std::vector<unsigned int>> mMeshTextureMap;
 
   Mesh processMesh(const aiMesh* const mesh, const aiScene* const scene);
-  std::vector<Texture> loadMaterialTextures(
-    const aiScene* const scene, const aiMaterial* const material,
+  std::vector<unsigned int> loadMaterialTextures(
+    const aiScene* const scene, const aiMesh* const mesh,
     const aiTextureType aiType, const TEXTURE_TYPE type
   );
 };

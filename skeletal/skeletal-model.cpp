@@ -56,6 +56,9 @@ void SkeletalModel::processScene(const aiScene* const scene)
   readSkeleton(scene->mRootNode, mRootBone);
 
   mCurrentPose.resize(mBoneInfoMap.size(), glm::mat4(1.0));
+
+  // for (const std::pair<const std::string, BoneInfo>& n : mBoneInfoMap)
+  //   std::cout << n.first << "\n"; // , n.second);
 }
 
 void SkeletalModel::readAnimation(const aiAnimation* anim, Animation& outAnimation)
@@ -329,7 +332,8 @@ void SkeletalModel::getPose(
   glm::mat4 localTransform = positionMat * rotationMat * scaleMat;
   glm::mat4 globalTransform = parentTransform * localTransform;
 
-  output[boneInfo.index] = /*globalInverseTransform * */globalTransform * boneInfo.offset;
+  if(globalTransform == IDENTITY) output[boneInfo.index] = IDENTITY;
+  else output[boneInfo.index] = /*globalInverseTransform * */globalTransform * boneInfo.offset;
 
   for(unsigned int i = 0; i < bone.children.size(); i++)
   {
@@ -368,6 +372,13 @@ Animation* const SkeletalModel::setAnimation(const unsigned int animationIndex)
   }
 
   return nullptr;
+}
+
+unsigned int SkeletalModel::addAnimation(Animation animation)
+{
+  mAnimations.push_back(animation);
+
+  return mAnimations.size() - 1;
 }
 
 void SkeletalModel::free()

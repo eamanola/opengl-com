@@ -2,19 +2,19 @@
 #define BOX_H
 
 #include "mesh.h"
-#include "shader.h"
 
 class Box
 {
-  public:
-    Box(/* args */);
-    ~Box();
-    void draw(Shader &shader);
-    void free();
+public:
+  Box(/* args */);
+  ~Box();
+  void draw(Shader &shader);
+  void free();
 
-  private:
-    void setup();
-    Mesh* mesh;
+private:
+  void setup();
+  Mesh* mMesh;
+  std::vector<Texture> mTextures;
 };
 
 

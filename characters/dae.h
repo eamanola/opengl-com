@@ -10,9 +10,6 @@ public:
   ~Dae();
 
   void free() override;
-
-private:
-  unsigned int textureId;
 };
 
 #endif

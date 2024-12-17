@@ -30,6 +30,7 @@ public:
 
   const std::vector<glm::mat4> pose() const;
   Animation* const setAnimation(const unsigned int animationIndex);
+  unsigned int addAnimation(Animation animation);
 
 protected:
   void processScene(const aiScene* const scene) override;

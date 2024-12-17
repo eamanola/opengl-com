@@ -1,9 +1,5 @@
 #include "box.h"
-#include "vertex.h"
-#include "texture.h"
 #include "shader-utils.h"
-#include <vector>
-#include <iterator>
 
 Box::Box(/* args */)
 {
@@ -12,12 +8,12 @@ Box::Box(/* args */)
 
 Box::~Box()
 {
-  delete mesh;
+  delete mMesh;
 }
 
 void Box::setup()
 {
-    std::vector<Vertex> vertices = {
+  std::vector<Vertex> vertices = {
     { .position { -0.5f, -0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, .texCoords { 0.f, 0.f } },
     { .position {  0.5f, -0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, .texCoords { 1.f, 0.f } },
     { .position {  0.5f,  0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, .texCoords { 1.f, 1.f } },
@@ -58,28 +54,33 @@ void Box::setup()
     20, 21, 22, 20, 22, 23
   };
 
-  std::vector<Texture> textures = {
-    {
+  mMesh = new Mesh(vertices, indices);
+
+  mTextures.assign({
+    Texture {
       .id = ShaderUtils::loadTexture("assets/container2.png"),
       .type = TEXTURE_TYPE_DIFFUSE,
       .path = "assets/container2.png"
     },
-    {
+    Texture {
       .id = ShaderUtils::loadTexture("assets/container2_specular.png"),
       .type = TEXTURE_TYPE_SPECULAR,
       .path = "assets/container2_specular.png"
     }
-  };
-
-  mesh = new Mesh(vertices, indices, textures);
+  });
 }
 
 void Box::draw(Shader &shader)
 {
-  mesh->draw(shader);
+  mMesh->draw(shader, mTextures);
 }
 
 void Box::free()
 {
-  mesh->free();
+  mMesh->free();
+
+  for(unsigned int i = 0; i < mTextures.size(); i ++)
+  {
+    glDeleteTextures(1, &i);
+  }
 }

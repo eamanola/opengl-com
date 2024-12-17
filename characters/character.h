@@ -25,9 +25,9 @@ public:
 protected:
   float mStartTime;
   Animation* mCurrentAnimation;
+  SkeletalModel mModel;
 
 private:
-  SkeletalModel mModel;
   glm::mat4 mModelMatrix;
 };
 
