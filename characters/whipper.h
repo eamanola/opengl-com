@@ -19,7 +19,7 @@ public:
   Whipper();
   ~Whipper();
 
-  void handleInput(GLFWwindow* window, Camera &camera) override;
+  void handleInput(const GLFWwindow* window, const Camera &camera) override;
   void update(float time) override;
   void draw(Shader &shader, const glm::mat4 &transform) override;
   void free() override;
@@ -34,7 +34,7 @@ private:
   float mRotation;
 
   bool setState(WHIPPER_STATES state);
-  bool isJumping(WHIPPER_STATES state);
+  bool isJumping(const WHIPPER_STATES &state);
   void updateJumping(float frac);
 
   float getAngle(bool W, bool D, bool S, bool A);

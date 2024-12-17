@@ -29,11 +29,11 @@ public:
   void update(float dt);
 
   const std::vector<glm::mat4> pose() const;
-  Animation* const setAnimation(const unsigned int animationIndex);
+  const Animation* setAnimation(unsigned int animationIndex);
   unsigned int addAnimation(Animation animation);
 
 protected:
-  void processScene(const aiScene* const scene) override;
+  void processScene(const aiScene* scene) override;
 
 private:
   unsigned int mAnimationIndex;
@@ -43,27 +43,20 @@ private:
   Bone mRootBone;
   std::vector<glm::mat4> mCurrentPose;
 
-  void readAnimation(const aiAnimation* scene, Animation& outAnimation);
-  void readBoneData(
-    const aiMesh* mesh,
-    std::vector<SkeletalVertex>& outBoneData,
-    std::unordered_map<std::string, BoneInfo>& outBoneInfoMap
-  );
+  Animation readAnimation(const aiAnimation* scene);
+  std::vector<SkeletalVertex> readBoneData(const aiMesh* mesh);
   bool replaceOrDiscard(
-    const unsigned int boneId, const float weight, SkeletalVertex &outVertexBoneData
+    unsigned int boneId, float weight, SkeletalVertex &outVertexBoneData
   );
 
-  BoneInfo addBone(
-    const std::string name, const glm::mat4 offset,
-    std::unordered_map<std::string, BoneInfo>& outBoneInfoMap
-  );
+  const BoneInfo* addBone(const std::string &name, const glm::mat4 offset);
   // void normalizeWeights(std::vector<SkeletalVertex>& boneData);
   bool readSkeleton(const aiNode* node, Bone& outSkeleton);
-  std::pair<int, float> getTimeFraction(const std::vector<float>& times, const float& dt) const;
-  void getPose(
-    Animation& animation,
+  std::pair<int, float> getTimeFraction(const std::vector<float>& times, float dt) const;
+  void updatePose(
+    const Animation& animation,
     const Bone& skeleton,
-    const float dt,
+    const float& dt,
     const glm::mat4& parentTransform,
     std::vector<glm::mat4>& output
   );

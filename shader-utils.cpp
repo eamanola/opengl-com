@@ -23,13 +23,13 @@ const unsigned int ShaderUtils::compileShader(GLenum type, const char* path)
 
 unsigned int ShaderUtils::loadTexture(const char* path)
 {
-  unsigned int texture = 0;
+  unsigned int textureId = 0;
 
   stbi_set_flip_vertically_on_load(true);
   int width, height, nrChannel;
   unsigned char* data = stbi_load(path, &width, &height, &nrChannel, 0);
   if (data) {
-    texture = ShaderUtils::getTexture(width, height, nrChannel, data);
+    textureId = ShaderUtils::createTexture(width, height, nrChannel, data);
   }
   else
   {
@@ -38,18 +38,18 @@ unsigned int ShaderUtils::loadTexture(const char* path)
 
   stbi_image_free(data);
 
-  return texture;
+  return textureId;
 }
 
 unsigned int ShaderUtils::loadTexture(const unsigned char* const buffer, const unsigned int len)
 {
-  unsigned int texture = 0;
+  unsigned int textureId = 0;
 
   stbi_set_flip_vertically_on_load(true);
   int width, height, nrChannel;
   unsigned char* data = stbi_load_from_memory(buffer, len, &width, &height, &nrChannel, 0);
   if (data) {
-    texture = ShaderUtils::getTexture(width, height, nrChannel, data);
+    textureId = ShaderUtils::createTexture(width, height, nrChannel, data);
   }
   else
   {
@@ -58,20 +58,20 @@ unsigned int ShaderUtils::loadTexture(const unsigned char* const buffer, const u
 
   stbi_image_free(data);
 
-  return texture;
+  return textureId;
 }
 
-const unsigned int ShaderUtils::getTexture(int width, int height, int nrChannel, unsigned char* data)
+const unsigned int ShaderUtils::createTexture(int width, int height, int nrChannel, unsigned char* data)
 {
-  unsigned int texture = 0;
+  unsigned int textureId = 0;
 
   GLenum format;
 
   if(nrChannel == 3) format = GL_RGB;
   else if (nrChannel == 4) format = GL_RGBA;
 
-  glGenTextures(1, &texture);
-  glBindTexture(GL_TEXTURE_2D, texture);
+  glGenTextures(1, &textureId);
+  glBindTexture(GL_TEXTURE_2D, textureId);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, format, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -82,7 +82,7 @@ const unsigned int ShaderUtils::getTexture(int width, int height, int nrChannel,
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  return texture;
+  return textureId;
 }
 
 const std::string ShaderUtils::readFile(const char* path)

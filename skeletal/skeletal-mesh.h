@@ -8,13 +8,13 @@
 class SkeletalMesh
 {
 public:
-  SkeletalMesh(const unsigned int &VAO, const std::vector<SkeletalVertex> &vertices);
+  SkeletalMesh(unsigned int VAO, const std::vector<SkeletalVertex> &vertices);
   ~SkeletalMesh();
 
   void free();
 
 private:
-  void setupBones(const unsigned int &VAO, const std::vector<SkeletalVertex> &vertices);
+  void setupBones(unsigned int VAO, const std::vector<SkeletalVertex> &vertices);
   unsigned int VBO;
 };
 

@@ -18,17 +18,16 @@ public:
 
 protected:
   std::vector<Mesh> meshes;
-  virtual void processScene(const aiScene* const scene);
+  virtual void processScene(const aiScene* scene);
 
 private:
   std::string mDirectory;
   std::vector<Texture> mTextures;
   std::vector<std::vector<unsigned int>> mMeshTextureMap;
 
-  Mesh processMesh(const aiMesh* const mesh, const aiScene* const scene);
+  Mesh processMesh(const aiScene* scene, const aiMesh* mesh);
   std::vector<unsigned int> loadMaterialTextures(
-    const aiScene* const scene, const aiMesh* const mesh,
-    const aiTextureType aiType, const TEXTURE_TYPE type
+    const aiScene* scene, const aiMesh* mesh, const aiTextureType aiType, const TEXTURE_TYPE type
   );
 };
 

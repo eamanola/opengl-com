@@ -1,11 +1,11 @@
-#ifndef BONETRANSFORM_H
-#define BONETRANSFORM_H
+#ifndef BONETRANSFORMS_H
+#define BONETRANSFORMS_H
 
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 
-struct BoneTransform
+struct BoneTransforms
 {
   std::vector<float> positionTimestamps = {};
   std::vector<float> rotationTimestamps = {};

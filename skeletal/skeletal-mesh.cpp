@@ -1,6 +1,6 @@
 #include "skeletal-mesh.h"
 
-SkeletalMesh::SkeletalMesh(const unsigned int &VAO, const std::vector<SkeletalVertex> &vertices)
+SkeletalMesh::SkeletalMesh(unsigned int VAO, const std::vector<SkeletalVertex> &vertices)
 {
   setupBones(VAO, vertices);
 }
@@ -9,7 +9,7 @@ SkeletalMesh::~SkeletalMesh()
 {
 }
 
-void SkeletalMesh::setupBones(const unsigned int &VAO, const std::vector<SkeletalVertex> &vertices)
+void SkeletalMesh::setupBones(unsigned int VAO, const std::vector<SkeletalVertex> &vertices)
 {
   // for(unsigned int i = 0; i < vertices.size(); i ++)
   // {

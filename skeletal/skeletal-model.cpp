@@ -4,12 +4,7 @@
 
 SkeletalModel::SkeletalModel()
 :
-mAnimationIndex(0),
-mAnimations({}),
-mMeshes({}),
-mBoneInfoMap({}),
-mRootBone({}),
-mCurrentPose({})
+mAnimationIndex(0)
 {
 }
 
@@ -17,7 +12,7 @@ SkeletalModel::~SkeletalModel()
 {
 }
 
-void SkeletalModel::processScene(const aiScene* const scene)
+void SkeletalModel::processScene(const aiScene* scene)
 {
   Model::processScene(scene);
 
@@ -29,13 +24,11 @@ void SkeletalModel::processScene(const aiScene* const scene)
 
   for(unsigned int i = 0; i < scene->mNumAnimations; i++)
   {
-    Animation animation;
+
     aiAnimation* anim = scene->mAnimations[i];
     std::cout << "info:" << i << " " << anim->mName.C_Str() << std::endl;
 
-    readAnimation(anim, animation);
-
-    mAnimations.push_back(animation);
+    addAnimation(readAnimation(anim));
   }
 
   for(unsigned int i = 0; i < scene->mNumMeshes; i++)
@@ -43,12 +36,7 @@ void SkeletalModel::processScene(const aiScene* const scene)
     aiMesh* mesh = scene->mMeshes[i];
     // std::cout << mesh->mName.C_Str() << std::endl;
 
-    std::vector<SkeletalVertex> boneData(
-      mesh->mNumVertices,
-      SkeletalVertex { .boneIds = {}, .boneWeights = {} }
-    );
-
-    readBoneData(mesh, boneData, mBoneInfoMap);
+    std::vector<SkeletalVertex> boneData = readBoneData(mesh);
 
     mMeshes.push_back(SkeletalMesh(meshes[i].vao(), boneData));
   }
@@ -61,21 +49,19 @@ void SkeletalModel::processScene(const aiScene* const scene)
   //   std::cout << n.first << "\n"; // , n.second);
 }
 
-void SkeletalModel::readAnimation(const aiAnimation* anim, Animation& outAnimation)
+Animation SkeletalModel::readAnimation(const aiAnimation* anim)
 {
-  if(anim->mTicksPerSecond != 0.f)
-  {
-    outAnimation.ticksPerSecond = anim->mTicksPerSecond;
-  }
+  Animation animation {
+    .duration = (float)anim->mDuration,
+    .ticksPerSecond = anim->mTicksPerSecond != 0.f ? (float)anim->mTicksPerSecond : 1.f,
+    .boneTransforms = {}
+  };
 
-  outAnimation.duration = anim->mDuration;
-
-  outAnimation.boneTransforms = {};
   for(unsigned int i = 0; i < anim->mNumChannels; i++)
   {
-    aiNodeAnim* channel = anim->mChannels[i];
-    std::string boneName = channel->mNodeName.C_Str();
-    BoneTransform transforms;
+    const aiNodeAnim* channel = anim->mChannels[i];
+    const std::string boneName = channel->mNodeName.C_Str();
+    BoneTransforms transforms;
 
     for(unsigned int j = 0; j < channel->mNumPositionKeys; j++)
     {
@@ -95,24 +81,23 @@ void SkeletalModel::readAnimation(const aiAnimation* anim, Animation& outAnimati
       transforms.scales.push_back(AssimpGLMHelpers::GetGLMVec(channel->mScalingKeys[j].mValue));
     }
 
-    outAnimation.boneTransforms[boneName] = transforms;
+    animation.boneTransforms[boneName] = transforms;
   }
+
+  return animation;
 }
 
-void SkeletalModel::readBoneData(
-  const aiMesh* mesh,
-  std::vector<SkeletalVertex>& outBoneData,
-  std::unordered_map<std::string, BoneInfo>& outBoneInfoMap
-)
+std::vector<SkeletalVertex> SkeletalModel::readBoneData(const aiMesh* mesh)
 {
+  std::vector<SkeletalVertex> boneData(mesh->mNumVertices, SkeletalVertex {});
+
   for(unsigned int i = 0; i < mesh->mNumBones; i++)
   {
-    aiBone* bone = mesh->mBones[i];
+    const aiBone* bone = mesh->mBones[i];
 
-    BoneInfo boneInfo = addBone(
+    const BoneInfo* boneInfo = addBone(
       bone->mName.C_Str(),
-      AssimpGLMHelpers::ConvertMatrixToGLMFormat(bone->mOffsetMatrix),
-      outBoneInfoMap
+      AssimpGLMHelpers::ConvertMatrixToGLMFormat(bone->mOffsetMatrix)
     );
 
     for(unsigned int j = 0; j < bone->mNumWeights; j++)
@@ -129,17 +114,17 @@ void SkeletalModel::readBoneData(
       unsigned int bwi = 0;
       for(; bwi < MAX_BONE_INFLUENCE; bwi++)
       {
-        if(outBoneData[vertexId].boneWeights[bwi] == 0.f)
+        if(boneData[vertexId].boneWeights[bwi] == 0.f)
         {
-          outBoneData[vertexId].boneIds[bwi] = boneInfo.index;
-          outBoneData[vertexId].boneWeights[bwi] = weight;
+          boneData[vertexId].boneIds[bwi] = boneInfo->index;
+          boneData[vertexId].boneWeights[bwi] = weight;
           break;
         }
       }
 
       if(bwi == MAX_BONE_INFLUENCE)
       {
-        replaceOrDiscard(boneInfo.index, weight, outBoneData[vertexId]);
+        replaceOrDiscard(boneInfo->index, weight, boneData[vertexId]);
         // std::cout << "info: too many bones v: " << vertexId;
         // if(replaceOrDiscard(outBoneData[vertexId], boneInfo.index, weight))
         // {
@@ -155,10 +140,12 @@ void SkeletalModel::readBoneData(
 
   // should come normalized
   // normalizeWeights(boneData);
+
+  return boneData;
 }
 
 bool SkeletalModel::replaceOrDiscard(
-  const unsigned int boneId, const float weight, SkeletalVertex &outVertexBoneData
+  unsigned int boneId, float weight, SkeletalVertex &outVertexBoneData
 )
 {
   float* minWeight = std::min_element(
@@ -201,18 +188,15 @@ bool SkeletalModel::replaceOrDiscard(
 //   }
 // }
 
-BoneInfo SkeletalModel::addBone(
-  const std::string name, const glm::mat4 offset,
-  std::unordered_map<std::string, BoneInfo>& outBoneInfoMap
-)
+const BoneInfo* SkeletalModel::addBone(const std::string &name, glm::mat4 offset)
 {
-  if(outBoneInfoMap.find(name) == outBoneInfoMap.end())
+  if(mBoneInfoMap.find(name) == mBoneInfoMap.end())
   {
-    const unsigned int index = outBoneInfoMap.size();
-    outBoneInfoMap[name] = BoneInfo { .index = index, .offset = offset };
+    const unsigned int index = mBoneInfoMap.size();
+    mBoneInfoMap[name] = BoneInfo { .index = index, .offset = offset };
   }
 
-  return outBoneInfoMap[name];
+  return &mBoneInfoMap[name];
 }
 
 bool SkeletalModel::readSkeleton(const aiNode* node, Bone& skeleton)
@@ -243,7 +227,7 @@ bool SkeletalModel::readSkeleton(const aiNode* node, Bone& skeleton)
 }
 
 std::pair<int, float> SkeletalModel::getTimeFraction(
-  const std::vector<float>& times, const float& animTime
+  const std::vector<float>& times, float animTime
 ) const
 {
   unsigned int segment = 0;
@@ -267,16 +251,27 @@ std::pair<int, float> SkeletalModel::getTimeFraction(
 //   }
 // }
 
-void SkeletalModel::getPose(
-  Animation& animation,
+void SkeletalModel::updatePose(
+  const Animation& animation,
   const Bone& bone,
-  const float timeInSec,
+  const float& timeInSec,
   const glm::mat4& parentTransform,
   std::vector<glm::mat4>& output
 )
 {
+  const BoneTransforms* transforms;
+  if(animation.boneTransforms.find(bone.name) != animation.boneTransforms.end())
+  {
+    transforms = &animation.boneTransforms.at(bone.name);
+  }
+  else
+  {
+    BoneTransforms empty;
+    transforms = &empty;
+  }
+
   const glm::mat4 IDENTITY = glm::mat4(1.f);
-  const BoneTransform& bt = animation.boneTransforms[bone.name];
+
   const BoneInfo& boneInfo = mBoneInfoMap[bone.name];
   const float animationTime = fmod(timeInSec * animation.ticksPerSecond, animation.duration);
 
@@ -285,46 +280,46 @@ void SkeletalModel::getPose(
   glm::mat4 rotationMat = IDENTITY;
   glm::mat4 scaleMat = IDENTITY;
 
-  const unsigned int posSize = bt.positions.size();
+  const unsigned int posSize = transforms->positions.size();
   if(posSize == 1)
   {
     // check timestamp?
-    positionMat = glm::translate(IDENTITY, bt.positions[0]);
+    positionMat = glm::translate(IDENTITY, transforms->positions[0]);
   }
   else if(posSize > 1)
   {
-    const std::pair<unsigned int, float> fp = getTimeFraction(bt.positionTimestamps, animationTime);
-    glm::vec3 position1 = bt.positions[fp.first - 1];
-    glm::vec3 position2 = bt.positions[fp.first];
+    const std::pair<unsigned int, float> fp = getTimeFraction(transforms->positionTimestamps, animationTime);
+    glm::vec3 position1 = transforms->positions[fp.first - 1];
+    glm::vec3 position2 = transforms->positions[fp.first];
     glm::vec3 position = glm::mix(position1, position2, fp.second);
 
     positionMat = glm::translate(IDENTITY, position);
   }
 
-  const unsigned int rotSize = bt.rotations.size();
+  const unsigned int rotSize = transforms->rotations.size();
   if(rotSize == 1)
   {
-    rotationMat = glm::toMat4(glm::normalize(bt.rotations[0]));
+    rotationMat = glm::toMat4(glm::normalize(transforms->rotations[0]));
   }
   else if(rotSize > 1)
   {
-    const std::pair<unsigned int, float> fp = getTimeFraction(bt.rotationTimestamps, animationTime);
-    glm::quat rotation1 = bt.rotations[fp.first - 1];
-    glm::quat rotation2 = bt.rotations[fp.first];
+    const std::pair<unsigned int, float> fp = getTimeFraction(transforms->rotationTimestamps, animationTime);
+    glm::quat rotation1 = transforms->rotations[fp.first - 1];
+    glm::quat rotation2 = transforms->rotations[fp.first];
     glm::quat rotation = glm::slerp(rotation1, rotation2, fp.second);
     rotationMat = glm::toMat4(glm::normalize(rotation));
   }
 
-  const unsigned int scaSize = bt.scales.size();
+  const unsigned int scaSize = transforms->scales.size();
   if(scaSize == 1)
   {
-    scaleMat = glm::scale(IDENTITY, bt.scales[0]);
+    scaleMat = glm::scale(IDENTITY, transforms->scales[0]);
   }
   else if(scaSize > 1)
   {
-    const std::pair<unsigned int, float> fp = getTimeFraction(bt.scaleTimestamps, animationTime);
-    glm::vec3 scale1 = bt.scales[fp.first - 1];
-    glm::vec3 scale2 = bt.scales[fp.first];
+    const std::pair<unsigned int, float> fp = getTimeFraction(transforms->scaleTimestamps, animationTime);
+    glm::vec3 scale1 = transforms->scales[fp.first - 1];
+    glm::vec3 scale2 = transforms->scales[fp.first];
     glm::vec3 scale = glm::mix(scale1, scale2, fp.second);
     scaleMat = glm::scale(IDENTITY, scale);
   }
@@ -337,25 +332,14 @@ void SkeletalModel::getPose(
 
   for(unsigned int i = 0; i < bone.children.size(); i++)
   {
-    getPose(
-      animation,
-      bone.children[i],
-      timeInSec,
-      globalTransform,
-      output
-    );
+    updatePose(animation, bone.children[i], timeInSec, globalTransform, output);
   }
 }
 
 void SkeletalModel::update(float timeInMSec)
 {
   glm::mat4 identity = glm::mat4(1.0f);
-  getPose(
-    mAnimations[mAnimationIndex],
-    mRootBone, timeInMSec,
-    identity,
-    mCurrentPose
-  );
+  updatePose(mAnimations[mAnimationIndex], mRootBone, timeInMSec, identity, mCurrentPose);
 }
 
 const std::vector<glm::mat4> SkeletalModel::pose() const
@@ -363,7 +347,7 @@ const std::vector<glm::mat4> SkeletalModel::pose() const
   return mCurrentPose;
 }
 
-Animation* const SkeletalModel::setAnimation(const unsigned int animationIndex)
+const Animation* SkeletalModel::setAnimation(const unsigned int animationIndex)
 {
   if(animationIndex < mAnimations.size())
   {

@@ -32,12 +32,12 @@ void Model::loadModel(const std::string path)
   processScene(scene);
 }
 
-void Model::processScene(const aiScene* const scene)
+void Model::processScene(const aiScene* scene)
 {
   for(unsigned int i = 0; i < scene->mNumMeshes; i++)
   {
     aiMesh* mesh = scene->mMeshes[i];
-    meshes.push_back(processMesh(mesh, scene));
+    meshes.push_back(processMesh(scene, mesh));
   }
 
   if(scene->HasMaterials())
@@ -62,7 +62,7 @@ void Model::processScene(const aiScene* const scene)
   }
 }
 
-Mesh Model::processMesh(const aiMesh* const mesh, const aiScene* const scene)
+Mesh Model::processMesh(const aiScene* scene, const aiMesh* mesh)
 {
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;

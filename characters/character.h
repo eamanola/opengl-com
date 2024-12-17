@@ -14,17 +14,17 @@ public:
   Character(const char * path);
   virtual ~Character();
 
-  void setModelMatrix(glm::mat4 &modelMatrix);
+  void setModelMatrix(const glm::mat4 &modelMatrix);
   bool setAnimation(unsigned int animationIndex);
 
-  virtual void handleInput(GLFWwindow* window, Camera &camera);
+  virtual void handleInput(const GLFWwindow* window, const Camera &camera);
   virtual void update(float time);
   virtual void draw(Shader &shader, const glm::mat4 &transform);
   virtual void free();
 
 protected:
   float mStartTime;
-  Animation* mCurrentAnimation;
+  const Animation* mCurrentAnimation;
   SkeletalModel mModel;
 
 private:

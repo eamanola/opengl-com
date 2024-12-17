@@ -23,10 +23,10 @@ public:
   void render() override;
   void teardown() override;
 
-  void handleInput(GLFWwindow* window) override;
+  void handleInput(const GLFWwindow* window) override;
   void onChar(const char c) override;
-  void onMouse(GLFWwindow* window, double x, double y) override;
-  void onScroll(GLFWwindow* window, double x, double y) override;
+  void onMouse(const GLFWwindow* window, const double x, const double y) override;
+  void onScroll(const GLFWwindow* window, const double x, const double y) override;
 
 private:
   void toggleSpotLight();

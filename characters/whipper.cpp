@@ -67,17 +67,17 @@ const float Whipper::rotation() const
 }
 
 float lastFrame1 = 0.f;
-void Whipper::handleInput(GLFWwindow* window, Camera &camera)
+void Whipper::handleInput(const GLFWwindow* window, const Camera &camera)
 {
   const float time = glfwGetTime();
   const float deltaTime = time - lastFrame1;
   lastFrame1 = time;
 
-  bool SPACE = glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS;
-  bool W = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
-  bool S = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
-  bool A = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
-  bool D = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+  bool SPACE = glfwGetKey((GLFWwindow*)window, GLFW_KEY_SPACE) == GLFW_PRESS;
+  bool W = glfwGetKey((GLFWwindow*)window, GLFW_KEY_W) == GLFW_PRESS;
+  bool S = glfwGetKey((GLFWwindow*)window, GLFW_KEY_S) == GLFW_PRESS;
+  bool A = glfwGetKey((GLFWwindow*)window, GLFW_KEY_A) == GLFW_PRESS;
+  bool D = glfwGetKey((GLFWwindow*)window, GLFW_KEY_D) == GLFW_PRESS;
 
   float angle = getAngle(W, D, S, A);
 
@@ -151,7 +151,7 @@ void Whipper::updateJumping(float frac)
   }
 }
 
-bool Whipper::isJumping(WHIPPER_STATES state)
+bool Whipper::isJumping(const WHIPPER_STATES &state)
 {
   return state == WHIPPER_STATES::JUMP_UP
     || state == WHIPPER_STATES::JUMP_DOWN

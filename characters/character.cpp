@@ -11,14 +11,14 @@ Character::~Character()
 {
 }
 
-void Character::setModelMatrix(glm::mat4 &modelMatrix)
+void Character::setModelMatrix(const glm::mat4 &modelMatrix)
 {
   mModelMatrix = modelMatrix;
 }
 
 bool Character::setAnimation(unsigned int animationIndex)
 {
-  Animation* animation = mModel.setAnimation(animationIndex);
+  const Animation* animation = mModel.setAnimation(animationIndex);
   if(animation != 0)
   {
     mCurrentAnimation = animation;
@@ -49,7 +49,7 @@ void Character::draw(Shader &shader, const glm::mat4 &transform)
   mModel.draw(shader);
 }
 
-void Character::handleInput(GLFWwindow* window, Camera &camera)
+void Character::handleInput(const GLFWwindow* window, const Camera &camera)
 {
 
 }

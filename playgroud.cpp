@@ -1,5 +1,7 @@
 #include "playground.h"
 
+// #define FOLLOW_WHIPPER
+
 Playground::Playground()
 :
 camera(),
@@ -201,7 +203,7 @@ void Playground::highlight(Box &box, glm::mat4 model)
 }
 
 float lastFrame = 0.f;
-void Playground::handleInput(GLFWwindow* window)
+void Playground::handleInput(const GLFWwindow* window)
 {
 #ifdef FOLLOW_WHIPPER
   whipper.handleInput(window, camera);
@@ -210,10 +212,10 @@ void Playground::handleInput(GLFWwindow* window)
   const float deltaTime = time - lastFrame;
   lastFrame = time;
 
-  if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) camera.moveForward(2.5f * deltaTime);
-  else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) camera.moveBackward(2.5f * deltaTime);
-  else if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) camera.moveLeft(2.5f * deltaTime);
-  else if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) camera.moveRight(2.5f * deltaTime);
+  if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_W) == GLFW_PRESS) camera.moveForward(2.5f * deltaTime);
+  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_S) == GLFW_PRESS) camera.moveBackward(2.5f * deltaTime);
+  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_A) == GLFW_PRESS) camera.moveLeft(2.5f * deltaTime);
+  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_D) == GLFW_PRESS) camera.moveRight(2.5f * deltaTime);
 #endif
 }
 
@@ -230,7 +232,7 @@ void Playground::onChar(const char c)
 
 float lastX = 400; float lastY = 300;
 bool firstMouse = true;
-void Playground::onMouse(GLFWwindow* window, double x, double y)
+void Playground::onMouse(const GLFWwindow* window, const double x, const double y)
 {
   if(firstMouse)
   {
@@ -247,7 +249,7 @@ void Playground::onMouse(GLFWwindow* window, double x, double y)
   camera.changeDirection(xoffset, yoffset);
 }
 
-void Playground::onScroll(GLFWwindow* window, double x, double y)
+void Playground::onScroll(const GLFWwindow* window, const double x, const double y)
 {
   camera.zoom((float)y);
 }

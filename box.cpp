@@ -1,7 +1,7 @@
 #include "box.h"
 #include "shader-utils.h"
 
-Box::Box(/* args */)
+Box::Box()
 {
   setup();
 }

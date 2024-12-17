@@ -1,21 +1,17 @@
 #include "mesh.h"
 
-Mesh::Mesh(
-  std::vector<Vertex> vertices,
-  std::vector<unsigned int> indices
-)
+Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices)
 :
-vertices(vertices),
-indices(indices)
+M_INDICES_SIZE(indices.size())
 {
-  setupMesh();
+  setupMesh(vertices, indices);
 }
 
 Mesh::~Mesh()
 {
 }
 
-void Mesh::setupMesh()
+void Mesh::setupMesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices)
 {
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
@@ -52,7 +48,7 @@ void Mesh::setupMesh()
   glBindVertexArray(0);
 }
 
-void Mesh::draw(Shader &shader, std::vector<Texture> &textures)
+void Mesh::draw(Shader &shader, const std::vector<Texture> &textures)
 {
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
@@ -79,7 +75,7 @@ void Mesh::draw(Shader &shader, std::vector<Texture> &textures)
   }
 
   glBindVertexArray(VAO);
-  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, M_INDICES_SIZE, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 
   if(textures.size())

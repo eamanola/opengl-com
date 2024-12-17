@@ -118,7 +118,7 @@ void Camera::zoom(const float yoffset)
   }
 }
 
-void Camera::setPosition(glm::vec3& position, bool animate)
+void Camera::setPosition(const glm::vec3 position, const bool animate)
 {
   mAnimatePos = animate;
 
@@ -134,12 +134,12 @@ void Camera::setPosition(glm::vec3& position, bool animate)
   }
 }
 
-void Camera::setPosition(glm::vec3& position)
+void Camera::setPosition(const glm::vec3 position)
 {
   setPosition(position, false);
 }
 
-void Camera::updatePosition(float time)
+void Camera::updatePosition(const float time)
 {
   if(mAnimatePos)
   {
@@ -155,7 +155,7 @@ void Camera::updatePosition(float time)
 }
 
 
-void Camera::setDirection(glm::vec3& direction, bool animate)
+void Camera::setDirection(const glm::vec3 direction, const bool animate)
 {
   mAnimateDir = animate;
 
@@ -171,12 +171,12 @@ void Camera::setDirection(glm::vec3& direction, bool animate)
   }
 }
 
-void Camera::setDirection(glm::vec3& direction)
+void Camera::setDirection(const glm::vec3 direction)
 {
   setDirection(direction, false);
 }
 
-void Camera::updateDirection(float time)
+void Camera::updateDirection(const float time)
 {
   if(mAnimateDir)
   {

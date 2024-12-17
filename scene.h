@@ -15,10 +15,10 @@ public:
   virtual void render() = 0;
   virtual void teardown() = 0;
 
-  virtual void handleInput(GLFWwindow* window) = 0;
+  virtual void handleInput(const GLFWwindow* window) = 0;
   virtual void onChar(const char c) = 0;
-  virtual void onMouse(GLFWwindow* window, double x, double y) = 0;
-  virtual void onScroll(GLFWwindow* window, double x, double y) = 0;
+  virtual void onMouse(const GLFWwindow* window, const double x, const double y) = 0;
+  virtual void onScroll(const GLFWwindow* window, const double x, const double y) = 0;
 };
 
 #endif

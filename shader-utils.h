@@ -14,7 +14,7 @@ class ShaderUtils
   private:
     static const std::string readFile(const char* path);
     static const unsigned int compile(GLenum type, const char* source);
-    static const unsigned int getTexture(int width, int height, int nrChannel, unsigned char* data);
+    static const unsigned int createTexture(int width, int height, int nrChannel, unsigned char* data);
 };
 
 #endif
