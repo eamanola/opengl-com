@@ -2,7 +2,7 @@
 #define LIGHTING_SHADER_H
 
 #include <glm/glm.hpp>
-#include "shader.h"
+#include "../shader.h"
 
 class Lighting
 {

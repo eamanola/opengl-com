@@ -1,7 +1,7 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include "mesh.h"
+#include "../mesh.h"
 
 class Box
 {

@@ -1,5 +1,5 @@
 #include "box.h"
-#include "shader-utils.h"
+#include "../shader-utils.h"
 
 Box::Box()
 {

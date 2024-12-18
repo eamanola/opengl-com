@@ -1,11 +1,11 @@
-#include "scene.h"
+#include "../scene.h"
 
 #define POINTLIGHT_DEBUG
 
-#include "camera.h"
-#include "characters/tifa.h"
-#include "characters/dae.h"
-#include "characters/whipper.h"
+#include "../camera.h"
+#include "../characters/tifa.h"
+#include "../characters/dae.h"
+#include "../characters/whipper.h"
 #include "lighting.h"
 #ifdef POINTLIGHT_DEBUG
 #include "light.h"

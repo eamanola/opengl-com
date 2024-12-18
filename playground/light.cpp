@@ -1,5 +1,5 @@
 #include "light.h"
-#include "shader-utils.h"
+#include "../shader-utils.h"
 
 Light::Light()
 {
