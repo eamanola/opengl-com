@@ -56,9 +56,9 @@ void Lighting::initDirLight(Shader &shader)
 
   shader.setVec3fv("u_dir_light.direction", direction);
   shader.setBool("u_dir_light.off", off);
-  shader.setVec3fv("u_dir_light.light.ambient", ambient);
-  shader.setVec3fv("u_dir_light.light.diffuse", diffuse);
-  shader.setVec3fv("u_dir_light.light.specular", specular);
+  shader.setVec3fv("u_dir_light.light.ambient", glm::vec4(ambient, 1.f));
+  shader.setVec3fv("u_dir_light.light.diffuse", glm::vec4(diffuse, 1.f));
+  shader.setVec3fv("u_dir_light.light.specular", glm::vec4(specular, 1.f));
 }
 
 void Lighting::initPointLights(Shader &shader)
@@ -82,9 +82,9 @@ void Lighting::initPointLights(Shader &shader)
     shader.setFloat(key.str() + ".attenuation.quadratic", aQuadratic);
 
     shader.setBool(key.str() + ".light.off", false);
-    shader.setVec3fv(key.str() + ".light.ambient", mLights.colors[i] * AMBIENT);
-    shader.setVec3fv(key.str() + ".light.diffuse", mLights.colors[i] * DIFFUSE);
-    shader.setVec3fv(key.str() + ".light.specular", mLights.colors[i] * SPECULAR);
+    shader.setVec4fv(key.str() + ".light.ambient", glm::vec4(mLights.colors[i] * AMBIENT, 1.0));
+    shader.setVec4fv(key.str() + ".light.diffuse", glm::vec4(mLights.colors[i] * DIFFUSE, 1.0));
+    shader.setVec4fv(key.str() + ".light.specular", glm::vec4(mLights.colors[i] * SPECULAR, 1.0));
   }
 }
 
@@ -123,9 +123,9 @@ void Lighting::initSpotLight(Shader &shader)
   shader.setFloat("u_spot_light.attenuation.quadratic", aQuadratic);
 
   shader.setBool("u_spot_light.light.off", off);
-  shader.setVec3fv("u_spot_light.light.ambient", ambient);
-  shader.setVec3fv("u_spot_light.light.diffuse", diffuse);
-  shader.setVec3fv("u_spot_light.light.specular", specular);
+  shader.setVec4fv("u_spot_light.light.ambient", glm::vec4(ambient, 1.0));
+  shader.setVec4fv("u_spot_light.light.diffuse", glm::vec4(diffuse, 1.0));
+  shader.setVec4fv("u_spot_light.light.specular", glm::vec4(specular, 1.0));
 }
 
 void Lighting::updateSpotLight(Shader &shader, const glm::vec3& position, const glm::vec3& direction, bool off)
