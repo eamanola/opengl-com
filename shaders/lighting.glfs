@@ -90,6 +90,12 @@ void main()
     color += spotLightColor[0] + spotLightColor[1] + spotLightColor[2];
   }
 
+  if(color.a < 0.1)
+  {
+    discard;
+    return;
+  }
+
   f_color = color;
 }
 

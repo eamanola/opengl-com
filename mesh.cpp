@@ -82,6 +82,10 @@ void Mesh::draw(Shader &shader, const std::vector<Texture> &textures)
   {
     glActiveTexture(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    // TODO
+    shader.setInt("u_material.texture_diffuse1", 0);
+    shader.setInt("u_material.texture_specular1", 0);
   }
 }
 

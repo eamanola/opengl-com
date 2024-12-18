@@ -4,20 +4,13 @@
 
 Playground::Playground()
 :
-camera(),
 skeletal("./skeletal/skeletal.glvs", "./shaders/lighting.glfs"),
-tifa(),
-dae(),
-whipper(),
-lightingSettings(),
 #ifdef POINTLIGHT_DEBUG
 pointLightDebug(),
 plainProgram("./shaders/plain.glvs", "./shaders/single-color.glfs"),
 #endif
-m2b(),
 lightingProgram("./shaders/lighting.glvs", "./shaders/lighting.glfs"),
-mSpotlightOn(false),
-box()
+mSpotlightOn(false)
 {
   skeletal.use();
   lightingSettings.setup(skeletal);
@@ -118,6 +111,9 @@ void Playground::render()
   whipper.draw(skeletal, whipperTransform);
 
   lightingProgram.use();
+  grass.draw(lightingProgram);
+
+  lightingProgram.use();
   lightingProgram.setMat4fv("u_proj_x_view", proj_x_view);
   lightingSettings.setViewPosition(lightingProgram, view_pos);
   lightingSettings.updatePointLight0Position(lightingProgram);
@@ -141,6 +137,9 @@ void Playground::render()
       box.draw(lightingProgram);
     }
   }
+
+  lightingProgram.use();
+  window.draw(lightingProgram);
 
   #ifdef POINTLIGHT_DEBUG
   plainProgram.use();
@@ -171,6 +170,8 @@ void Playground::teardown()
 
   m2b.free();
   box.free();
+  grass.free();
+  window.free();
 }
 
 void Playground::highlight(Box &box, glm::mat4 model)

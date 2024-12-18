@@ -21,7 +21,10 @@ const unsigned int ShaderUtils::compileShader(GLenum type, const char* path)
   return ShaderUtils::compile(type, source.c_str());
 }
 
-unsigned int ShaderUtils::loadTexture(const char* path)
+unsigned int ShaderUtils::loadTexture(
+  const char* path,
+  const GLint wrap
+)
 {
   unsigned int textureId = 0;
 
@@ -29,7 +32,7 @@ unsigned int ShaderUtils::loadTexture(const char* path)
   int width, height, nrChannel;
   unsigned char* data = stbi_load(path, &width, &height, &nrChannel, 0);
   if (data) {
-    textureId = ShaderUtils::createTexture(width, height, nrChannel, data);
+    textureId = ShaderUtils::createTexture(width, height, nrChannel, data, wrap);
   }
   else
   {
@@ -41,7 +44,10 @@ unsigned int ShaderUtils::loadTexture(const char* path)
   return textureId;
 }
 
-unsigned int ShaderUtils::loadTexture(const unsigned char* const buffer, const unsigned int len)
+unsigned int ShaderUtils::loadTexture(
+  const unsigned char* const buffer, const unsigned int len,
+  const GLint wrap
+)
 {
   unsigned int textureId = 0;
 
@@ -49,7 +55,7 @@ unsigned int ShaderUtils::loadTexture(const unsigned char* const buffer, const u
   int width, height, nrChannel;
   unsigned char* data = stbi_load_from_memory(buffer, len, &width, &height, &nrChannel, 0);
   if (data) {
-    textureId = ShaderUtils::createTexture(width, height, nrChannel, data);
+    textureId = ShaderUtils::createTexture(width, height, nrChannel, data, wrap);
   }
   else
   {
@@ -61,7 +67,10 @@ unsigned int ShaderUtils::loadTexture(const unsigned char* const buffer, const u
   return textureId;
 }
 
-const unsigned int ShaderUtils::createTexture(int width, int height, int nrChannel, unsigned char* data)
+const unsigned int ShaderUtils::createTexture(
+  int width, int height, int nrChannel, unsigned char* data,
+  const GLint wrap
+)
 {
   unsigned int textureId = 0;
 
@@ -75,8 +84,8 @@ const unsigned int ShaderUtils::createTexture(int width, int height, int nrChann
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

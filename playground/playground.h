@@ -11,6 +11,8 @@
 #include "light.h"
 #endif
 #include "box.h"
+#include "grass.h"
+#include "window.h"
 
 class Playground : public Scene
 {
@@ -47,6 +49,8 @@ private:
   bool mSpotlightOn;
   Box box;
   std::vector<glm::vec3> boxPositions;
+  Grass grass;
+  Window window;
 };
 
 
