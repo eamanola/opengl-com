@@ -50,7 +50,7 @@ void SkeletalModel::processScene(const aiScene* scene)
   //   std::cout << n.first << "\n"; // , n.second);
 }
 
-Animation SkeletalModel::readAnimation(const aiAnimation* anim)
+Animation SkeletalModel::readAnimation(const aiAnimation* anim)  const
 {
   Animation animation {
     .duration = (float)anim->mDuration,
@@ -91,7 +91,7 @@ Animation SkeletalModel::readAnimation(const aiAnimation* anim)
 
 std::vector<SkeletalVertex> SkeletalModel::readBoneData(
   const aiMesh* mesh, BoneInfos& outBoneInfos
-)
+) const
 {
   std::vector<SkeletalVertex> boneData(mesh->mNumVertices, SkeletalVertex {});
 
@@ -127,7 +127,13 @@ std::vector<SkeletalVertex> SkeletalModel::readBoneData(
 
       if(bwi == MAX_BONE_INFLUENCE)
       {
-        replaceOrDiscard(boneInfo.index, weight, boneData[vertexId]);
+        const int rIndex = replaceIndex(boneData[vertexId].boneWeights, weight);
+        if(rIndex < MAX_BONE_INFLUENCE)
+        {
+          boneData[vertexId].boneIds[rIndex] = boneInfo.index;
+          boneData[vertexId].boneWeights[rIndex] = weight;
+        }
+
         // std::cout << "info: too many bones v: " << vertexId;
         // if(replaceOrDiscard(outBoneData[vertexId], boneInfo.index, weight))
         // {
@@ -147,27 +153,17 @@ std::vector<SkeletalVertex> SkeletalModel::readBoneData(
   return boneData;
 }
 
-bool SkeletalModel::replaceOrDiscard(
-  unsigned int boneId, float weight, SkeletalVertex &outVertexBoneData
-)
+unsigned int SkeletalModel::replaceIndex(const float* weights, const float& weight) const
 {
-  float* minWeight = std::min_element(
-    std::begin(outVertexBoneData.boneWeights), std::end(outVertexBoneData.boneWeights)
-  );
-
-  if(*minWeight < weight)
+  for(unsigned int i = 0; i < MAX_BONE_INFLUENCE; i++)
   {
-    unsigned int minWeightIndex = (unsigned int)std::distance(
-      std::begin(outVertexBoneData.boneWeights), minWeight
-    );
-
-    outVertexBoneData.boneIds[minWeightIndex] = boneId;
-    outVertexBoneData.boneWeights[minWeightIndex] = weight;
-
-    return true;
+    if(weights[i] < weight)
+    {
+      return i;
+    }
   }
 
-  return false;
+  return MAX_BONE_INFLUENCE;
 }
 // void SkeletalModel::normalizeWeights(std::vector<SkeletalVertex>& boneData)
 // {
@@ -191,7 +187,7 @@ bool SkeletalModel::replaceOrDiscard(
 //   }
 // }
 
-void SkeletalModel::addBone(const aiBone* aiBone, BoneInfos& outBoneInfos)
+void SkeletalModel::addBone(const aiBone* aiBone, BoneInfos& outBoneInfos) const
 {
   const std::string name = aiBone->mName.C_Str();
   if(outBoneInfos.find(name) == outBoneInfos.end())
@@ -204,7 +200,7 @@ void SkeletalModel::addBone(const aiBone* aiBone, BoneInfos& outBoneInfos)
   }
 }
 
-bool SkeletalModel::readSkeleton(const aiNode* node, const BoneInfos& boneInfos, Bone& skeleton)
+bool SkeletalModel::readSkeleton(const aiNode* node, const BoneInfos& boneInfos, Bone& skeleton) const
 {
   const char* name = node->mName.C_Str();
   if(boneInfos.find(name) != boneInfos.end())
@@ -272,7 +268,7 @@ void SkeletalModel::updatePose(
   const float& timeInSec,
   const glm::mat4& parentTransform,
   std::vector<glm::mat4>& output
-)
+) const
 {
   // const BoneInfo& boneInfo = mBoneInfoMap[bone.name];
 

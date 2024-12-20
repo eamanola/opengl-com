@@ -34,14 +34,11 @@ private:
   Bone mRootBone;
   std::vector<glm::mat4> mCurrentPose;
 
-  Animation readAnimation(const aiAnimation* scene);
-  std::vector<SkeletalVertex> readBoneData(const aiMesh* mesh, BoneInfos& outBoneInfos);
-  bool replaceOrDiscard(
-    unsigned int boneId, float weight, SkeletalVertex &outVertexBoneData
-  );
-
-  void addBone(const aiBone* aiBone, BoneInfos& outBoneInfos);
-  bool readSkeleton(const aiNode* node, const BoneInfos& boneInfos, Bone& outSkeleton);
+  Animation readAnimation(const aiAnimation* scene) const;
+  std::vector<SkeletalVertex> readBoneData(const aiMesh* mesh, BoneInfos& outBoneInfos) const;
+  unsigned int replaceIndex(const float* weights, const float& weight) const;
+  void addBone(const aiBone* aiBone, BoneInfos& outBoneInfos) const;
+  bool readSkeleton(const aiNode* node, const BoneInfos& boneInfos, Bone& outSkeleton) const;
   std::pair<int, float> getTimeFraction(const std::vector<float>& times, float dt) const;
   glm::mat4 localTransform(const BoneTransforms& transforms, const unsigned int &time) const;
   void updatePose(
@@ -50,7 +47,7 @@ private:
     const float& dt,
     const glm::mat4& parentTransform,
     std::vector<glm::mat4>& output
-  );
+  ) const;
 };
 
 #endif
