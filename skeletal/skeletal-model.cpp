@@ -31,19 +31,20 @@ void SkeletalModel::processScene(const aiScene* scene)
     addAnimation(readAnimation(anim));
   }
 
+  std::unordered_map<std::string, BoneInfo> boneInfos;
   for(unsigned int i = 0; i < scene->mNumMeshes; i++)
   {
     aiMesh* mesh = scene->mMeshes[i];
     // std::cout << mesh->mName.C_Str() << std::endl;
 
-    std::vector<SkeletalVertex> boneData = readBoneData(mesh);
+    std::vector<SkeletalVertex> boneData = readBoneData(mesh, boneInfos);
 
     mMeshes.push_back(SkeletalMesh(meshes[i].vao(), boneData));
   }
 
-  readSkeleton(scene->mRootNode, mRootBone);
+  readSkeleton(scene->mRootNode, boneInfos, mRootBone);
 
-  mCurrentPose.resize(mBoneInfoMap.size(), glm::mat4(1.0));
+  mCurrentPose.resize(boneInfos.size(), glm::mat4(1.0));
 
   // for (const std::pair<const std::string, BoneInfo>& n : mBoneInfoMap)
   //   std::cout << n.first << "\n"; // , n.second);
@@ -88,7 +89,10 @@ Animation SkeletalModel::readAnimation(const aiAnimation* anim)
   return animation;
 }
 
-std::vector<SkeletalVertex> SkeletalModel::readBoneData(const aiMesh* mesh)
+std::vector<SkeletalVertex> SkeletalModel::readBoneData(
+  const aiMesh* mesh,
+  std::unordered_map<std::string, BoneInfo>& outBoneInfos
+)
 {
   std::vector<SkeletalVertex> boneData(mesh->mNumVertices, SkeletalVertex {});
 
@@ -96,10 +100,9 @@ std::vector<SkeletalVertex> SkeletalModel::readBoneData(const aiMesh* mesh)
   {
     const aiBone* bone = mesh->mBones[i];
 
-    const BoneInfo* boneInfo = addBone(
-      bone->mName.C_Str(),
-      AssimpGLMHelpers::ConvertMatrixToGLMFormat(bone->mOffsetMatrix)
-    );
+    addBone(bone, outBoneInfos);
+
+    const BoneInfo& boneInfo = outBoneInfos[bone->mName.C_Str()];
 
     for(unsigned int j = 0; j < bone->mNumWeights; j++)
     {
@@ -117,7 +120,7 @@ std::vector<SkeletalVertex> SkeletalModel::readBoneData(const aiMesh* mesh)
       {
         if(boneData[vertexId].boneWeights[bwi] == 0.f)
         {
-          boneData[vertexId].boneIds[bwi] = boneInfo->index;
+          boneData[vertexId].boneIds[bwi] = boneInfo.index;
           boneData[vertexId].boneWeights[bwi] = weight;
           break;
         }
@@ -125,7 +128,7 @@ std::vector<SkeletalVertex> SkeletalModel::readBoneData(const aiMesh* mesh)
 
       if(bwi == MAX_BONE_INFLUENCE)
       {
-        replaceOrDiscard(boneInfo->index, weight, boneData[vertexId]);
+        replaceOrDiscard(boneInfo.index, weight, boneData[vertexId]);
         // std::cout << "info: too many bones v: " << vertexId;
         // if(replaceOrDiscard(outBoneData[vertexId], boneInfo.index, weight))
         // {
@@ -189,22 +192,33 @@ bool SkeletalModel::replaceOrDiscard(
 //   }
 // }
 
-const BoneInfo* SkeletalModel::addBone(const std::string &name, glm::mat4 offset)
+void SkeletalModel::addBone(
+  const aiBone* aiBone, std::unordered_map<std::string, BoneInfo>& outBoneInfos
+)
 {
-  if(mBoneInfoMap.find(name) == mBoneInfoMap.end())
+  const std::string name = aiBone->mName.C_Str();
+  if(outBoneInfos.find(name) == outBoneInfos.end())
   {
-    const unsigned int index = mBoneInfoMap.size();
-    mBoneInfoMap[name] = BoneInfo { .index = index, .offset = offset };
+    const unsigned int index = outBoneInfos.size();
+    outBoneInfos[name] = BoneInfo {
+      .index = index,
+      .offset = AssimpGLMHelpers::ConvertMatrixToGLMFormat(aiBone->mOffsetMatrix)
+    };
   }
-
-  return &mBoneInfoMap[name];
 }
 
-bool SkeletalModel::readSkeleton(const aiNode* node, Bone& skeleton)
+bool SkeletalModel::readSkeleton(
+  const aiNode* node, const std::unordered_map<std::string, BoneInfo>& boneInfos,
+  Bone& skeleton)
 {
-  if(mBoneInfoMap.find(node->mName.C_Str()) != mBoneInfoMap.end())
+  const char* name = node->mName.C_Str();
+  if(boneInfos.find(name) != boneInfos.end())
   {
-    skeleton.name = node->mName.C_Str();
+    const BoneInfo &info = boneInfos.at(node->mName.C_Str());
+    skeleton.name = name;
+    skeleton.index = info.index;
+    skeleton.offset = info.offset;
+
     #ifdef WITH_TRANSFORM
     std::cout << skeleton.name << "\n";
     skeleton.transform = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
@@ -212,7 +226,7 @@ bool SkeletalModel::readSkeleton(const aiNode* node, Bone& skeleton)
     for(unsigned int i = 0; i < node->mNumChildren; i++)
     {
       Bone child;
-      if(readSkeleton(node->mChildren[i], child))
+      if(readSkeleton(node->mChildren[i], boneInfos, child))
       {
         skeleton.children.push_back(child);
       }
@@ -224,7 +238,7 @@ bool SkeletalModel::readSkeleton(const aiNode* node, Bone& skeleton)
     // std::cout << "info: Seaching children:" << node->mName.C_Str() << std::endl;
     for(unsigned int i = 0; i < node->mNumChildren; i++)
     {
-      if(readSkeleton(node->mChildren[i], skeleton)) {
+      if(readSkeleton(node->mChildren[i], boneInfos, skeleton)) {
         return true;
       }
     }
@@ -265,7 +279,7 @@ void SkeletalModel::updatePose(
   std::vector<glm::mat4>& output
 )
 {
-  const BoneInfo& boneInfo = mBoneInfoMap[bone.name];
+  // const BoneInfo& boneInfo = mBoneInfoMap[bone.name];
 
   #ifdef WITH_TRANSFORM
   glm::mat4 local = bone.transform;
@@ -274,17 +288,17 @@ void SkeletalModel::updatePose(
   #endif
   if(animation.boneTransforms.find(bone.name) != animation.boneTransforms.end())
   {
-    const BoneTransforms& transforms = animation.boneTransforms.at(bone.name);
-    const float animationTime = fmod(timeInSec * animation.ticksPerSecond, animation.duration);
+    const BoneTransforms& animTransforms = animation.boneTransforms.at(bone.name);
+    const float animTime = fmod(timeInSec * animation.ticksPerSecond, animation.duration);
 
-    local = localTransform(transforms, animationTime);
+    local = localTransform(animTransforms, animTime);
   }
 
   glm::mat4 globalTransform = parentTransform * local;
 
   // glm::mat4 globalInverseTransform = glm::inverse(mRootBone.transform);
 
-  output[boneInfo.index] = /* globalInverseTransform * */ globalTransform * boneInfo.offset;
+  output[bone.index] = /* globalInverseTransform * */ globalTransform * bone.offset;
 
   for(unsigned int i = 0; i < bone.children.size(); i++)
   {

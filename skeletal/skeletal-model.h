@@ -32,19 +32,24 @@ private:
   unsigned int mAnimationIndex;
   std::vector<Animation> mAnimations;
   std::vector<SkeletalMesh> mMeshes;
-  std::unordered_map<std::string, BoneInfo> mBoneInfoMap;
+  // std::unordered_map<std::string, BoneInfo> mBoneInfoMap;
   Bone mRootBone;
   std::vector<glm::mat4> mCurrentPose;
 
   Animation readAnimation(const aiAnimation* scene);
-  std::vector<SkeletalVertex> readBoneData(const aiMesh* mesh);
+  std::vector<SkeletalVertex> readBoneData(
+    const aiMesh* mesh,
+    std::unordered_map<std::string, BoneInfo>& outBoneInfos
+  );
   bool replaceOrDiscard(
     unsigned int boneId, float weight, SkeletalVertex &outVertexBoneData
   );
 
-  const BoneInfo* addBone(const std::string &name, const glm::mat4 offset);
-  // void normalizeWeights(std::vector<SkeletalVertex>& boneData);
-  bool readSkeleton(const aiNode* node, Bone& outSkeleton);
+  void addBone(const aiBone* aiBone, std::unordered_map<std::string, BoneInfo>& outBoneInfos);
+  bool readSkeleton(
+    const aiNode* node, const std::unordered_map<std::string, BoneInfo>& boneInfos,
+    Bone& outSkeleton
+  );
   std::pair<int, float> getTimeFraction(const std::vector<float>& times, float dt) const;
   glm::mat4 localTransform(const BoneTransforms& transforms, const unsigned int &time) const;
   void updatePose(

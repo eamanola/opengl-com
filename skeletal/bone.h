@@ -10,6 +10,8 @@
 struct Bone
 {
   std::string name;
+  unsigned int index;
+  glm::mat4 offset;
   #ifdef WITH_TRANSFORM
   glm::mat4 transform;
   #endif
