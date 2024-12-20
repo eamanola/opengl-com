@@ -31,7 +31,7 @@ void SkeletalModel::processScene(const aiScene* scene)
     addAnimation(readAnimation(anim));
   }
 
-  std::unordered_map<std::string, BoneInfo> boneInfos;
+  BoneInfos boneInfos;
   for(unsigned int i = 0; i < scene->mNumMeshes; i++)
   {
     aiMesh* mesh = scene->mMeshes[i];
@@ -90,8 +90,7 @@ Animation SkeletalModel::readAnimation(const aiAnimation* anim)
 }
 
 std::vector<SkeletalVertex> SkeletalModel::readBoneData(
-  const aiMesh* mesh,
-  std::unordered_map<std::string, BoneInfo>& outBoneInfos
+  const aiMesh* mesh, BoneInfos& outBoneInfos
 )
 {
   std::vector<SkeletalVertex> boneData(mesh->mNumVertices, SkeletalVertex {});
@@ -192,9 +191,7 @@ bool SkeletalModel::replaceOrDiscard(
 //   }
 // }
 
-void SkeletalModel::addBone(
-  const aiBone* aiBone, std::unordered_map<std::string, BoneInfo>& outBoneInfos
-)
+void SkeletalModel::addBone(const aiBone* aiBone, BoneInfos& outBoneInfos)
 {
   const std::string name = aiBone->mName.C_Str();
   if(outBoneInfos.find(name) == outBoneInfos.end())
@@ -207,9 +204,7 @@ void SkeletalModel::addBone(
   }
 }
 
-bool SkeletalModel::readSkeleton(
-  const aiNode* node, const std::unordered_map<std::string, BoneInfo>& boneInfos,
-  Bone& skeleton)
+bool SkeletalModel::readSkeleton(const aiNode* node, const BoneInfos& boneInfos, Bone& skeleton)
 {
   const char* name = node->mName.C_Str();
   if(boneInfos.find(name) != boneInfos.end())
