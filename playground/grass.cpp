@@ -14,26 +14,10 @@ mPositions({
 }),
 mMesh(
   std::vector<Vertex> ({
-    {
-      .position  = glm::vec3(-0.5f, -0.5f, 0.f),
-      .normal = glm::vec3(0.f, 0.f, 1.f),
-      .texCoords = glm::vec2(0.f, 0.f)
-    },
-    {
-      .position = glm::vec3(0.5f, -0.5f, 0.f),
-      .normal = glm::vec3(0.f, 0.f, 1.f),
-      .texCoords = glm::vec2(1.f, 0.f)
-    },
-    {
-      .position = glm::vec3(0.5f, 0.5f, 0.f),
-      .normal = glm::vec3(0.f, 0.f, 1.f),
-      .texCoords = glm::vec2(1.f, 1.f)
-    },
-    {
-      .position = glm::vec3(-0.5f,  0.5f, 0.f),
-      .normal = glm::vec3(0.f, 0.f, 1.f),
-      .texCoords = glm::vec2(0.f, 1.f)
-    }
+    { .position = { -0.5f, -0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 0.f, 0.f } },
+    { .position = {  0.5f, -0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 1.f, 0.f } },
+    { .position = {  0.5f,  0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 1.f, 1.f } },
+    { .position = { -0.5f,  0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 0.f, 1.f } }
   }),
   std::vector<unsigned int> ({
     0, 1, 2,
@@ -58,13 +42,11 @@ Grass::~Grass()
 
 void Grass::draw(Shader& shader)
 {
-  const std::vector<Texture> texture = { mTexture };
-
   for(unsigned int i = 0; i < mPositions.size(); i++)
   {
     glm::mat4 model = glm::translate(glm::mat4(1.0f), mPositions[i]);
     shader.setMat4fv("u_model", model);
-    mMesh.draw(shader, texture);
+    mMesh.draw(shader, &mTexture);
   }
 }
 

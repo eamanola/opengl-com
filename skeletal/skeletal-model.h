@@ -10,14 +10,7 @@
 #include "skeletal-vertex.h"
 #include "bone.h"
 #include "animation.h"
-
-
-struct BoneInfo
-{
-  unsigned int index;
-  glm::mat4 offset;
-};
-
+#include "bone-info.h"
 
 class SkeletalModel : public Model
 {
@@ -53,6 +46,7 @@ private:
   // void normalizeWeights(std::vector<SkeletalVertex>& boneData);
   bool readSkeleton(const aiNode* node, Bone& outSkeleton);
   std::pair<int, float> getTimeFraction(const std::vector<float>& times, float dt) const;
+  glm::mat4 localTransform(const BoneTransforms& transforms, const unsigned int &time) const;
   void updatePose(
     const Animation& animation,
     const Bone& skeleton,

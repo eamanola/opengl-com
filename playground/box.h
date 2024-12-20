@@ -15,6 +15,7 @@ private:
   void setup();
   Mesh* mMesh;
   std::vector<Texture> mTextures;
+  std::vector<glm::vec3> mPositions;
 };
 
 

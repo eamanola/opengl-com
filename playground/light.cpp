@@ -38,8 +38,7 @@ void Light::setup()
 
 void Light::draw(Shader &shader)
 {
-  std::vector<Texture> textures;
-  mMesh->draw(shader, textures);
+  mMesh->draw(shader);
 }
 
 void Light::free()

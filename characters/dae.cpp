@@ -11,7 +11,33 @@ Dae::Dae() : Character("assets/dae-runner/model.dae")
   setModelMatrix(model);
 
   // Animation staticPose;
-  // staticPose.duration = 1.f;
+  // const float tps = 30.f;
+  // staticPose.ticksPerSecond = tps;
+
+  // staticPose.boneTransforms["Lower_Arm_L"] = BoneTransforms {
+  //   .positionTimestamps = { 0.f * tps, 1.f * tps, 2.f * tps },
+  //   .positions = {
+  //     { 0.f, 0.f, 0.f },
+  //     { 0.f, 1.f, 0.f },
+  //     { 0.f, 0.f, 0.f }
+  //   },
+  // };
+  // staticPose.boneTransforms["Upper_Arm_L"] = BoneTransforms {
+  //   .positionTimestamps = { 0.f * tps, 1.f * tps, 2.f * tps },
+  //   .positions = {
+  //     { 0.f, 0.f, 0.f },
+  //     { 1.f, 1.f, 0.f },
+  //     { 0.f, 0.f, 0.f }
+  //   },
+
+  //   .rotationTimestamps = { 0.f * tps, 1.f * tps, 2.f * tps },
+  //   .rotations = {
+  //     glm::quat(glm::radians(-45.f), glm::vec3(0.f, 0.f, 1.f)),
+  //     glm::quat(glm::radians(-90.f), glm::vec3(0.f, 0.f, 1.f)),
+  //     glm::quat(glm::radians(-45.f), glm::vec3(0.f, 0.f, 1.f)),
+  //   },
+  // };
+  // staticPose.duration = 2.f * tps;
   // unsigned int index = mModel.addAnimation(staticPose);
   // setAnimation(index);
 }

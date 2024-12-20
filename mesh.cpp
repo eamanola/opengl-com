@@ -48,11 +48,11 @@ void Mesh::setupMesh(const std::vector<Vertex> &vertices, const std::vector<unsi
   glBindVertexArray(0);
 }
 
-void Mesh::draw(Shader &shader, const std::vector<Texture> &textures)
+void Mesh::draw(Shader &shader, const Texture* textures, const unsigned int texLen)
 {
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
-  for(unsigned int i = 0; i < textures.size(); i++)
+  for(unsigned int i = 0; i < texLen; i++)
   {
     glActiveTexture(GL_TEXTURE0 + i);
 
@@ -78,7 +78,7 @@ void Mesh::draw(Shader &shader, const std::vector<Texture> &textures)
   glDrawElements(GL_TRIANGLES, M_INDICES_SIZE, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 
-  if(textures.size())
+  if(texLen > 0)
   {
     glActiveTexture(0);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -87,6 +87,21 @@ void Mesh::draw(Shader &shader, const std::vector<Texture> &textures)
     shader.setInt("u_material.texture_diffuse1", 0);
     shader.setInt("u_material.texture_specular1", 0);
   }
+}
+
+void Mesh::draw(Shader &shader, const Texture* texture)
+{
+  draw(shader, texture, 1);
+}
+
+void Mesh::draw(Shader &shader)
+{
+  draw(shader, nullptr, 0);
+}
+
+void Mesh::draw(Shader &shader, const std::vector<Texture> &textures)
+{
+  draw(shader, &textures[0], textures.size());
 }
 
 const unsigned int Mesh::vao() const

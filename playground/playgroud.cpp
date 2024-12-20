@@ -15,26 +15,10 @@ mSpotlightOn(false)
   skeletal.use();
   lightingSettings.setup(skeletal);
 
-  m2b.loadModel("assets/2b-jumps2/scene.gltf");
+  simpleModel.loadModel("assets/2b-jumps2/scene.gltf");
 
   lightingProgram.use();
   lightingSettings.setup(lightingProgram);
-
-  boxPositions.insert(
-    boxPositions.end(),
-    {
-      glm::vec3( 0.0f,  0.0f,  0.0f),
-      glm::vec3( 2.0f,  5.0f, -15.0f),
-      glm::vec3(-1.5f, -2.2f, -2.5f),
-      glm::vec3(-3.8f, -2.0f, -12.3f),
-      glm::vec3( 2.4f, -0.4f, -3.5f),
-      glm::vec3(-1.7f,  3.0f, -7.5f),
-      glm::vec3( 1.3f, -2.0f, -2.5f),
-      glm::vec3( 1.5f,  2.0f, -2.5f),
-      glm::vec3( 1.5f,  0.2f, -1.5f),
-      glm::vec3(-1.3f,  1.0f, -1.5f)
-    }
-  );
 
 #ifdef FOLLOW_WHIPPER
   glm::vec3 cameraPos = whipper.position() + glm::vec3(0.f, 0.f, 8.f);
@@ -73,11 +57,10 @@ void Playground::update(const float &time)
   if(time > 2.f)
   {
     glm::vec3 cameraPos = whipper.position() + glm::vec3(0.f, 0.f, 8.f);
-    camera.setPosition(cameraPos, false);
-    // whipperPos = camera.position() + glm::vec3(0.f, 0.f, -8.f);
+    camera.setPosition(cameraPos);
 
     glm::vec3 cameraDir = glm::normalize(whipper.position() - camera.position());
-    camera.setDirection(cameraDir, false);
+    camera.setDirection(cameraDir);
   }
 #endif
 }
@@ -95,6 +78,14 @@ void Playground::render()
   lightingSettings.setViewPosition(skeletal, view_pos);
   lightingSettings.updatePointLight0Position(skeletal);
   lightingSettings.updateSpotLight(skeletal, view_pos, camera.front(), !mSpotlightOn);
+
+  lightingProgram.use();
+  lightingProgram.setMat4fv("u_proj_x_view", proj_x_view);
+  lightingSettings.setViewPosition(lightingProgram, view_pos);
+  lightingSettings.updatePointLight0Position(lightingProgram);
+  lightingSettings.updateSpotLight(lightingProgram, view_pos, camera.front(), !mSpotlightOn);
+
+  skeletal.use();
   // tifa
   const glm::mat4 tifaTransform = glm::translate(identity, glm::vec3(-1.5f, 0.f, 1.f));
   tifa.draw(skeletal, tifaTransform);
@@ -113,32 +104,13 @@ void Playground::render()
   lightingProgram.use();
   grass.draw(lightingProgram);
 
-  lightingProgram.use();
-  lightingProgram.setMat4fv("u_proj_x_view", proj_x_view);
-  lightingSettings.setViewPosition(lightingProgram, view_pos);
-  lightingSettings.updatePointLight0Position(lightingProgram);
-  lightingSettings.updateSpotLight(lightingProgram, view_pos, camera.front(), !mSpotlightOn);
-
-  glm::mat4 m2bm = glm::translate(glm::mat4(1.0), glm::vec3(0.f, -1.f, 2.f));
-  // m2bm = glm::rotate(m2bm, glm::radians(-90.f), glm::vec3(1.0f, 0.f, 0.f));
+  glm::mat4 m2bm = glm::mat4(1.0);
+  m2bm = glm::rotate(m2bm, glm::radians(90.f), glm::vec3(1.0f, 0.f, 0.f));
+  m2bm = glm::translate(m2bm, glm::vec3(0.f, 1.5f, -0.75f));
   lightingProgram.setMat4fv("u_model", m2bm);
-  m2b.draw(lightingProgram);
+  simpleModel.draw(lightingProgram);
 
-  for(unsigned int i = 0; i < boxPositions.size(); i++)
-  {
-    glm::mat4 boxModel = glm::translate(glm::mat4(1.0), boxPositions[i]);
-    boxModel = glm::rotate(boxModel, glm::radians(20.f  * i), glm::vec3(1.0f, 0.3f, 0.5f));
-    if(i == boxPositions.size() - 1)
-    {
-      highlight(box, boxModel);
-      lightingProgram.use();
-    } else {
-      lightingProgram.setMat4fv("u_model", boxModel);
-      box.draw(lightingProgram);
-    }
-  }
-
-  lightingProgram.use();
+  box.draw(lightingProgram);
   window.draw(lightingProgram);
 
   #ifdef POINTLIGHT_DEBUG
@@ -168,10 +140,11 @@ void Playground::teardown()
   plainProgram.free();
   #endif
 
-  m2b.free();
+  simpleModel.free();
   box.free();
   grass.free();
   window.free();
+  lightingProgram.free();
 }
 
 void Playground::highlight(Box &box, glm::mat4 model)

@@ -44,9 +44,9 @@ Shader::Shader(const char* vPath, const char* fPath)
   }
 }
 
-void Shader::use(bool useThis) const
+void Shader::use() const
 {
-  glUseProgram(useThis ? ID : 0);
+  glUseProgram(ID);
 }
 
 void Shader::free() const
@@ -54,17 +54,17 @@ void Shader::free() const
   glDeleteProgram(ID);
 }
 
-void Shader::setBool(const std::string &name, const bool value) const
+void Shader::setBool(const std::string &name, const bool &value) const
 {
   glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
 
-void Shader::setInt(const std::string &name, const int value) const
+void Shader::setInt(const std::string &name, const int &value) const
 {
   glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setFloat(const std::string &name, const float value) const
+void Shader::setFloat(const std::string &name, const float &value) const
 {
   glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }

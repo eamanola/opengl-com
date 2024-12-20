@@ -44,11 +44,10 @@ private:
   Light pointLightDebug;
   Shader plainProgram;
   #endif
-  Model m2b;
+  Model simpleModel;
   Shader lightingProgram;
   bool mSpotlightOn;
   Box box;
-  std::vector<glm::vec3> boxPositions;
   Grass grass;
   Window window;
 };

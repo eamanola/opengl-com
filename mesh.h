@@ -12,6 +12,9 @@ public:
   Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
   virtual ~Mesh();
 
+  void draw(Shader &shader, const Texture* textures, const unsigned int texLen);
+  void draw(Shader &shader);
+  void draw(Shader &shader, const Texture* texture);
   void draw(Shader &shader, const std::vector<Texture> &textures);
   void free();
 

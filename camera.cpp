@@ -134,11 +134,6 @@ void Camera::setPosition(const glm::vec3 position, const bool animate)
   }
 }
 
-void Camera::setPosition(const glm::vec3 position)
-{
-  setPosition(position, false);
-}
-
 void Camera::updatePosition(const float time)
 {
   if(mAnimatePos)
@@ -169,11 +164,6 @@ void Camera::setDirection(const glm::vec3 direction, const bool animate)
   {
     updateVectors(direction);
   }
-}
-
-void Camera::setDirection(const glm::vec3 direction)
-{
-  setDirection(direction, false);
 }
 
 void Camera::updateDirection(const float time)

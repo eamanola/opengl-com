@@ -44,20 +44,20 @@ void Model::processScene(const aiScene* scene)
   {
     for(unsigned int i = 0; i < scene->mNumMeshes; i++)
     {
-      std::vector<unsigned int> textureMapping;
+      std::vector<unsigned int> texIndices;
       aiMesh* mesh = scene->mMeshes[i];
 
       std::vector<unsigned int> dMaps = loadMaterialTextures(
         scene, mesh, aiTextureType_DIFFUSE, TEXTURE_TYPE_DIFFUSE
       );
-      textureMapping.insert(textureMapping.end(), dMaps.begin(), dMaps.end());
+      texIndices.insert(texIndices.end(), dMaps.begin(), dMaps.end());
 
       std::vector<unsigned int> sMaps = loadMaterialTextures(
         scene, mesh, aiTextureType_SPECULAR, TEXTURE_TYPE_SPECULAR
       );
-      textureMapping.insert(textureMapping.end(), sMaps.begin(), sMaps.end());
+      texIndices.insert(texIndices.end(), sMaps.begin(), sMaps.end());
 
-      mMeshTextureMap.push_back(textureMapping);
+      mMeshTextureMap.push_back(texIndices);
     }
   }
 }
@@ -152,13 +152,16 @@ void Model::draw(Shader &shader)
 {
   for(unsigned int i = 0; i < meshes.size(); i++)
   {
-    std::vector<Texture> textures;
-    for(unsigned int j = 0; j < mMeshTextureMap[i].size(); j++)
+    const std::vector<unsigned int>& texIndices = mMeshTextureMap[i];
+    const unsigned int texLen = texIndices.size();
+    const Texture* textures[texLen];
+
+    for(unsigned int j = 0; j < texLen; j++)
     {
-      textures.push_back(mTextures[mMeshTextureMap[i][j]]);
+      textures[j] = &mTextures[texIndices[j]];
     }
 
-    meshes[i].draw(shader, textures);
+    meshes[i].draw(shader, textures[0], texLen);
   }
 }
 
@@ -169,8 +172,14 @@ void Model::free()
     meshes[i].free();
   }
 
-  for(unsigned int i = 0; i < mTextures.size(); i ++)
+  const unsigned int texLen = mTextures.size();
+  if(texLen)
   {
-    glDeleteTextures(1, &i);
+    unsigned int textureIds[texLen];
+    for(unsigned int i = 0; i < mTextures.size(); i ++)
+    {
+      textureIds[i] = mTextures[i].id;
+    }
+    glDeleteTextures(texLen, &textureIds[0]);
   }
 }
