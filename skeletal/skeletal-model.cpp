@@ -1,5 +1,5 @@
 #include "skeletal-model.h"
-#include "assimp_glm_helpers.h"
+#include "assimp-2-glm.h"
 #include <glm/gtx/quaternion.hpp>
 
 SkeletalModel::SkeletalModel()
@@ -67,19 +67,19 @@ Animation SkeletalModel::readAnimation(const aiAnimation* anim)
     for(unsigned int j = 0; j < channel->mNumPositionKeys; j++)
     {
       transforms.positionTimestamps.push_back(channel->mPositionKeys[j].mTime);
-      transforms.positions.push_back(AssimpGLMHelpers::GetGLMVec(channel->mPositionKeys[j].mValue));
+      transforms.positions.push_back(Assimp2glm::vec3(channel->mPositionKeys[j].mValue));
     }
 
     for(unsigned j = 0; j < channel->mNumRotationKeys; j++)
     {
       transforms.rotationTimestamps.push_back(channel->mRotationKeys[j].mTime);
-      transforms.rotations.push_back(AssimpGLMHelpers::GetGLMQuat(channel->mRotationKeys[j].mValue));
+      transforms.rotations.push_back(Assimp2glm::quat(channel->mRotationKeys[j].mValue));
     }
 
     for(unsigned j = 0; j < channel->mNumScalingKeys; j++)
     {
       transforms.scaleTimestamps.push_back(channel->mScalingKeys[j].mTime);
-      transforms.scales.push_back(AssimpGLMHelpers::GetGLMVec(channel->mScalingKeys[j].mValue));
+      transforms.scales.push_back(Assimp2glm::vec3(channel->mScalingKeys[j].mValue));
     }
 
     assert(transforms.positions.size() || transforms.rotations.size() || transforms.scales.size());
@@ -202,7 +202,7 @@ void SkeletalModel::addBone(
     const unsigned int index = outBoneInfos.size();
     outBoneInfos[name] = BoneInfo {
       .index = index,
-      .offset = AssimpGLMHelpers::ConvertMatrixToGLMFormat(aiBone->mOffsetMatrix)
+      .offset = Assimp2glm::mat4(aiBone->mOffsetMatrix)
     };
   }
 }
