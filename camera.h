@@ -13,9 +13,9 @@ public:
 
   const glm::mat4 view() const;
   const glm::mat4 projection() const;
-  const glm::vec3 position() const;
-  const glm::vec3 front() const;
-  const glm::vec3 right() const;
+  const glm::vec3& position() const;
+  const glm::vec3& front() const;
+  const glm::vec3& right() const;
   void moveForward(const float speed = 0.05f);
   void moveBackward(const float speed = 0.05f);
   void moveLeft(const float speed = 0.05f);

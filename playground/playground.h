@@ -31,10 +31,9 @@ public:
   void onScroll(const GLFWwindow* window, const double x, const double y) override;
 
 private:
-  void toggleSpotLight();
+  void toggleSpotLight() { mSpotlightOn = !mSpotlightOn; };
   void highlight(Box &box, glm::mat4 model);
 
-  Camera camera;
   Shader skeletal;
   Tifa tifa;
   Dae dae;

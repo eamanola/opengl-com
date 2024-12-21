@@ -34,17 +34,17 @@ const glm::mat4 Camera::projection() const
   return glm::perspective(glm::radians(fov), 800.f / 600.f, 0.1f, 100.f);
 }
 
-const glm::vec3 Camera::position() const
+const glm::vec3& Camera::position() const
 {
   return mPosition;
 }
 
-const glm::vec3 Camera::front() const
+const glm::vec3& Camera::front() const
 {
   return mFront;
 }
 
-const glm::vec3 Camera::right() const
+const glm::vec3& Camera::right() const
 {
   return mRight;
 }

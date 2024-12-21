@@ -67,7 +67,7 @@ const float Whipper::rotation() const
 }
 
 float lastFrame1 = 0.f;
-void Whipper::handleInput(const GLFWwindow* window, const Camera &camera)
+void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
 {
   const float time = glfwGetTime();
   const float deltaTime = time - lastFrame1;
@@ -83,13 +83,14 @@ void Whipper::handleInput(const GLFWwindow* window, const Camera &camera)
 
   if (angle >= 0 && mState != WHIPPER_STATES::LANDING)
   {
-    glm::vec3 front = camera.front();
+    glm::vec3 front = scene.cameraDir();
     float x = front.x * cos(glm::radians(angle)) - front.z * sin(glm::radians(angle));
     float z = front.x * sin(glm::radians(angle)) + front.z * cos(glm::radians(angle));
     glm::vec3 direction = glm::vec3(x, front.y, -z);
 
     mRotation = angle;
     mPosition += direction * (2.5f * deltaTime);
+
   }
 
   WHIPPER_STATES newState;

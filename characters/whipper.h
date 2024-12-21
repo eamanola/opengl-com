@@ -19,7 +19,7 @@ public:
   Whipper();
   ~Whipper();
 
-  void handleInput(const GLFWwindow* window, const Camera &camera) override;
+  void handleInput(const GLFWwindow* window, const Scene& scene) override;
   void update(float time) override;
   void draw(Shader &shader, const glm::mat4 &transform) override;
   void free() override;

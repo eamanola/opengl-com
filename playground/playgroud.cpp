@@ -27,8 +27,8 @@ mSpotlightOn(false)
   glm::vec3 cameraPos = glm::vec3(0.f) + glm::vec3(0.f, 0.f, 8.f);
   glm::vec3 cameraDir = glm::normalize(glm::vec3(0.f) - cameraPos);
 #endif
-  camera.setPosition(cameraPos, true);
-  camera.setDirection(cameraDir, true);
+  camera().setPosition(cameraPos, true);
+  camera().setDirection(cameraDir, true);
 }
 
 
@@ -46,8 +46,8 @@ void Playground::update(const float &time)
   lightingSettings.mLights.positions[0].x = 1.0f + sin(time) * 2.0f;
   lightingSettings.mLights.positions[0].y = sin(time / 2.0f) * 1.0f;
 
-  camera.updatePosition(time);
-  camera.updateDirection(time);
+  camera().updatePosition(time);
+  camera().updateDirection(time);
 
   tifa.update(time);
   dae.update(time);
@@ -57,33 +57,33 @@ void Playground::update(const float &time)
   if(time > 2.f)
   {
     glm::vec3 cameraPos = whipper.position() + glm::vec3(0.f, 0.f, 8.f);
-    camera.setPosition(cameraPos);
+    camera().setPosition(cameraPos);
 
-    glm::vec3 cameraDir = glm::normalize(whipper.position() - camera.position());
-    camera.setDirection(cameraDir);
+    glm::vec3 cameraDir = glm::normalize(whipper.position() - camera().position());
+    camera().setDirection(cameraDir);
   }
 #endif
 }
 
 void Playground::render()
 {
-  const glm::mat4 view = camera.view();
-  const glm::mat4 projection = camera.projection();
+  const glm::mat4 view = camera().view();
+  const glm::mat4 projection = camera().projection();
   const glm::mat4 proj_x_view = projection * view;
-  const glm::vec3 view_pos = camera.position();
+  const glm::vec3 view_pos = camera().position();
   glm::mat4 identity = glm::mat4(1.f);
 
   skeletal.use();
   skeletal.setMat4fv("u_proj_x_view", proj_x_view);
   lightingSettings.setViewPosition(skeletal, view_pos);
   lightingSettings.updatePointLight0Position(skeletal);
-  lightingSettings.updateSpotLight(skeletal, view_pos, camera.front(), !mSpotlightOn);
+  lightingSettings.updateSpotLight(skeletal, view_pos, camera().front(), !mSpotlightOn);
 
   lightingProgram.use();
   lightingProgram.setMat4fv("u_proj_x_view", proj_x_view);
   lightingSettings.setViewPosition(lightingProgram, view_pos);
   lightingSettings.updatePointLight0Position(lightingProgram);
-  lightingSettings.updateSpotLight(lightingProgram, view_pos, camera.front(), !mSpotlightOn);
+  lightingSettings.updateSpotLight(lightingProgram, view_pos, camera().front(), !mSpotlightOn);
 
   skeletal.use();
   // tifa
@@ -180,16 +180,17 @@ float lastFrame = 0.f;
 void Playground::handleInput(const GLFWwindow* window)
 {
 #ifdef FOLLOW_WHIPPER
-  whipper.handleInput(window, camera);
+  Scene scene = (Scene)*this;
+  whipper.handleInput(window, scene);
 #else
   const float time = glfwGetTime();
   const float deltaTime = time - lastFrame;
   lastFrame = time;
 
-  if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_W) == GLFW_PRESS) camera.moveForward(2.5f * deltaTime);
-  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_S) == GLFW_PRESS) camera.moveBackward(2.5f * deltaTime);
-  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_A) == GLFW_PRESS) camera.moveLeft(2.5f * deltaTime);
-  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_D) == GLFW_PRESS) camera.moveRight(2.5f * deltaTime);
+  if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_W) == GLFW_PRESS) camera().moveForward(2.5f * deltaTime);
+  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_S) == GLFW_PRESS) camera().moveBackward(2.5f * deltaTime);
+  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_A) == GLFW_PRESS) camera().moveLeft(2.5f * deltaTime);
+  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_D) == GLFW_PRESS) camera().moveRight(2.5f * deltaTime);
 #endif
 }
 
@@ -220,15 +221,10 @@ void Playground::onMouse(const GLFWwindow* window, const double x, const double 
   lastX = x;
   lastY = y;
 
-  camera.changeDirection(xoffset, yoffset);
+  camera().changeDirection(xoffset, yoffset);
 }
 
 void Playground::onScroll(const GLFWwindow* window, const double x, const double y)
 {
-  camera.zoom((float)y);
-}
-
-void Playground::toggleSpotLight()
-{
-  mSpotlightOn = !mSpotlightOn;
+  camera().zoom((float)y);
 }

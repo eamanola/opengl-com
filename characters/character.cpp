@@ -7,15 +7,6 @@ Character::Character(const char* path)
   mModel.loadModel(path);
 }
 
-Character::~Character()
-{
-}
-
-void Character::setModelMatrix(const glm::mat4 &modelMatrix)
-{
-  mModelMatrix = modelMatrix;
-}
-
 bool Character::setAnimation(unsigned int animationIndex)
 {
   const Animation* animation = mModel.setAnimation(animationIndex);
@@ -27,11 +18,6 @@ bool Character::setAnimation(unsigned int animationIndex)
   }
 
   return false;
-}
-
-void Character::update(float time)
-{
-  mModel.update(time);
 }
 
 void Character::draw(Shader &shader, const glm::mat4 &transform)
@@ -47,14 +33,4 @@ void Character::draw(Shader &shader, const glm::mat4 &transform)
   shader.setMat4fv("u_model", model);
 
   mModel.draw(shader);
-}
-
-void Character::handleInput(const GLFWwindow* window, const Camera &camera)
-{
-
-}
-
-void Character::free()
-{
-  mModel.free();
 }
