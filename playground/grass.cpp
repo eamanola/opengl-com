@@ -42,12 +42,14 @@ Grass::~Grass()
 
 void Grass::draw(Shader& shader)
 {
+  glDisable(GL_CULL_FACE);
   for(unsigned int i = 0; i < mPositions.size(); i++)
   {
     glm::mat4 model = glm::translate(glm::mat4(1.0f), mPositions[i]);
     shader.setMat4fv("u_model", model);
     mMesh.draw(shader, &mTexture);
   }
+  glEnable(GL_CULL_FACE);
 }
 
 void Grass::free()

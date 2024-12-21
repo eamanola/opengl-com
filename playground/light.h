@@ -13,8 +13,7 @@ public:
   void free();
 
 private:
-  void setup();
-  Mesh* mMesh;
+  Mesh mMesh;
 };
 
 #endif

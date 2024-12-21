@@ -50,7 +50,7 @@ void SkeletalModel::processScene(const aiScene* scene)
   //   std::cout << n.first << "\n"; // , n.second);
 }
 
-Animation SkeletalModel::readAnimation(const aiAnimation* anim)  const
+Animation SkeletalModel::readAnimation(const aiAnimation* anim) const
 {
   Animation animation {
     .duration = (float)anim->mDuration,
@@ -133,16 +133,6 @@ std::vector<SkeletalVertex> SkeletalModel::readBoneData(
           boneData[vertexId].boneIds[rIndex] = boneInfo.index;
           boneData[vertexId].boneWeights[rIndex] = weight;
         }
-
-        // std::cout << "info: too many bones v: " << vertexId;
-        // if(replaceOrDiscard(outBoneData[vertexId], boneInfo.index, weight))
-        // {
-        //   std::cout << " replaced old" << std::endl;
-        // }
-        // else
-        // {
-        //   std::cout << " discarded new" << std::endl;
-        // }
       }
     }
   }
