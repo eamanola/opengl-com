@@ -52,7 +52,6 @@ void Playground::update(const float &time)
   tifa.update(time);
   dae.update(time);
   whipper.update(time);
-
 #ifdef FOLLOW_WHIPPER
   if(time > 2.f)
   {
@@ -63,6 +62,8 @@ void Playground::update(const float &time)
     camera().setDirection(cameraDir);
   }
 #endif
+
+  mirror.update(*this);
 }
 
 void Playground::render()
@@ -121,11 +122,13 @@ void Playground::render()
     glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightingSettings.mLights.positions[i]);
     lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
-    plainProgram.setVec3fv("color", lightingSettings.mLights.colors[i]);
+    plainProgram.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
     plainProgram.setMat4fv("u_model", lightModel);
     pointLightDebug.draw(plainProgram);
   }
   #endif
+
+  mirror.draw(lightingProgram);
 }
 
 void Playground::teardown()
@@ -145,35 +148,36 @@ void Playground::teardown()
   grass.free();
   window.free();
   lightingProgram.free();
+  mirror.free();
 }
 
 void Playground::highlight(Box &box, glm::mat4 model)
 {
-  glEnable(GL_STENCIL_TEST);
-  glClear(GL_STENCIL_BUFFER_BIT);
+  // glEnable(GL_STENCIL_TEST);
+  // glClear(GL_STENCIL_BUFFER_BIT);
 
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  // glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-  glStencilFunc(GL_ALWAYS, 1, 0xFF);
-  glStencilMask(0xFF);
+  // glStencilFunc(GL_ALWAYS, 1, 0xFF);
+  // glStencilMask(0xFF);
 
-  lightingProgram.use();
-  lightingProgram.setMat4fv("u_model", model);
-  box.draw(lightingProgram);
+  // lightingProgram.use();
+  // lightingProgram.setMat4fv("u_model", model);
+  // box.draw(lightingProgram);
 
-  glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-  glStencilMask(0x00);
-  // glDisable(GL_DEPTH_TEST); ?
-  plainProgram.use();
-  plainProgram.setVec3fv("color", glm::vec3(1.0, 1.0, 1.0));
-  plainProgram.setMat4fv("u_model", glm::scale(model, glm::vec3(1.1)));
-  box.draw(plainProgram);
+  // glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+  // glStencilMask(0x00);
+  // // glDisable(GL_DEPTH_TEST); ?
+  // plainProgram.use();
+  // plainProgram.setVec4fv("u_color", glm::vec4(1.0, 1.0, 1.0, 1.0));
+  // plainProgram.setMat4fv("u_model", glm::scale(model, glm::vec3(1.1)));
+  // box.draw(plainProgram);
 
-  glStencilMask(0xFF);
-  glStencilFunc(GL_ALWAYS, 1, 0xFF);
-  // glEnable(GL_DEPTH_TEST);
+  // glStencilMask(0xFF);
+  // glStencilFunc(GL_ALWAYS, 1, 0xFF);
+  // // glEnable(GL_DEPTH_TEST);
 
-  glDisable(GL_STENCIL_TEST);
+  // glDisable(GL_STENCIL_TEST);
 }
 
 float lastFrame = 0.f;

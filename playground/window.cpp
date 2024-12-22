@@ -34,6 +34,8 @@ Window::~Window()
 
 void Window::draw(Shader& shader)
 {
+  glDisable(GL_CULL_FACE);
+
   glm::mat4 model;
 
   glEnable(GL_BLEND);
@@ -54,6 +56,8 @@ void Window::draw(Shader& shader)
     shader.setMat4fv("u_model", model);
     mMesh.draw(shader, &mTexture);
   glDisable(GL_BLEND);
+
+  glEnable(GL_CULL_FACE);
 }
 
 void Window::free()

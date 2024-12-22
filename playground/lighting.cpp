@@ -43,29 +43,30 @@ void Lighting::setViewPosition(Shader &shader, const glm::vec3& position)
 
 void Lighting::initDirLight(Shader &shader)
 {
-  const glm::vec3 AMBIENT(0.2f);
-  const glm::vec3 DIFFUSE(0.5f);
-  const glm::vec3 SPECULAR(1.0f);
-  const glm::vec3 color(1.f);
+  const glm::vec4 AMBIENT(0.2f, 0.2f, 0.2f, 1.f);
+  const glm::vec4 DIFFUSE(0.5f, 0.5f, 0.5f, 1.f);
+  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.0f);
+  const glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
   const glm::vec3 direction(-0.2f, -1.0f, -0.3f);
   const bool off = false;
-  const glm::vec3 ambient = color * AMBIENT;
-  const glm::vec3 diffuse = color * DIFFUSE;
-  const glm::vec3 specular = color * SPECULAR;
+  const glm::vec4 ambient = color * AMBIENT;
+  const glm::vec4 diffuse = color * DIFFUSE;
+  const glm::vec4 specular = color * SPECULAR;
 
   shader.setVec3fv("u_dir_light.direction", direction);
   shader.setBool("u_dir_light.off", off);
-  shader.setVec3fv("u_dir_light.light.ambient", glm::vec4(ambient, 1.f));
-  shader.setVec3fv("u_dir_light.light.diffuse", glm::vec4(diffuse, 1.f));
-  shader.setVec3fv("u_dir_light.light.specular", glm::vec4(specular, 1.f));
+  shader.setVec4fv("u_dir_light.light.ambient", ambient);
+  shader.setVec4fv("u_dir_light.light.diffuse", diffuse);
+  shader.setVec4fv("u_dir_light.light.specular", specular);
 }
 
 void Lighting::initPointLights(Shader &shader)
 {
-  const glm::vec3 AMBIENT(0.2f);
-  const glm::vec3 DIFFUSE(0.5f);
-  const glm::vec3 SPECULAR(1.0f);
+  const glm::vec4 AMBIENT(0.2f, 0.2f, 0.2f, 1.f);
+  const glm::vec4 DIFFUSE(0.5f, 0.5f, 0.5f, 1.f);
+  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.0f);
+  const glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
   const float aConstant = 1.f;
   const float aLinear = 0.09f;
@@ -82,9 +83,9 @@ void Lighting::initPointLights(Shader &shader)
     shader.setFloat(key.str() + ".attenuation.quadratic", aQuadratic);
 
     shader.setBool(key.str() + ".light.off", false);
-    shader.setVec4fv(key.str() + ".light.ambient", glm::vec4(mLights.colors[i] * AMBIENT, 1.0));
-    shader.setVec4fv(key.str() + ".light.diffuse", glm::vec4(mLights.colors[i] * DIFFUSE, 1.0));
-    shader.setVec4fv(key.str() + ".light.specular", glm::vec4(mLights.colors[i] * SPECULAR, 1.0));
+    shader.setVec4fv(key.str() + ".light.ambient", mLights.colors[i] * AMBIENT);
+    shader.setVec4fv(key.str() + ".light.diffuse", mLights.colors[i] * DIFFUSE);
+    shader.setVec4fv(key.str() + ".light.specular", mLights.colors[i] * SPECULAR);
   }
 }
 
@@ -95,10 +96,10 @@ void Lighting::updatePointLight0Position(Shader &shader)
 
 void Lighting::initSpotLight(Shader &shader)
 {
-  const glm::vec3 AMBIENT(0.2f);
-  const glm::vec3 DIFFUSE(0.5f);
-  const glm::vec3 SPECULAR(1.0f);
-  const glm::vec3 color(1.f);
+  const glm::vec4 AMBIENT(0.2f, 0.2f, 0.2f, 1.f);
+  const glm::vec4 DIFFUSE(0.5f, 0.5f, 0.5f, 1.f);
+  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.0f);
+  const glm::vec4 color(1.0f, 1.0f, 1.0f, 1.0f);
 
   const glm::vec3 direction = glm::vec3(0.0f);
   const float cutOff = glm::cos(glm::radians(12.5f));
@@ -109,9 +110,9 @@ void Lighting::initSpotLight(Shader &shader)
   const float aLinear = 0.09f;
   const float aQuadratic = 0.032f;
   const bool off = true;
-  const glm::vec3 ambient = color * AMBIENT;
-  const glm::vec3 diffuse = color * DIFFUSE;
-  const glm::vec3 specular = color * SPECULAR;
+  const glm::vec4 ambient = color * AMBIENT;
+  const glm::vec4 diffuse = color * DIFFUSE;
+  const glm::vec4 specular = color * SPECULAR;
 
   shader.setVec3fv("u_spot_light.direction", direction);
   shader.setFloat("u_spot_light.cutOff", cutOff);
@@ -123,9 +124,9 @@ void Lighting::initSpotLight(Shader &shader)
   shader.setFloat("u_spot_light.attenuation.quadratic", aQuadratic);
 
   shader.setBool("u_spot_light.light.off", off);
-  shader.setVec4fv("u_spot_light.light.ambient", glm::vec4(ambient, 1.0));
-  shader.setVec4fv("u_spot_light.light.diffuse", glm::vec4(diffuse, 1.0));
-  shader.setVec4fv("u_spot_light.light.specular", glm::vec4(specular, 1.0));
+  shader.setVec4fv("u_spot_light.light.ambient", ambient);
+  shader.setVec4fv("u_spot_light.light.diffuse", diffuse);
+  shader.setVec4fv("u_spot_light.light.specular", specular);
 }
 
 void Lighting::updateSpotLight(Shader &shader, const glm::vec3& position, const glm::vec3& direction, bool off)

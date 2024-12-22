@@ -13,6 +13,7 @@
 #include "box.h"
 #include "grass.h"
 #include "window.h"
+#include "mirror.h"
 
 class Playground : public Scene
 {
@@ -49,6 +50,7 @@ private:
   Box box;
   Grass grass;
   Window window;
+  Mirror mirror;
 };
 
 

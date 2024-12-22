@@ -23,17 +23,15 @@ mMesh(
     0, 1, 2,
     0, 2, 3
   })
+),
+mTexture(
+  Texture {
+    .id = ShaderUtils::loadTexture("assets/grass.png", GL_CLAMP_TO_EDGE),
+    .type = TEXTURE_TYPE_DIFFUSE,
+    .path = "assets/grass.png"
+  }
 )
 {
-  const char * path = "assets/grass.png";
-
-  mTexture = Texture
-  {
-    .id = ShaderUtils::loadTexture(path, GL_CLAMP_TO_EDGE),
-    .type = TEXTURE_TYPE_DIFFUSE,
-    .path = path
-  };
-
 }
 
 Grass::~Grass()
