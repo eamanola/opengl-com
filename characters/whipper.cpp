@@ -18,10 +18,6 @@ Whipper::Whipper() : Character("assets/whipper/scene.gltf")
   textureId = ShaderUtils::loadTexture("assets/pink.png");
 }
 
-Whipper::~Whipper()
-{
-}
-
 void Whipper::update(float time)
 {
   bool loop = !isJumping(mState);
@@ -44,7 +40,6 @@ void Whipper::update(float time)
 
 void Whipper::draw(Shader &shader, const glm::mat4 &transform)
 {
-  shader.use();
   glActiveTexture(GL_TEXTURE0);
   shader.setInt("u_material.texture_diffuse1", 0);
   glBindTexture(GL_TEXTURE_2D, textureId);
@@ -53,17 +48,6 @@ void Whipper::draw(Shader &shader, const glm::mat4 &transform)
 
   glActiveTexture(0);
   glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-
-const glm::vec3 Whipper::position() const
-{
-  return mPosition;
-}
-
-const float Whipper::rotation() const
-{
-  return mRotation;
 }
 
 float lastFrame1 = 0.f;

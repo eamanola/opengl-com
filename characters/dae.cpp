@@ -41,12 +41,3 @@ Dae::Dae() : Character("assets/dae-runner/model.dae")
   // unsigned int index = mModel.addAnimation(staticPose);
   // setAnimation(index);
 }
-
-Dae::~Dae()
-{
-}
-
-void Dae::free()
-{
-  Character::free();
-}

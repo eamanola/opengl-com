@@ -22,8 +22,6 @@ bool Character::setAnimation(unsigned int animationIndex)
 
 void Character::draw(Shader &shader, const glm::mat4 &transform)
 {
-  shader.use();
-
   const std::vector<glm::mat4> transforms = mModel.pose();
   for(unsigned int i = 0; i < transforms.size(); i++)
   {

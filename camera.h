@@ -25,10 +25,12 @@ public:
   void zoom(const float yoffset);
 
   void setPosition(const glm::vec3 position, const bool animate = false);
-  void updatePosition(const float time);
+  bool updatePosition(const float time);
 
   void setDirection(const glm::vec3 direction, const bool animate = false);
-  void updateDirection(const float time);
+  bool updateDirection(const float time);
+
+  void pointTo(const glm::vec3 &point, const bool animate = false);
 private:
   glm::vec3 mPosition;
   glm::vec3 mFront;

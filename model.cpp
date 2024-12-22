@@ -4,14 +4,6 @@
 #include <assimp/postprocess.h>
 #include "shader-utils.h"
 
-Model::Model()
-{
-}
-
-Model::~Model()
-{
-}
-
 void Model::loadModel(const std::string path)
 {
   Assimp::Importer importer;

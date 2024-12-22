@@ -7,9 +7,7 @@ class Dae : public Character
 {
 public:
   Dae();
-  ~Dae();
-
-  void free() override;
+  ~Dae() { };
 };
 
 #endif

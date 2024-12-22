@@ -1,4 +1,7 @@
-OBJS = glad/src/gl.c stb_image/src/stb_image.c *.cpp skeletal/*.cpp characters/*.cpp playground/*.cpp
+OBJS = glad/src/gl.c stb_image/src/stb_image.c \
+	*.cpp skeletal/*.cpp \
+	characters/*.cpp \
+	playground/*.cpp playground/skybox/*.cpp
 
 CC = g++
 

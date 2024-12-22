@@ -17,15 +17,15 @@ class Whipper : public Character
 {
 public:
   Whipper();
-  ~Whipper();
+  ~Whipper() { };
 
   void handleInput(const GLFWwindow* window, const Scene& scene) override;
   void update(float time) override;
   void draw(Shader &shader, const glm::mat4 &transform) override;
   void free() override;
 
-  const glm::vec3 position() const;
-  const float rotation() const;
+  const glm::vec3& position() const { return mPosition; };
+  const float& rotation() const { return mRotation; };
 private:
   unsigned int textureId;
   WHIPPER_STATES mState;

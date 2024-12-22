@@ -14,6 +14,8 @@
 #include "grass.h"
 #include "window.h"
 #include "mirror.h"
+#include "skybox/skybox.h"
+#include "skybox/skybox-reflector.h"
 
 class Playground : public Scene
 {
@@ -35,22 +37,31 @@ private:
   void toggleSpotLight() { mSpotlightOn = !mSpotlightOn; };
   void highlight(Box &box, glm::mat4 model);
 
-  Shader skeletal;
+  Shader mpSkeletal;
   Tifa tifa;
   Dae dae;
   Whipper whipper;
-  Lighting lightingSettings;
-  #ifdef POINTLIGHT_DEBUG
-  Light pointLightDebug;
-  Shader plainProgram;
-  #endif
+
+  Shader mpLighting;
   Model simpleModel;
-  Shader lightingProgram;
-  bool mSpotlightOn;
   Box box;
   Grass grass;
   Window window;
   Mirror mirror;
+
+  Shader mpSkybox;
+  Skybox skybox;
+
+  Shader mpReflectSkybox;
+  SkyboxReflector skyboxReflector;
+
+  #ifdef POINTLIGHT_DEBUG
+  Light pointLightDebug;
+  Shader mpPlain;
+  #endif
+
+  Lighting lightingSettings;
+  bool mSpotlightOn;
 };
 
 

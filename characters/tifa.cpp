@@ -10,7 +10,3 @@ Character("assets/tifa/dancing/source/Bellydancing.fbx")
   model = glm::translate(model, glm::vec3(0.f, -1.f, 0.f));
   setModelMatrix(model);
 }
-
-Tifa::~Tifa()
-{
-}

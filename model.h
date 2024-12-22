@@ -9,8 +9,10 @@
 class Model
 {
 public:
-  Model();
-  virtual ~Model();
+  Model() {};
+  virtual ~Model() {};
+
+  Model(const char* path) : Model() { loadModel(path); }
 
   void loadModel(const std::string path);
   void draw(Shader &shader);

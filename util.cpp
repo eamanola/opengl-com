@@ -69,6 +69,7 @@ void initGL()
 {
   glClearColor(0.1f, 0.1f, 0.1f, 1.f);
   glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS); // default
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK); //default
   glFrontFace(GL_CCW); //default

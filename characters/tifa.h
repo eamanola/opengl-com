@@ -7,7 +7,7 @@ class Tifa : public Character
 {
 public:
   Tifa();
-  ~Tifa();
+  ~Tifa() { };
 };
 
 #endif

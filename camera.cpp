@@ -134,7 +134,7 @@ void Camera::setPosition(const glm::vec3 position, const bool animate)
   }
 }
 
-void Camera::updatePosition(const float time)
+bool Camera::updatePosition(const float time)
 {
   if(mAnimatePos)
   {
@@ -147,6 +147,8 @@ void Camera::updatePosition(const float time)
     mPosition = glm::mix(mStartPos, mTargetPos, frac);
     mAnimatePos = mPosition != mTargetPos;
   }
+
+  return mAnimatePos;
 }
 
 
@@ -166,7 +168,7 @@ void Camera::setDirection(const glm::vec3 direction, const bool animate)
   }
 }
 
-void Camera::updateDirection(const float time)
+bool Camera::updateDirection(const float time)
 {
   if(mAnimateDir)
   {
@@ -180,4 +182,10 @@ void Camera::updateDirection(const float time)
     updateVectors(direction);
     mAnimateDir = mFront != mTargetDir;
   }
+
+  return mAnimateDir;
+}
+
+void Camera::pointTo(const glm::vec3 &point, const bool animate) {
+  setDirection(glm::normalize(point - position()), animate);
 }

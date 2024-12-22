@@ -9,7 +9,7 @@ const float S_HEIGHT = 600.f;
 Mirror::Mirror()
 :
 
-mPosition(glm::vec3(2.5f, 0.f, 0.f)),
+mPosition(glm::vec3(2.5f, 0.5f, 0.f)),
 mNormal(glm::normalize(glm::vec3(0.f, 0.f, 1.f))),
 mMesh(
   std::vector<Vertex> ({
@@ -105,7 +105,6 @@ glm::mat4 Mirror::model()
 
 void Mirror::draw(Shader& shader)
 {
-  shader.use();
   shader.setMat4fv("u_model", model());
 
   mMesh.draw(shader, &mTexture);
