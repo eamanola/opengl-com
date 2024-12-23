@@ -1,37 +1,48 @@
 #version 330 core
 
+#ifdef MATERIAL
 struct Material {
   sampler2D texture_diffuse1;
   sampler2D texture_specular1;
   float     shininess;
 };
+#endif
 
+#ifdef CALC_ATTENUATION
 struct Attenuation {
   float constant;
   float linear;
   float quadratic;
 };
+#endif
 
+#ifdef CALC_DIR_LIGHT // or CALC_POINT_LIGHT or CALC_SPOT_LIGHT
 struct Light {
   bool off;
   vec4 ambient;
   vec4 diffuse;
   vec4 specular;
 };
+#endif
 
+#ifdef CALC_DIR_LIGHT
 struct DirLight {
   vec3 direction;
 
   Light light;
 };
+#endif
 
+#ifdef CALC_POINT_LIGHT
 struct PointLight {
   vec3 position;
   Attenuation attenuation;
 
   Light light;
 };
+#endif
 
+#ifdef CALC_SPOT_LIGHT
 struct SpotLight {
   vec3 direction;
   float cutOff;
@@ -42,40 +53,87 @@ struct SpotLight {
 
   Light light;
 };
+#endif
 
+#ifdef CALC_DIR_LIGHT
 mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir);
-mat3x4 calcPointLight(PointLight pointLight, vec3 normal, vec3 viewDir, vec3 fragPos);
-mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPos);
-float calcAttenuation(Attenuation attenuation, float distance);
+#endif
 
+#ifdef CALC_POINT_LIGHT
+mat3x4 calcPointLight(PointLight pointLight, vec3 normal, vec3 viewDir, vec3 fragPos);
+#endif
+
+#ifdef CALC_SPOT_LIGHT
+mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPos);
+#endif
+
+#ifdef CALC_ATTENUATION
+float calcAttenuation(Attenuation attenuation, float distance);
+#endif
+
+#ifdef NORMAL
 in vec3 v_normal;
+#endif
+
+#ifdef FRAG_POS
 in vec3 v_frag_pos;
+#endif
+
+#ifdef MATERIAL
 in vec2 v_tex_coords;
+#endif
 
 out vec4 f_color;
 
-#define NR_POINT_LIGHTS 4
-
+#ifdef VIEW_DIR
 uniform vec3 u_view_pos;
+#endif
+
+#ifdef MATERIAL
 uniform Material u_material;
+#endif
+
+#ifdef IN_DIRLIGHT
 uniform DirLight u_dir_light;
-uniform PointLight u_point_lights[NR_POINT_LIGHTS];
+#endif
+
+#ifdef IN_POINT_LIGHTS
+uniform PointLight u_point_lights[IN_NR_POINT_LIGHTS];
+#endif
+
+#ifdef IN_SPOTLIGHT
 uniform SpotLight u_spot_light;
+#endif
+
+#ifdef BASE_COLOR
+uniform vec4 u_color;
+#endif
 
 void main()
 {
+  vec4 color = vec4(0.0);;
+#ifdef BASE_COLOR
+  color = vec4(u_color.rgb, 1.0); // ?
+#endif
+
+#ifdef NORMAL
   vec3 normal = normalize(v_normal);
+#endif
+
+#ifdef VIEW_DIR
   vec3 viewDir = normalize(u_view_pos - v_frag_pos);
+#endif
 
-  vec4 color = vec4(0.0);
-
+#ifdef IN_DIRLIGHT
   if(!u_dir_light.light.off)
   {
     mat3x4 dirLightColor = calcDirLight(u_dir_light, normal, viewDir);
     color += dirLightColor[0] + dirLightColor[1] + dirLightColor[2];
   }
+#endif
 
-  for(int i = 0; i < NR_POINT_LIGHTS; i++)
+#ifdef IN_POINT_LIGHTS
+  for(int i = 0; i < IN_NR_POINT_LIGHTS; i++)
   {
     if(!u_point_lights[i].light.off)
     {
@@ -83,12 +141,15 @@ void main()
       color += pointLightColor[0] + pointLightColor[1] + pointLightColor[2];
     }
   }
+#endif
 
+#ifdef IN_SPOTLIGHT
   if(!u_spot_light.light.off)
   {
     mat3x4 spotLightColor = calcSpotLight(u_spot_light, normal, viewDir, v_frag_pos);
     color += spotLightColor[0] + spotLightColor[1] + spotLightColor[2];
   }
+#endif
 
   if(color.a < 0.1)
   {
@@ -99,6 +160,7 @@ void main()
   f_color = color;
 }
 
+#ifdef CALC_ATTENUATION
 float calcAttenuation(Attenuation attenuation, float distance)
 {
   return 1.0 / (
@@ -107,7 +169,9 @@ float calcAttenuation(Attenuation attenuation, float distance)
     + attenuation.quadratic * (distance * distance)
   );
 }
+#endif
 
+#ifdef CALC_DIR_LIGHT
 mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
 {
   vec3 lightDir = normalize(-dirLight.direction);
@@ -129,7 +193,9 @@ mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
 
   return mat3x4(ambient, diffuse, specular);
 }
+#endif
 
+#ifdef CALC_POINT_LIGHT
 mat3x4 calcPointLight(PointLight pointLight, vec3 normal, vec3 viewDir, vec3 fragPos)
 {
   vec3 lightDiff = pointLight.position - fragPos;
@@ -144,7 +210,9 @@ mat3x4 calcPointLight(PointLight pointLight, vec3 normal, vec3 viewDir, vec3 fra
     viewDir
   ) * attenuation;
 }
+#endif
 
+#ifdef CALC_SPOT_LIGHT
 mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPos)
 {
   vec3 lightDiff = spotLight.position - fragPos;
@@ -161,3 +229,4 @@ mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPo
     fragPos
   ) * intensity;
 }
+#endif

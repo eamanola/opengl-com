@@ -4,14 +4,30 @@
 
 Playground::Playground()
 :
-mpSkeletal("./skeletal/skeletal.vs", "./shaders/lighting.fs"),
-mpLighting("./shaders/lighting.vs", "./shaders/lighting.fs"),
+mpSkeletal("./skeletal/skeletal.vs", "./shaders/lighting.fs",
+  {
+    "#define IN_SPOTLIGHT",
+    "#define IN_NR_POINT_LIGHTS 4",
+    "#define IN_DIRLIGHT"
+  }
+),
+mpLighting("./shaders/lighting.vs", "./shaders/lighting.fs",
+  {
+    "#define IN_SPOTLIGHT",
+    "#define IN_NR_POINT_LIGHTS 4",
+    "#define IN_DIRLIGHT"
+  }
+),
 simpleModel("assets/2b-jumps2/scene.gltf"),
 mpSkybox("./playground/skybox/cube.vs", "./playground/skybox/cube.fs"),
 mpReflectSkybox("./playground/skybox/reflect-skybox.vs", "./playground/skybox/reflect-skybox.fs"),
 // mpReflectSkybox("./shaders/reflect-skybox.vs", "./shaders/single-color.fs"),
 #ifdef POINTLIGHT_DEBUG
-mpPlain("./shaders/plain.vs", "./shaders/single-color.fs"),
+mpPlain("./shaders/lighting.vs", "./shaders/lighting.fs",
+  {
+    "#define BASE_COLOR",
+  }
+),
 #endif
 mSpotlightOn(false)
 {

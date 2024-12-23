@@ -4,7 +4,9 @@
 #include <iostream>
 #include <stb_image.h>
 
-const unsigned int ShaderUtils::compileShader(GLenum type, const char* path)
+const unsigned int ShaderUtils::compileShader(
+  GLenum type, const char* path, const std::vector<std::string>& defines
+)
 {
   std::string source;
 
@@ -16,6 +18,22 @@ const unsigned int ShaderUtils::compileShader(GLenum type, const char* path)
   {
     std::cout << "Error loading shader" << e.what() << std::endl;
     return 0;
+  }
+
+  if(defines.size() > 0)
+  {
+    std::size_t version = 0;
+    if(source.rfind("#version", 0) == 0)
+    {
+      version = source.find('\n') + 1;
+    }
+
+    source.insert(version, ShaderUtils::readFile("./shaders/defines"));
+
+    for(unsigned int i = defines.size(); i-- > 0;)
+    {
+      source.insert(version, defines[i] + '\n');
+    }
   }
 
   return ShaderUtils::compile(type, source.c_str());

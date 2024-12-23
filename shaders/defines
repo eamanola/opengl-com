@@ -1,0 +1,63 @@
+// #define IN_DIRLIGHT
+// #define IN_NR_POINT_LIGHTS 4
+// #define IN_SPOTLIGHT
+
+#ifdef IN_DIRLIGHT
+#define CALC_DIR_LIGHT
+#endif
+
+#ifdef IN_NR_POINT_LIGHTS
+  #if (IN_NR_POINT_LIGHTS > 0)
+    #define IN_POINT_LIGHTS
+  #endif
+#endif
+
+#ifdef IN_POINT_LIGHTS
+#define CALC_POINT_LIGHT
+#endif
+
+#ifdef IN_SPOTLIGHT
+#define CALC_SPOT_LIGHT
+#endif
+
+#ifdef CALC_SPOT_LIGHT
+  #ifndef CALC_POINT_LIGHT
+    #define CALC_POINT_LIGHT
+  #endif
+  #ifndef FRAG_POS
+    #define FRAG_POS
+  #endif
+#endif
+
+#ifdef CALC_POINT_LIGHT
+  #ifndef CALC_DIR_LIGHT
+    #define CALC_DIR_LIGHT
+  #endif
+  #ifndef CALC_ATTENUATION
+    #define CALC_ATTENUATION
+  #endif
+  #ifndef FRAG_POS
+    #define FRAG_POS
+  #endif
+#endif
+
+#ifdef CALC_DIR_LIGHT
+  #ifndef MATERIAL
+    #define MATERIAL
+  #endif
+  #ifndef VIEW_DIR
+    #define VIEW_DIR
+  #endif
+  #ifndef NORMAL
+    #define NORMAL
+  #endif
+  #ifndef FRAG_POS
+    #define FRAG_POS
+  #endif
+#endif
+
+#ifdef VIEW_DIR
+  #ifndef FRAG_POS
+    #define FRAG_POS
+  #endif
+#endif

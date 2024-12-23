@@ -8,7 +8,7 @@
 class ShaderUtils
 {
   public:
-    static const unsigned int compileShader(GLenum type, const char* path);
+    static const unsigned int compileShader(GLenum type, const char* path, const std::vector<std::string>& defines);
     static unsigned int loadTexture(const char* path, const GLint wrap = GL_REPEAT);
     static unsigned int loadTexture(const unsigned char* buffer, unsigned int len, const GLint wrap = GL_REPEAT);
 
