@@ -1,22 +1,35 @@
-// #define IN_DIRLIGHT
+// #define IN_NR_DIR_LIGHTS 1
 // #define IN_NR_POINT_LIGHTS 4
-// #define IN_SPOTLIGHT
+// #define IN_NR_SPOT_LIGHTS 1
 
-#ifdef IN_DIRLIGHT
+#ifdef IN_NR_DIR_LIGHTS
+  #if (IN_NR_DIR_LIGHTS > 0)
+    #define HAS_DIR_LIGHTS
+  #endif
+#endif
+
+#ifdef HAS_DIR_LIGHTS
 #define CALC_DIR_LIGHT
 #endif
 
 #ifdef IN_NR_POINT_LIGHTS
   #if (IN_NR_POINT_LIGHTS > 0)
-    #define IN_POINT_LIGHTS
+    #define HAS_POINT_LIGHTS
   #endif
 #endif
 
-#ifdef IN_POINT_LIGHTS
+#ifdef HAS_POINT_LIGHTS
 #define CALC_POINT_LIGHT
 #endif
 
-#ifdef IN_SPOTLIGHT
+#ifdef IN_NR_SPOT_LIGHTS
+  #if (IN_NR_SPOT_LIGHTS > 0)
+    #define HAS_SPOT_LIGHTS
+  #endif
+#endif
+
+
+#ifdef HAS_SPOT_LIGHTS
 #define CALC_SPOT_LIGHT
 #endif
 

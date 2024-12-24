@@ -6,29 +6,25 @@ Playground::Playground()
 :
 mpSkeletal("./skeletal/skeletal.vs", "./shaders/lighting.fs",
   {
-    "#define IN_SPOTLIGHT",
+    "#define IN_NR_SPOT_LIGHTS 1",
     "#define IN_NR_POINT_LIGHTS 4",
-    "#define IN_DIRLIGHT"
+    "#define IN_NR_DIR_LIGHTS 1"
   }
 ),
 mpLighting("./shaders/lighting.vs", "./shaders/lighting.fs",
   {
-    "#define IN_SPOTLIGHT",
+    "#define IN_NR_SPOT_LIGHTS 1",
     "#define IN_NR_POINT_LIGHTS 4",
-    "#define IN_DIRLIGHT"
+    "#define IN_NR_DIR_LIGHTS 1"
   }
 ),
 simpleModel("assets/2b-jumps2/scene.gltf"),
 mpSkybox("./playground/skybox/cube.vs", "./playground/skybox/cube.fs"),
 mpReflectSkybox("./playground/skybox/reflect-skybox.vs", "./playground/skybox/reflect-skybox.fs"),
-// mpReflectSkybox("./shaders/reflect-skybox.vs", "./shaders/single-color.fs"),
-#ifdef POINTLIGHT_DEBUG
-mpPlain("./shaders/lighting.vs", "./shaders/lighting.fs",
-  {
-    "#define BASE_COLOR",
-  }
-),
-#endif
+// #ifdef POINTLIGHT_DEBUG
+// no noticible difference in changing, use mpLighting for now
+// mpPlain("./shaders/lighting.vs", "./shaders/lighting.fs"),
+// #endif
 mSpotlightOn(false)
 {
   mpSkeletal.use();
@@ -130,17 +126,18 @@ void Playground::render()
   grass.draw(mpLighting);
 
   #ifdef POINTLIGHT_DEBUG
-  mpPlain.use();
-  mpPlain.setMat4fv("u_proj_x_view", proj_x_view);
+  // mpPlain.use();
+  // mpPlain.setMat4fv("u_proj_x_view", proj_x_view);
   for(unsigned int i = 0; i < lightingSettings.NR_POINT_LIGHTS; i++)
   {
     glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightingSettings.mLights.positions[i]);
     lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
-    mpPlain.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
-    mpPlain.setMat4fv("u_model", lightModel);
-    pointLightDebug.draw(mpPlain);
+    mpLighting.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
+    mpLighting.setMat4fv("u_model", lightModel);
+    pointLightDebug.draw(mpLighting);
   }
+  mpLighting.setVec4fv("u_color", glm::vec4(0));
   #endif
 
   mpSkybox.use();
@@ -163,7 +160,7 @@ void Playground::teardown()
 
   #ifdef POINTLIGHT_DEBUG
   pointLightDebug.free();
-  mpPlain.free();
+  // mpPlain.free();
   #endif
 
   simpleModel.free();

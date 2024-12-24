@@ -57,7 +57,7 @@ private:
 
   #ifdef POINTLIGHT_DEBUG
   Light pointLightDebug;
-  Shader mpPlain;
+  // Shader mpPlain;
   #endif
 
   Lighting lightingSettings;

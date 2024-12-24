@@ -79,7 +79,7 @@ void Shader::setVec3fv(const std::string &name, const glm::vec3 &value) const
   glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, (float*)glm::value_ptr(value));
 }
 
-void Shader::setVec4fv(const std::string &name, const glm::vec3 &value) const
+void Shader::setVec4fv(const std::string &name, const glm::vec4 &value) const
 {
   glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, (float*)glm::value_ptr(value));
 }

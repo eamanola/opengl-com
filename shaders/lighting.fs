@@ -93,28 +93,23 @@ uniform vec3 u_view_pos;
 uniform Material u_material;
 #endif
 
-#ifdef IN_DIRLIGHT
-uniform DirLight u_dir_light;
+#ifdef HAS_DIR_LIGHTS
+uniform DirLight u_dir_lights[IN_NR_DIR_LIGHTS];
 #endif
 
-#ifdef IN_POINT_LIGHTS
+#ifdef HAS_POINT_LIGHTS
 uniform PointLight u_point_lights[IN_NR_POINT_LIGHTS];
 #endif
 
-#ifdef IN_SPOTLIGHT
-uniform SpotLight u_spot_light;
+#ifdef HAS_SPOT_LIGHTS
+uniform SpotLight u_spot_lights[IN_NR_SPOT_LIGHTS];
 #endif
 
-#ifdef BASE_COLOR
 uniform vec4 u_color;
-#endif
 
 void main()
 {
-  vec4 color = vec4(0.0);;
-#ifdef BASE_COLOR
-  color = vec4(u_color.rgb, 1.0); // ?
-#endif
+  vec4 color = u_color;
 
 #ifdef NORMAL
   vec3 normal = normalize(v_normal);
@@ -124,15 +119,18 @@ void main()
   vec3 viewDir = normalize(u_view_pos - v_frag_pos);
 #endif
 
-#ifdef IN_DIRLIGHT
-  if(!u_dir_light.light.off)
+#ifdef HAS_DIR_LIGHTS
+  for(int i = 0; i < IN_NR_DIR_LIGHTS; i++)
   {
-    mat3x4 dirLightColor = calcDirLight(u_dir_light, normal, viewDir);
-    color += dirLightColor[0] + dirLightColor[1] + dirLightColor[2];
+    if(!u_dir_lights[i].light.off)
+    {
+      mat3x4 dirLightColor = calcDirLight(u_dir_lights[i], normal, viewDir);
+      color += dirLightColor[0] + dirLightColor[1] + dirLightColor[2];
+    }
   }
 #endif
 
-#ifdef IN_POINT_LIGHTS
+#ifdef HAS_POINT_LIGHTS
   for(int i = 0; i < IN_NR_POINT_LIGHTS; i++)
   {
     if(!u_point_lights[i].light.off)
@@ -143,11 +141,14 @@ void main()
   }
 #endif
 
-#ifdef IN_SPOTLIGHT
-  if(!u_spot_light.light.off)
+#ifdef HAS_SPOT_LIGHTS
+  for(int i = 0; i < IN_NR_SPOT_LIGHTS; i++)
   {
-    mat3x4 spotLightColor = calcSpotLight(u_spot_light, normal, viewDir, v_frag_pos);
-    color += spotLightColor[0] + spotLightColor[1] + spotLightColor[2];
+    if(!u_spot_lights[i].light.off)
+    {
+      mat3x4 spotLightColor = calcSpotLight(u_spot_lights[i], normal, viewDir, v_frag_pos);
+      color += spotLightColor[0] + spotLightColor[1] + spotLightColor[2];
+    }
   }
 #endif
 
