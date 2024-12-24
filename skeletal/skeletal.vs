@@ -22,11 +22,11 @@ void main()
   for(uint i = 0; i < MAX_BONE_INFLUECE; i++)
     boneTransform += u_bone_transforms[uint(in_bone_ids[i])] * in_bone_weights[i];
 
-  vec4 position = boneTransform * vec4(in_position, 1.0);
+  mat4 model = u_model * boneTransform;
 
   v_tex_coords = in_tex_coords;
-  v_normal = mat3(transpose(inverse(u_model * boneTransform))) * in_normal;
-  v_frag_pos = vec3(u_model * position);
+  v_normal = mat3(transpose(inverse(model))) * in_normal;
+  v_frag_pos = vec3(model * vec4(in_position, 1.0));
 
-  gl_Position = u_proj_x_view * u_model * position;
+  gl_Position = u_proj_x_view * model * vec4(in_position, 1.0);
 }

@@ -76,6 +76,8 @@ void Playground::update(const float &time)
   camera().pointTo(whipper.position());
 #endif
 
+  floor.update(time);
+
   mirror.update(*this);
 }
 
@@ -124,6 +126,7 @@ void Playground::render()
   window.draw(mpLighting);
   mirror.draw(mpLighting);
   grass.draw(mpLighting);
+  floor.draw(mpLighting);
 
   #ifdef POINTLIGHT_DEBUG
   // mpPlain.use();

@@ -16,6 +16,7 @@
 #include "mirror.h"
 #include "skybox/skybox.h"
 #include "skybox/skybox-reflector.h"
+#include "floor.h"
 
 class Playground : public Scene
 {
@@ -48,6 +49,7 @@ private:
   Grass grass;
   Window window;
   Mirror mirror;
+  Floor floor;
 
   Shader mpSkybox;
   Skybox skybox;

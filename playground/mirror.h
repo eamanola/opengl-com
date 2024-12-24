@@ -8,7 +8,7 @@
 class Mirror
 {
 public:
-  Mirror(/* args */);
+  Mirror(const float vWidth = 800.f, const float vHeight = 600.f);
   ~Mirror();
 
   void update(Scene &scene);
@@ -16,7 +16,7 @@ public:
   void free();
 
 private:
-  void setupFrameBuffer();
+  void setupFrameBuffer(const float vWidth, const float vHeight);
 
   glm::vec3 mPosition;
   glm::vec3 mNormal;

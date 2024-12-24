@@ -109,7 +109,7 @@ uniform vec4 u_color;
 
 void main()
 {
-  vec4 color = u_color;
+  vec4 color = vec4(0.0);
 
 #ifdef NORMAL
   vec3 normal = normalize(v_normal);
@@ -151,6 +151,15 @@ void main()
     }
   }
 #endif
+
+  if(color == vec4(0.0))
+  {
+    color = u_color;
+  }
+  else if (u_color != vec4(0.0))
+  {
+    color += u_color;
+  }
 
   if(color.a < 0.1)
   {

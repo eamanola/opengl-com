@@ -26,10 +26,10 @@ void Window::draw(Shader& shader)
 {
   glDisable(GL_CULL_FACE);
 
-  glm::mat4 model;
-
   glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glm::mat4 model;
 
     model = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.55f));
     shader.setMat4fv("u_model", model);
