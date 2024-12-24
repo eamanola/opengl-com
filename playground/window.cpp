@@ -2,30 +2,20 @@
 #include "../vertex.h"
 #include "../shader-utils.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "../shapes.h"
 
 Window::Window(/* args */)
 :
-mMesh(
-  std::vector<Vertex> ({
-    { .position = { -0.5f, -0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 0.f, 0.f } },
-    { .position = {  0.5f, -0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 1.f, 0.f } },
-    { .position = {  0.5f,  0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 1.f, 1.f } },
-    { .position = { -0.5f,  0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 0.f, 1.f } }
-  }),
-  std::vector<unsigned int> ({
-    0, 1, 2,
-    0, 2, 3
-  })
+mMesh(Shapes::QUAD),
+mTexture(
+  Texture
+  {
+    .id = ShaderUtils::loadTexture("assets/blending_transparent_window.png"),
+    .type = TEXTURE_TYPE_DIFFUSE,
+    .path = "assets/blending_transparent_window.png"
+  }
 )
 {
-  const char * path = "assets/blending_transparent_window.png";
-
-  mTexture = Texture
-  {
-    .id = ShaderUtils::loadTexture(path),
-    .type = TEXTURE_TYPE_DIFFUSE,
-    .path = path
-  };
 }
 
 Window::~Window()

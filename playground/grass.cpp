@@ -2,7 +2,6 @@
 #include "../vertex.h"
 #include "../shader-utils.h"
 #include "glm/gtc/matrix_transform.hpp"
-
 Grass::Grass(/* args */)
 :
 mPositions({
@@ -12,18 +11,7 @@ mPositions({
   glm::vec3(-0.3f,  0.0f, -2.30f),
   glm::vec3( 0.5f,  0.0f, -0.60f)
 }),
-mMesh(
-  std::vector<Vertex> ({
-    { .position = { -0.5f, -0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 0.f, 0.f } },
-    { .position = {  0.5f, -0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 1.f, 0.f } },
-    { .position = {  0.5f,  0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 1.f, 1.f } },
-    { .position = { -0.5f,  0.5f, 0.f }, .normal = { 0.f, 0.f, 1.f }, .texCoords = { 0.f, 1.f } }
-  }),
-  std::vector<unsigned int> ({
-    0, 1, 2,
-    0, 2, 3
-  })
-),
+mMesh(Shapes::QUAD),
 mTexture(
   Texture {
     .id = ShaderUtils::loadTexture("assets/grass.png", GL_CLAMP_TO_EDGE),

@@ -5,11 +5,13 @@
 #include "vertex.h"
 #include "texture.h"
 #include "shader.h"
+#include "shapes.h"
 
 class Mesh
 {
 public:
   Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices);
+  Mesh(const Shapes::Shape &shape) : Mesh(shape.vertices, shape.indices) {}
   virtual ~Mesh();
 
   void draw(Shader &shader, const Texture* textures, const unsigned int texLen);
