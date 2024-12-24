@@ -1,4 +1,5 @@
 #include "skeletal-mesh.h"
+#include "../shaders/attrib-locations.h"
 
 SkeletalMesh::SkeletalMesh(unsigned int VAO, const std::vector<SkeletalVertex> &vertices)
 {
@@ -28,16 +29,18 @@ void SkeletalMesh::setupBones(unsigned int VAO, const std::vector<SkeletalVertex
   );
 
   glVertexAttribPointer(
-    3, MAX_BONE_INFLUENCE, GL_UNSIGNED_INT, GL_FALSE, sizeof(SkeletalVertex),
+    ATTRIB_LOCATIONS::BONE_IDS,
+    MAX_BONE_INFLUENCE, GL_UNSIGNED_INT, GL_FALSE, sizeof(SkeletalVertex),
     (void*)(offsetof(SkeletalVertex, boneIds))
   );
-  glEnableVertexAttribArray(3);
+  glEnableVertexAttribArray(ATTRIB_LOCATIONS::BONE_IDS);
 
   glVertexAttribPointer(
-    4, MAX_BONE_INFLUENCE, GL_FLOAT, GL_FALSE, sizeof(SkeletalVertex),
+    ATTRIB_LOCATIONS::BONE_WEIGHTS,
+    MAX_BONE_INFLUENCE, GL_FLOAT, GL_FALSE, sizeof(SkeletalVertex),
     (void*)(offsetof(SkeletalVertex, boneWeights))
   );
-  glEnableVertexAttribArray(4);
+  glEnableVertexAttribArray(ATTRIB_LOCATIONS::BONE_WEIGHTS);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);

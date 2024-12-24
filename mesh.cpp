@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include "shaders/attrib-locations.h"
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<unsigned int> &indices)
 :
@@ -22,21 +23,49 @@ void Mesh::setupMesh(const std::vector<Vertex> &vertices, const std::vector<unsi
 
   glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
-  // position
   glVertexAttribPointer(
-    0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position)
+    ATTRIB_LOCATIONS::POSITION,
+    3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position)
   );
-  glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(ATTRIB_LOCATIONS::POSITION);
 
-  glVertexAttribPointer(
-    1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal))
-  );
-  glEnableVertexAttribArray(1);
+  bool enableNormals = false;
+  for(Vertex vertex : vertices)
+  {
+    if(vertex.normal != glm::vec3(0))
+    {
+      enableNormals = true;
+      break;
+    }
+  }
 
-  glVertexAttribPointer(
-    2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords))
-  );
-  glEnableVertexAttribArray(2);
+  if(enableNormals)
+  {
+    glVertexAttribPointer(
+      ATTRIB_LOCATIONS::NORMAL,
+      3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, normal))
+    );
+    glEnableVertexAttribArray(ATTRIB_LOCATIONS::NORMAL);
+  }
+
+  bool enableTexCoords = false;
+  for(Vertex vertex : vertices)
+  {
+    if(vertex.texCoords != glm::vec2(0))
+    {
+      enableTexCoords = true;
+      break;
+    }
+  }
+
+  if(enableTexCoords)
+  {
+    glVertexAttribPointer(
+      ATTRIB_LOCATIONS::TEX_COORDS,
+      2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(offsetof(Vertex, texCoords))
+    );
+    glEnableVertexAttribArray(ATTRIB_LOCATIONS::TEX_COORDS);
+  }
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(
