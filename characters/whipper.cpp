@@ -1,16 +1,12 @@
 #include "whipper.h"
 #include <glm/glm.hpp>
 #include "../shader-utils.h"
+#include <glm/gtx/matrix_decompose.hpp>
 
+// #define MERGE
 Whipper::Whipper() : Character("assets/whipper/scene.gltf")
 {
-  glm::mat4 model = glm::mat4(1.0);
-  model = glm::translate(model, glm::vec3(0.f, -1.f, 0.f));
-  model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
-  model = glm::scale(model, glm::vec3(0.15f));
-  setModelMatrix(model);
-
-  mPosition = glm::vec3(1.5f, 0.f, 1.f);
+  mPosition = glm::vec3(0.f);
   mRotation = 0.f;
 
   setState(WHIPPER_STATES::DANCE);
@@ -18,7 +14,13 @@ Whipper::Whipper() : Character("assets/whipper/scene.gltf")
   textureId = ShaderUtils::loadTexture("assets/pink.png");
 }
 
-void Whipper::update(float time)
+#ifdef MERGE
+const glm::vec3 Whipper::position() const { return glm::vec3(model()[3]); };
+#else
+const glm::vec3 Whipper::position() const { return mPosition; };
+#endif
+
+void Whipper::update(const float& time)
 {
   bool loop = !isJumping(mState);
   float frac;
@@ -38,24 +40,47 @@ void Whipper::update(float time)
   }
 }
 
-void Whipper::draw(Shader &shader, const glm::mat4 &transform)
+void Whipper::draw(const Shader &shader)
 {
-  glActiveTexture(GL_TEXTURE0);
-  shader.setInt("u_material.texture_diffuse1", 0);
-  glBindTexture(GL_TEXTURE_2D, textureId);
+  const glm::mat4 model = this->model();
 
-  Character::draw(shader, transform);
+  glm::vec3 scale;
+  glm::quat orientation;
+  glm::vec3 translation;
+  glm::vec3 foo;
+  glm::vec4 bar;
+  glm::decompose(model, scale, orientation, translation, foo, bar);
+
+  glm::mat4 transform = glm::mat4(1.f);
+  transform = glm::translate(transform, mPosition);
+  transform = glm::translate(transform, translation);
+  // transform = glm::translate(transform, mPosition + translation);
+  transform = glm::rotate(transform, glm::radians(mRotation), glm::vec3(0.f, 1.f, 0.f));
+  transform *= glm::toMat4(orientation);
+  // transform *= glm::toMat4(glm::quat(glm::vec3(0.f, glm::radians(mRotation), 0.f)) * orientation);
+  transform = glm::scale(transform, scale);
+
+  glBindTexture(GL_TEXTURE_2D, textureId);
+  glActiveTexture(GL_TEXTURE0);
+
+  setModel(transform);
+  Character::draw(shader);
+  #ifdef MERGE
+  mPosition = glm::vec3(0.f);
+  mRotation = 0;
+  #else
+  setModel(model);
+  #endif
 
   glActiveTexture(0);
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-float lastFrame1 = 0.f;
 void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
 {
   const float time = glfwGetTime();
-  const float deltaTime = time - lastFrame1;
-  lastFrame1 = time;
+  const float deltaTime = time - lastFrame;
+  lastFrame = time;
 
   bool SPACE = glfwGetKey((GLFWwindow*)window, GLFW_KEY_SPACE) == GLFW_PRESS;
   bool W = glfwGetKey((GLFWwindow*)window, GLFW_KEY_W) == GLFW_PRESS;
@@ -72,18 +97,39 @@ void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
     float z = front.x * sin(glm::radians(angle)) + front.z * cos(glm::radians(angle));
     glm::vec3 direction = glm::vec3(x, front.y, -z);
 
-    mRotation = angle;
-    mPosition += direction * (2.5f * deltaTime);
+    #ifdef MERGE
+    glm::vec3 scale;
+    glm::quat orientation;
+    glm::vec3 translation;
+    glm::vec3 foo;
+    glm::vec4 bar;
+    glm::decompose(model(), scale, orientation, translation, foo, bar);
+    glm::vec3 euler = glm::eulerAngles(orientation);
+    const float prev = glm::degrees(euler.y);
+    // float prev = std::floor(glm::degrees(asin(orientation.y) * 2));
+    mRotation = angle - prev;
 
+    std::cout << angle << " - " << prev << " = --" << mRotation << "--\n";
+    #else
+    mRotation = angle;
+    #endif
+    mPosition += direction * (2.5f * deltaTime);
   }
 
   WHIPPER_STATES newState;
   if(isJumping(mState)) newState = mState;
-  else if(SPACE) newState = WHIPPER_STATES::JUMP_UP;
+  else if(SPACE) {
+    #ifdef MERGE
+    jumpStartY = position().y;
+    #endif
+    newState = WHIPPER_STATES::JUMP_UP;
+  }
   else if (angle >= 0) newState = WHIPPER_STATES::RUNNING;
   else newState = WHIPPER_STATES::IDLE;
 
   setState(newState);
+
+  Character::handleInput(window, scene);
 }
 
 void Whipper::free()
@@ -112,7 +158,11 @@ void Whipper::updateJumping(float frac)
 {
   if(mState == WHIPPER_STATES::JUMP_UP)
   {
+    #ifdef MERGE
+    mPosition.y += 0.03f;
+    #else
     mPosition.y = sin(frac * M_PI_2) * 3.0f;
+    #endif
     if(frac >= 0.95f)
     {
       setState(WHIPPER_STATES::JUMP_DOWN);
@@ -120,7 +170,12 @@ void Whipper::updateJumping(float frac)
   }
   else if(mState == WHIPPER_STATES::JUMP_DOWN)
   {
+    #ifdef MERGE
+    mPosition.y -= 0.03f;
+    #else
     mPosition.y = 0.0f + cos(frac * M_PI_2) * 3.0f;
+    #endif
+
     if(frac >= 0.95f)
     {
       setState(WHIPPER_STATES::LANDING);
@@ -128,7 +183,12 @@ void Whipper::updateJumping(float frac)
   }
   else if(mState == WHIPPER_STATES::LANDING)
   {
+    #ifdef MERGE
+    glm::vec3 p = position();
+    mPosition.y = jumpStartY - p.y;
+    #else
     mPosition.y = 0.f;
+    #endif
     if(frac >= 0.99f)
     {
       setState(WHIPPER_STATES::IDLE);

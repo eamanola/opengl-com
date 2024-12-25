@@ -20,11 +20,12 @@ public:
   ~Whipper() { };
 
   void handleInput(const GLFWwindow* window, const Scene& scene) override;
-  void update(float time) override;
-  void draw(Shader &shader, const glm::mat4 &transform) override;
+  void update(const float& time) override;
+  void draw(const Shader& shader) override;
   void free() override;
 
-  const glm::vec3& position() const { return mPosition; };
+  const glm::vec3 position() const;
+
   const float& rotation() const { return mRotation; };
 private:
   unsigned int textureId;
@@ -38,6 +39,8 @@ private:
   void updateJumping(float frac);
 
   float getAngle(bool W, bool D, bool S, bool A);
+  float lastFrame = 0.f;
+  float jumpStartY;
 };
 
 #endif

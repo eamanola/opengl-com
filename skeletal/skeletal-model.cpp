@@ -227,6 +227,18 @@ bool SkeletalModel::readSkeleton(const aiNode* node, const BoneInfos& boneInfos,
   return false;
 }
 
+void SkeletalModel::free()
+{
+  for(unsigned int i = 0; i < mMeshes.size(); i ++)
+  {
+    mMeshes[i].free();
+  }
+
+  Model::free();
+}
+
+
+// ANIMATOR - move?
 std::pair<int, float> SkeletalModel::getTimeFraction(
   const std::vector<float>& times, float animTime
 ) const
@@ -287,13 +299,13 @@ void SkeletalModel::updatePose(
   }
 }
 
-void SkeletalModel::update(float timeInMSec)
+void SkeletalModel::update(const float &time)
 {
   glm::mat4 identity = glm::mat4(1.0f);
-  updatePose(mAnimations[mAnimationIndex], mRootBone, timeInMSec, identity, mCurrentPose);
+  updatePose(mAnimations[mAnimationIndex], mRootBone, time, identity, mCurrentPose);
 }
 
-const std::vector<glm::mat4> SkeletalModel::pose() const
+const std::vector<glm::mat4>& SkeletalModel::pose() const
 {
   return mCurrentPose;
 }
@@ -372,12 +384,14 @@ unsigned int SkeletalModel::addAnimation(Animation animation)
   return mAnimations.size() - 1;
 }
 
-void SkeletalModel::free()
+void SkeletalModel::draw(const Shader &shader)
 {
-  for(unsigned int i = 0; i < mMeshes.size(); i ++)
+  const std::vector<glm::mat4> transforms = pose();
+  for(unsigned int i = 0; i < transforms.size(); i++)
   {
-    mMeshes[i].free();
+    shader.setMat4fv("u_bone_transforms[" + std::to_string(i) + "]", transforms[i]);
   }
 
-  Model::free();
+  Model::draw(shader);
 }
+

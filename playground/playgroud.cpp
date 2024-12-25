@@ -1,6 +1,6 @@
 #include "playground.h"
 
-// #define FOLLOW_WHIPPER
+#define FOLLOW_WHIPPER
 
 Playground::Playground()
 :
@@ -32,8 +32,12 @@ mSpotlightOn(false)
 
   mpLighting.use();
   lightingSettings.setup(mpLighting);
-}
 
+  mLastFrame = 0.f;
+  mLastX = 400;
+  mLastY = 300;
+  mFirstMouse = true;
+}
 
 Playground::~Playground()
 {
@@ -41,10 +45,34 @@ Playground::~Playground()
 
 void Playground::setup()
 {
+  glm::mat4 model2b = glm::mat4(1.f);
+  model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
+  model2b = glm::translate(model2b, glm::vec3(0.f, 1.5f, -0.75f));
+  simpleModel.setModel(model2b);
+
+  glm::mat4 modelDae = glm::mat4(1.f);
+  modelDae = glm::translate(modelDae, glm::vec3(0.f, -1.f, 1.f));
+  modelDae = glm::rotate(modelDae, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+  modelDae = glm::scale(modelDae, glm::vec3(0.25f));
+  dae.setModel(modelDae);
+
+  glm::mat4 modelTifa = glm::mat4(1.f);
+  modelTifa = glm::translate(modelTifa, glm::vec3(0.f, -1.f, 1.f));
+  modelTifa = glm::translate(modelTifa, glm::vec3(-1.5f, 0.f, 0.f));
+  tifa.setModel(modelTifa);
+
+  glm::mat4 modelWhipper = glm::mat4(1.f);
+  modelWhipper = glm::translate(modelWhipper, glm::vec3(0.f, -1.f, 1.f));
+  modelWhipper = glm::translate(modelWhipper, glm::vec3(1.5f, 0.f, 0.f));
+  modelWhipper = glm::rotate(modelWhipper, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+  modelWhipper = glm::scale(modelWhipper, glm::vec3(0.15f));
+  whipper.setModel(modelWhipper);
+
   glm::vec3 cameraPos = glm::vec3(0.f, 0.f, 8.f);
   glm::vec3 pointTo = glm::vec3(0.f);
 
 #ifdef FOLLOW_WHIPPER
+  // glm::vec3 whipperPos = glm::vec3(whipper.model()[3]);
   cameraPos = whipper.position() + cameraPos;
   pointTo = whipper.position();
 #endif
@@ -65,6 +93,7 @@ void Playground::update(const float &time)
   tifa.update(time);
   dae.update(time);
   whipper.update(time);
+  floor.update(time);
 
   if(animatingPos || animatingDir)
   {
@@ -76,9 +105,7 @@ void Playground::update(const float &time)
   camera().pointTo(whipper.position());
 #endif
 
-  floor.update(time);
-
-  mirror.update(*this);
+  mirror.screenshot(*this);
 }
 
 void Playground::render()
@@ -87,7 +114,6 @@ void Playground::render()
   const glm::mat4 projection = camera().projection();
   const glm::mat4 proj_x_view = projection * view;
   const glm::vec3 view_pos = camera().position();
-  glm::mat4 identity = glm::mat4(1.f);
 
   mpSkeletal.use();
   mpSkeletal.setMat4fv("u_proj_x_view", proj_x_view);
@@ -96,19 +122,13 @@ void Playground::render()
   lightingSettings.updateSpotLight(mpSkeletal, view_pos, camera().front(), !mSpotlightOn);
 
   // tifa
-  const glm::mat4 tifaTransform = glm::translate(identity, glm::vec3(-1.5f, 0.f, 1.f));
-  tifa.draw(mpSkeletal, tifaTransform);
+  tifa.draw(mpSkeletal);
 
   // dae
-  const glm::mat4 daeTransform = glm::translate(identity, glm::vec3(0.f, 0.f, 1.f));
-  dae.draw(mpSkeletal, daeTransform);
+  dae.draw(mpSkeletal);
 
   // whipper
-  glm::mat4 whipperTransform = glm::translate(identity, whipper.position());
-  whipperTransform = glm::rotate(
-    whipperTransform, glm::radians(whipper.rotation()), glm::vec3(0.f, 1.f, 0.f)
-  );
-  whipper.draw(mpSkeletal, whipperTransform);
+  whipper.draw(mpSkeletal);
 
   mpLighting.use();
   mpLighting.setMat4fv("u_proj_x_view", proj_x_view);
@@ -116,12 +136,7 @@ void Playground::render()
   lightingSettings.updatePointLight0Position(mpLighting);
   lightingSettings.updateSpotLight(mpLighting, view_pos, camera().front(), !mSpotlightOn);
 
-  glm::mat4 m2bm = glm::mat4(1.0);
-  m2bm = glm::rotate(m2bm, glm::radians(90.f), glm::vec3(1.0f, 0.f, 0.f));
-  m2bm = glm::translate(m2bm, glm::vec3(0.f, 1.5f, -0.75f));
-  mpLighting.setMat4fv("u_model", m2bm);
   simpleModel.draw(mpLighting);
-
   box.draw(mpLighting);
   window.draw(mpLighting);
   mirror.draw(mpLighting);
@@ -209,7 +224,6 @@ void Playground::highlight(Box &box, glm::mat4 model)
   // glDisable(GL_STENCIL_TEST);
 }
 
-float lastFrame = 0.f;
 void Playground::handleInput(const GLFWwindow* window)
 {
 #ifdef FOLLOW_WHIPPER
@@ -217,8 +231,8 @@ void Playground::handleInput(const GLFWwindow* window)
   whipper.handleInput(window, scene);
 #else
   const float time = glfwGetTime();
-  const float deltaTime = time - lastFrame;
-  lastFrame = time;
+  const float deltaTime = time - mLastFrame;
+  mLastFrame = time;
 
   if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_W) == GLFW_PRESS) camera().moveForward(2.5f * deltaTime);
   else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_S) == GLFW_PRESS) camera().moveBackward(2.5f * deltaTime);
@@ -238,21 +252,19 @@ void Playground::onChar(const char c)
   }
 }
 
-float lastX = 400; float lastY = 300;
-bool firstMouse = true;
 void Playground::onMouse(const GLFWwindow* window, const double x, const double y)
 {
-  if(firstMouse)
+  if(mFirstMouse)
   {
-    lastX = x;
-    lastY = y;
-    firstMouse = false;
+    mLastX = x;
+    mLastY = y;
+    mFirstMouse = false;
   }
 
-  const float xoffset = x - lastX;
-  const float yoffset = y - lastY;
-  lastX = x;
-  lastY = y;
+  const float xoffset = x - mLastX;
+  const float yoffset = y - mLastY;
+  mLastX = x;
+  mLastY = y;
 
   camera().changeDirection(xoffset, yoffset);
 }

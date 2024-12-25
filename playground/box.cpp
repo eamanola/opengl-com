@@ -31,17 +31,14 @@ mPositions({
   glm::vec3(-1.3f,  1.0f, -1.5f)
 })
 {
+  setModel(glm::mat4(1.f));
 }
 
-Box::~Box()
-{
-}
-
-void Box::draw(Shader &shader)
+void Box::draw(const Shader &shader)
 {
   for(unsigned int i = 0; i < mPositions.size(); i++)
   {
-    glm::mat4 model = glm::translate(glm::mat4(1.0), mPositions[i]);
+    glm::mat4 model = glm::translate(Drawable::model(), mPositions[i]);
     model = glm::rotate(model, glm::radians(20.f  * i), glm::vec3(1.0f, 0.3f, 0.5f));
     shader.setMat4fv("u_model", model);
     mMesh.draw(shader, mTextures);

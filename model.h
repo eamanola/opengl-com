@@ -1,12 +1,13 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include "drawable.h"
 #include "shader.h"
 #include <vector>
 #include "mesh.h"
 #include <assimp/scene.h>
 
-class Model
+class Model : public Drawable
 {
 public:
   Model() {};
@@ -15,8 +16,10 @@ public:
   Model(const char* path) : Model() { loadModel(path); }
 
   void loadModel(const std::string path);
-  void draw(Shader &shader);
-  virtual void free();
+
+  virtual void update(const float& time) override {};
+  virtual void draw(const Shader &shader) override;
+  virtual void free() override;
 
 protected:
   std::vector<Mesh> meshes;

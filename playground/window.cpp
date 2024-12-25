@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "../shapes.h"
 
-Window::Window(/* args */)
+Window::Window()
 :
 mMesh(Shapes::QUAD),
 mTexture(
@@ -18,20 +18,16 @@ mTexture(
 {
 }
 
-Window::~Window()
-{
-}
-
-void Window::draw(Shader& shader)
+void Window::draw(const Shader& shader)
 {
   glDisable(GL_CULL_FACE);
 
   glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glm::mat4 model;
+    glm::mat4 model = Drawable::model();
 
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.55f));
+    model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.55f));
     shader.setMat4fv("u_model", model);
     mMesh.draw(shader, &mTexture);
 

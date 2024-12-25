@@ -1,4 +1,5 @@
 #include "util.h"
+#include "playground/playground.h"
 
 int main( int argc, char* args[] )
 {
@@ -9,9 +10,17 @@ int main( int argc, char* args[] )
     return -1;
   }
 
+// #define SHOW_DISCO
+
+#ifndef SHOW_DISCO
   Playground playground;
+  setScene(&playground);
   playground.setup();
-  setPlayground(&playground);
+#else
+  Disco disco;
+  setScene(&disco);
+  disco.setup();
+#endif
 
   float lastFrame = 0;
   while (!glfwWindowShouldClose(window))
@@ -24,18 +33,33 @@ int main( int argc, char* args[] )
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     handleInput(window);
+#ifndef SHOW_DISCO
     playground.handleInput(window);
+#else
+    disco.handleInput(window);
+#endif
 
-    playground.update(glfwGetTime());
+#ifndef SHOW_DISCO
+    playground.update(time);
+#else
+    disco.update(time);
+#endif
 
+#ifndef SHOW_DISCO
     playground.render();
+#else
+    disco.render();
+#endif
 
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
+#ifndef SHOW_DISCO
   playground.teardown();
-
+#else
+  disco.teardown();
+#endif
   glfwTerminate();
   return 0;
 }

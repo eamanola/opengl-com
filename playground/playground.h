@@ -1,3 +1,6 @@
+#ifndef PLAYGROUND_H
+#define PLAYGROUND_H
+
 #include "../scene.h"
 
 #define POINTLIGHT_DEBUG
@@ -16,7 +19,7 @@
 #include "mirror.h"
 #include "skybox/skybox.h"
 #include "skybox/skybox-reflector.h"
-#include "floor.h"
+#include "../disco/floor.h"
 
 class Playground : public Scene
 {
@@ -64,6 +67,11 @@ private:
 
   Lighting lightingSettings;
   bool mSpotlightOn;
+
+  float mLastFrame;
+  float mLastX;
+  float mLastY;
+  bool mFirstMouse;
 };
 
-
+#endif

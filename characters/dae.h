@@ -6,7 +6,7 @@
 class Dae : public Character
 {
 public:
-  Dae();
+  Dae() : Character("assets/dae-runner/model.dae") {};
   ~Dae() { };
 };
 

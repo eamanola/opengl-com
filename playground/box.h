@@ -1,15 +1,17 @@
 #ifndef BOX_H
 #define BOX_H
 
+#include "../drawable.h"
 #include "../mesh.h"
 
-class Box
+class Box : public Drawable
 {
 public:
-  Box(/* args */);
-  ~Box();
-  void draw(Shader &shader);
-  void free();
+  Box();
+  ~Box() {};
+  virtual void update(const float& time) override {};
+  void draw(const Shader &shader) override;
+  void free() override;
 
 private:
   Mesh mMesh;

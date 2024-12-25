@@ -28,6 +28,12 @@ mTexture(
 )
 {
   setupFrameBuffer(vWidth, vHeight);
+
+  glm::mat4 model = glm::mat4(1.0);
+  model = glm::translate(model, mPosition);
+  model = glm::rotate(model, glm::radians(-45.f), glm::vec3(0.f, 1.f, 0.f));
+  model = glm::scale(model, glm::vec3(2.f, 2.f, 2.f));
+  setModel(model);
 }
 
 Mirror::~Mirror()
@@ -62,13 +68,13 @@ void Mirror::setupFrameBuffer(const float vWidth, const float vHeight)
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Mirror::update(Scene &scene)
+void Mirror::screenshot(Scene &scene)
 {
   Camera& camera = scene.camera();
   const glm::vec3 cameraPos = camera.position();
   const glm::vec3 cameraDir = camera.front();
 
-  const glm::vec3 normal = glm::mat3(model()) * mNormal;
+  const glm::vec3 normal = glm::mat3(Drawable::model()) * mNormal;
 
   const glm::vec3 incident = glm::normalize(mPosition - cameraPos);
   const glm::vec3 reflection = glm::reflect(incident, normal);
@@ -89,19 +95,9 @@ void Mirror::update(Scene &scene)
   camera.setDirection(cameraDir);
 }
 
-glm::mat4 Mirror::model()
+void Mirror::draw(const Shader& shader)
 {
-  glm::mat4 model = glm::mat4(1.0);
-  model = glm::translate(model, mPosition);
-  model = glm::rotate(model, glm::radians(-45.f), glm::vec3(0.f, 1.f, 0.f));
-  model = glm::scale(model, glm::vec3(2.f, 2.f, 2.f));
-
-  return model;
-}
-
-void Mirror::draw(Shader& shader)
-{
-  shader.setMat4fv("u_model", model());
+  shader.setMat4fv("u_model", Drawable::model());
 
   mMesh.draw(shader, &mTexture);
 }

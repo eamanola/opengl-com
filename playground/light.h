@@ -2,15 +2,19 @@
 #define LIGHT_H
 
 #include "../mesh.h"
+#include "../drawable.h"
+#include "../shapes.h"
 
-class Light
+class Light : public Drawable
 {
 public:
-  Light();
-  ~Light();
+  Light() : mMesh(Shapes::CUBE_ONLY_P) {}
+  ~Light() {}
 
-  void draw(Shader &shader);
-  void free();
+  void update(const float& time) override {};
+  void draw(const Shader& shader) override { mMesh.draw(shader); }
+  virtual void free() override { mMesh.free(); }
+
 
 private:
   Mesh mMesh;

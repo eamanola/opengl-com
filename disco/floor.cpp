@@ -20,35 +20,42 @@ mTileTextures({
 mRows(rows),
 mColumns(columns)
 {
-  updateColors();
+  mColors.resize(mRows * mColumns);
 
   mPreviousUpdate = 0;
+
+  glm::mat4 model = glm::mat4(1.f);
+  model = glm::translate(model, glm::vec3(0.f, -1.f, 1.f));
+  model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+  setModel(model);
 }
 
 void Floor::updateColors()
 {
-  mColors.clear();
   for(unsigned int i = 0; i < mRows * mColumns; i++)
   {
-    mColors.push_back(glm::vec4(
-      ((float)rand() / (RAND_MAX)),
-      ((float)rand() / (RAND_MAX)),
-      ((float)rand() / (RAND_MAX)),
-      0.f
-    ));
+    if (((float)rand() / (RAND_MAX)) > 0.5f)
+    {
+      mColors[i] = glm::vec4(
+        ((float)rand() / (RAND_MAX)),
+        ((float)rand() / (RAND_MAX)),
+        ((float)rand() / (RAND_MAX)),
+        0.f
+      );
+    }
   }
 }
 
 void Floor::update(const float& time)
 {
-  if(time - mPreviousUpdate > 3)
+  if(time - mPreviousUpdate > 1)
   {
     updateColors();
     mPreviousUpdate = time;
   }
 }
 
-void Floor::draw(Shader& shader)
+void Floor::draw(const Shader& shader)
 {
   const float offset = 0.005f;
   const float width = 1.f + 2.f * offset;
@@ -56,9 +63,7 @@ void Floor::draw(Shader& shader)
   const float x0 = -(mRows * width) / 2.f + width / 2.f;
   const float y0 = -(mColumns * height) / 2.f + height / 2.f;
 
-  glm::mat4 model = glm::mat4(1.f);
-  model = glm::translate(model, glm::vec3(0.f, -1.f, 1.f));
-  model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
+  const glm::mat4& model = Drawable::model();
 
   for (unsigned int i = 0; i < mRows; i++)
   {

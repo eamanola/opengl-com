@@ -77,7 +77,7 @@ void Mesh::setupMesh(const std::vector<Vertex> &vertices, const std::vector<unsi
   glBindVertexArray(0);
 }
 
-void Mesh::draw(Shader &shader, const Texture* textures, const unsigned int texLen)
+void Mesh::draw(const Shader &shader, const Texture* textures, const unsigned int texLen)
 {
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
@@ -116,21 +116,6 @@ void Mesh::draw(Shader &shader, const Texture* textures, const unsigned int texL
     shader.setInt("u_material.texture_diffuse1", 0);
     shader.setInt("u_material.texture_specular1", 0);
   }
-}
-
-void Mesh::draw(Shader &shader, const Texture* texture)
-{
-  draw(shader, texture, 1);
-}
-
-void Mesh::draw(Shader &shader)
-{
-  draw(shader, nullptr, 0);
-}
-
-void Mesh::draw(Shader &shader, const std::vector<Texture> &textures)
-{
-  draw(shader, &textures[0], textures.size());
 }
 
 const unsigned int Mesh::vao() const

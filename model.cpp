@@ -140,8 +140,10 @@ std::vector<unsigned int> Model::loadMaterialTextures(
   return textureMapping;
 }
 
-void Model::draw(Shader &shader)
+void Model::draw(const Shader &shader)
 {
+  shader.setMat4fv("u_model", model());
+
   for(unsigned int i = 0; i < meshes.size(); i++)
   {
     const std::vector<unsigned int>& texIndices = mMeshTextureMap[i];

@@ -3,7 +3,7 @@
 #include <iostream>
 #include "util.h"
 
-Playground* playground;
+Scene* scene;
 
 void error_callback(int error, const char* description)
 {
@@ -35,9 +35,9 @@ GLFWwindow* setup()
   return window;
 }
 
-void setPlayground(Playground* p)
+void setScene(Scene* s)
 {
-  playground = p;
+  scene = s;
 }
 
 void handleInput(GLFWwindow* window)
@@ -92,12 +92,12 @@ void setupViewport(GLFWwindow* window)
 
 void mouse_callback(GLFWwindow* window, double x, double y)
 {
-  playground->onMouse(window, x, y);
+  scene->onMouse(window, x, y);
 }
 
 void scroll_callback(GLFWwindow* window, double x, double y)
 {
-  playground->onScroll(window, x, y);
+  scene->onScroll(window, x, y);
 }
 
 void setupMouse(GLFWwindow* window)
@@ -110,7 +110,7 @@ void setupMouse(GLFWwindow* window)
 
 void character_callback(GLFWwindow* window, unsigned int codepoint)
 {
-  playground->onChar((char)codepoint);
+  scene->onChar((char)codepoint);
 }
 
 void setupKeyboard(GLFWwindow* window)

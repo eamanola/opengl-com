@@ -17,10 +17,11 @@ public:
   SkeletalModel();
   ~SkeletalModel();
 
-  void free() override;
-  void update(float dt);
+  virtual void free() override;
+  virtual void draw(const Shader &shader) override;
+  virtual void update(const float &time) override;
 
-  const std::vector<glm::mat4> pose() const;
+  const std::vector<glm::mat4>& pose() const;
   const Animation* setAnimation(unsigned int animationIndex);
   unsigned int addAnimation(Animation animation);
 
