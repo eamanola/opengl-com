@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
-#include "shader-utils.h"
+#include "shader-utils/shader-utils.h"
 
 Shader::Shader(const char* vPath, const char* fPath, const std::vector<std::string>& defines)
 {

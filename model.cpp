@@ -2,7 +2,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "shader-utils.h"
+#include "shader-utils/shader-utils.h"
 
 void Model::loadModel(const std::string path)
 {

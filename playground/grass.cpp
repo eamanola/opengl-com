@@ -1,6 +1,6 @@
 #include "grass.h"
 #include "../vertex.h"
-#include "../shader-utils.h"
+#include "../shader-utils/shader-utils.h"
 #include "glm/gtc/matrix_transform.hpp"
 Grass::Grass(/* args */)
 :

@@ -19,8 +19,6 @@ public:
   void free() override;
 
 private:
-  void setupFrameBuffer(const float vWidth, const float vHeight);
-
   glm::vec3 mNormal;
   unsigned int mFBO;
   unsigned int mRBO;

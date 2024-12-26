@@ -1,6 +1,6 @@
 #include "whipper.h"
 #include <glm/glm.hpp>
-#include "../shader-utils.h"
+#include "../shader-utils/shader-utils.h"
 #include <glm/gtx/matrix_decompose.hpp>
 
 // #define MERGE

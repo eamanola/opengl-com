@@ -1,6 +1,6 @@
 #include "floor.h"
 #include "../shapes.h"
-#include "../shader-utils.h"
+#include "../shader-utils/shader-utils.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 

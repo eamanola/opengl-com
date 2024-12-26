@@ -1,5 +1,5 @@
 #include "skybox.h"
-#include "../../shader-utils.h"
+#include "../../shader-utils/shader-utils.h"
 Skybox::Skybox(/* args */)
 :
 mMesh(

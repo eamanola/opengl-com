@@ -1,5 +1,5 @@
 #include "box.h"
-#include "../shader-utils.h"
+#include "../shader-utils/shader-utils.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "../shapes.h"
 

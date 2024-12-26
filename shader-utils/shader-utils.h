@@ -4,6 +4,8 @@
 #include <glad/gl.h>
 #include <string>
 #include <vector>
+#include <glm/glm.hpp>
+#include "../scene.h"
 
 class ShaderUtils
 {
@@ -11,7 +13,13 @@ class ShaderUtils
     static const unsigned int compileShader(GLenum type, const char* path, const std::vector<std::string>& defines);
     static unsigned int loadTexture(const char* path, const GLint wrap = GL_REPEAT);
     static unsigned int loadTexture(const unsigned char* buffer, unsigned int len, const GLint wrap = GL_REPEAT);
-
+    static bool createFramebufferTexture2D(
+      const float width, const float height,
+      unsigned int &outFBO, unsigned int &outTextureId, unsigned int &outRBO
+    );
+    void static screenshot(
+      Scene &scene, const unsigned int& FBO, const glm::vec3& position, const glm::vec3& normal
+    );
     // paths order:
     // GL_TEXTURE_CUBE_MAP_POSITIVE_X 	Right
     // GL_TEXTURE_CUBE_MAP_NEGATIVE_X 	Left
