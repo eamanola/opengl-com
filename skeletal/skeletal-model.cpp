@@ -26,7 +26,7 @@ void SkeletalModel::processScene(const aiScene* scene)
   {
 
     aiAnimation* anim = scene->mAnimations[i];
-    std::cout << "info:" << i << " " << anim->mName.C_Str() << std::endl;
+    // std::cout << "info:" << i << " " << anim->mName.C_Str() << std::endl;
 
     addAnimation(readAnimation(anim));
   }

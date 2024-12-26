@@ -29,6 +29,7 @@ public:
   const float& rotation() const { return mRotation; };
 private:
   unsigned int textureId;
+  unsigned int specularId;
   WHIPPER_STATES mState;
 
   glm::vec3 mPosition;

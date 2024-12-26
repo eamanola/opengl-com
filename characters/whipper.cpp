@@ -12,6 +12,7 @@ Whipper::Whipper() : Character("assets/whipper/scene.gltf")
   setState(WHIPPER_STATES::DANCE);
 
   textureId = ShaderUtils::loadTexture("assets/pink.png");
+  specularId = ShaderUtils::loadTexture("assets/grey.png");
 }
 
 #ifdef MERGE
@@ -60,8 +61,13 @@ void Whipper::draw(const Shader &shader)
   // transform *= glm::toMat4(glm::quat(glm::vec3(0.f, glm::radians(mRotation), 0.f)) * orientation);
   transform = glm::scale(transform, scale);
 
-  glBindTexture(GL_TEXTURE_2D, textureId);
   glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, textureId);
+  shader.setInt("u_material.texture_diffuse1", 0);
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, specularId);
+  shader.setInt("u_material.texture_specular1", 1);
 
   setModel(transform);
   Character::draw(shader);
@@ -72,8 +78,13 @@ void Whipper::draw(const Shader &shader)
   setModel(model);
   #endif
 
-  glActiveTexture(0);
+  glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, 0);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  glActiveTexture(0);
+  shader.setInt("u_material.texture_diffuse1", 0);
+  shader.setInt("u_material.texture_specular1", 0);
 }
 
 void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
@@ -137,6 +148,7 @@ void Whipper::free()
   Character::free();
 
   glDeleteTextures(1, &textureId);
+  glDeleteTextures(1, &specularId);
 }
 
 

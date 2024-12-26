@@ -112,7 +112,7 @@ std::vector<unsigned int> Model::loadMaterialTextures(
     {
       continue;
     }
-    std::cout << "loading: " << mDirectory << '/' << str.C_Str() << std::endl;
+    // std::cout << "loading: " << mDirectory << '/' << str.C_Str() << std::endl;
 
     unsigned int textureId;
     const aiTexture* embedded = scene->GetEmbeddedTexture(str.C_Str());

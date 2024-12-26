@@ -71,17 +71,20 @@ mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPo
 float calcAttenuation(Attenuation attenuation, float distance);
 #endif
 
+in vsout
+{
 #ifdef NORMAL
-in vec3 v_normal;
+  vec3 normal;
 #endif
 
 #ifdef FRAG_POS
-in vec3 v_frag_pos;
+  vec3 frag_pos;
 #endif
 
 #ifdef MATERIAL
-in vec2 v_tex_coords;
+  vec2 tex_coords;
 #endif
+} fs_in;
 
 out vec4 f_color;
 
@@ -112,11 +115,11 @@ void main()
   vec4 color = vec4(0.0);
 
 #ifdef NORMAL
-  vec3 normal = normalize(v_normal);
+  vec3 normal = normalize(fs_in.normal);
 #endif
 
 #ifdef VIEW_DIR
-  vec3 viewDir = normalize(u_view_pos - v_frag_pos);
+  vec3 viewDir = normalize(u_view_pos - fs_in.frag_pos);
 #endif
 
 #ifdef HAS_DIR_LIGHTS
@@ -135,7 +138,7 @@ void main()
   {
     if(!u_point_lights[i].light.off)
     {
-      mat3x4 pointLightColor = calcPointLight(u_point_lights[i], normal, viewDir, v_frag_pos);
+      mat3x4 pointLightColor = calcPointLight(u_point_lights[i], normal, viewDir, fs_in.frag_pos);
       color += pointLightColor[0] + pointLightColor[1] + pointLightColor[2];
     }
   }
@@ -146,7 +149,7 @@ void main()
   {
     if(!u_spot_lights[i].light.off)
     {
-      mat3x4 spotLightColor = calcSpotLight(u_spot_lights[i], normal, viewDir, v_frag_pos);
+      mat3x4 spotLightColor = calcSpotLight(u_spot_lights[i], normal, viewDir, fs_in.frag_pos);
       color += spotLightColor[0] + spotLightColor[1] + spotLightColor[2];
     }
   }
@@ -193,8 +196,8 @@ mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
   vec3 reflectDir = reflect(-lightDir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_material.shininess);
 
-  vec4 diffuseColor = vec4(texture(u_material.texture_diffuse1, v_tex_coords));
-  vec4 specularColor = vec4(texture(u_material.texture_specular1, v_tex_coords));
+  vec4 diffuseColor = vec4(texture(u_material.texture_diffuse1, fs_in.tex_coords));
+  vec4 specularColor = vec4(texture(u_material.texture_specular1, fs_in.tex_coords));
 
   Light light = dirLight.light;
   vec4 ambient = light.ambient * diffuseColor;

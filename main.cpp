@@ -1,5 +1,10 @@
+#define SHOW_DISCO
+
 #include "util.h"
 #include "playground/playground.h"
+#ifdef SHOW_DISCO
+#include "disco/disco.h"
+#endif
 
 int main( int argc, char* args[] )
 {
@@ -9,8 +14,6 @@ int main( int argc, char* args[] )
     glfwTerminate();
     return -1;
   }
-
-// #define SHOW_DISCO
 
 #ifndef SHOW_DISCO
   Playground playground;

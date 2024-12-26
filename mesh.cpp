@@ -79,6 +79,7 @@ void Mesh::setupMesh(const std::vector<Vertex> &vertices, const std::vector<unsi
 
 void Mesh::draw(const Shader &shader, const Texture* textures, const unsigned int texLen)
 {
+  assert(texLen <= 2);
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
   for(unsigned int i = 0; i < texLen; i++)
@@ -109,8 +110,12 @@ void Mesh::draw(const Shader &shader, const Texture* textures, const unsigned in
 
   if(texLen > 0)
   {
+    for(unsigned int i = 0; i < texLen; i ++)
+    {
+      glActiveTexture(GL_TEXTURE0 + i);
+      glBindTexture(GL_TEXTURE_2D, 0);
+    }
     glActiveTexture(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     // TODO
     shader.setInt("u_material.texture_diffuse1", 0);
