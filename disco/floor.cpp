@@ -60,7 +60,7 @@ void Floor::updateColors()
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
-        1.f
+        0.f
       );
     }
   }
@@ -77,7 +77,7 @@ void Floor::update(const float& time)
 
 void Floor::draw(const Shader& shader)
 {
-  const glm::mat4& model = Drawable::model();
+  const glm::mat4& model = this->model();
 
   for (unsigned int i = 0; i < mRows * mColumns; i++)
   {

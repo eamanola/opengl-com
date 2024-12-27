@@ -1,6 +1,6 @@
 #include "playground.h"
 
-#define FOLLOW_WHIPPER
+// #define FOLLOW_WHIPPER
 
 Playground::Playground()
 :
@@ -67,6 +67,12 @@ void Playground::setup()
   modelWhipper = glm::rotate(modelWhipper, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
   modelWhipper = glm::scale(modelWhipper, glm::vec3(0.15f));
   whipper.setModel(modelWhipper);
+
+  glm::mat4 mirrorModel = glm::mat4(1.0);
+  mirrorModel = glm::translate(mirrorModel, glm::vec3(2.5f, 0.5f, 0.f));
+  mirrorModel = glm::rotate(mirrorModel, glm::radians(-45.f), glm::vec3(0.f, 1.f, 0.f));
+  mirrorModel = glm::scale(mirrorModel, glm::vec3(0.3f));
+  mirror.setModel(mirrorModel);
 
   glm::vec3 cameraPos = glm::vec3(0.f, 0.f, 8.f);
   glm::vec3 pointTo = glm::vec3(0.f);

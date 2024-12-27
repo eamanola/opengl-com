@@ -12,6 +12,7 @@ public:
   Mirror(const float vWidth = 800.f, const float vHeight = 600.f);
   ~Mirror();
 
+  void screenshot(Scene &scene, const glm::vec3& positionOffset);
   void screenshot(Scene &scene);
 
   void update(const float& time) override {};

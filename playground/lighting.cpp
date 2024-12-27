@@ -43,10 +43,10 @@ void Lighting::setViewPosition(Shader &shader, const glm::vec3& position)
 
 void Lighting::initDirLight(Shader &shader)
 {
-  const glm::vec4 AMBIENT(0.2f, 0.2f, 0.2f, 1.f);
-  const glm::vec4 DIFFUSE(0.5f, 0.5f, 0.5f, 1.f);
+  const glm::vec4 AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
+  const glm::vec4 DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
   const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
-  const glm::vec4 color(1.0f, 1.0f, 1.0f, 1.f);
+  const glm::vec4 color   (1.0f, 1.0f, 1.0f, 1.f);
 
   const glm::vec3 direction(-0.2f, -1.0f, -0.3f);
   const bool off = false;
@@ -63,10 +63,10 @@ void Lighting::initDirLight(Shader &shader)
 
 void Lighting::initPointLights(Shader &shader)
 {
-  const glm::vec4 AMBIENT(0.2f, 0.2f, 0.2f, 0.f);
-  const glm::vec4 DIFFUSE(0.5f, 0.5f, 0.5f, 0.f);
-  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 0.f);
-  const glm::vec4 color(1.0f, 1.0f, 1.0f, 0.f);
+  const glm::vec4 AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
+  const glm::vec4 DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
+  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
+  const glm::vec4 color   (1.0f, 1.0f, 1.0f, 1.f);
 
   const float aConstant = 1.f;
   const float aLinear = 0.09f;
@@ -96,10 +96,10 @@ void Lighting::updatePointLight0Position(Shader &shader)
 
 void Lighting::initSpotLight(Shader &shader)
 {
-  const glm::vec4 AMBIENT(0.2f, 0.2f, 0.2f, 0.f);
-  const glm::vec4 DIFFUSE(0.5f, 0.5f, 0.5f, 0.f);
-  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 0.f);
-  const glm::vec4 color(1.0f, 1.0f, 1.0f, 0.f);
+  const glm::vec4 AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
+  const glm::vec4 DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
+  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
+  const glm::vec4 color   (1.0f, 1.0f, 1.0f, 1.f);
 
   const glm::vec3 direction = glm::vec3(0.0f);
   const float cutOff = glm::cos(glm::radians(12.5f));

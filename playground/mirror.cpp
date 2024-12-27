@@ -28,24 +28,23 @@ mTexture(
 )
 {
   ShaderUtils::createFramebufferTexture2D(vWidth, vHeight, mFBO, mTexture.id, mRBO);
-
-  // glm::mat4 model = glm::mat4(1.0);
-  // model = glm::translate(model, glm::vec3(2.5f, 0.5f, 0.f));
-  // model = glm::rotate(model, glm::radians(-45.f), glm::vec3(0.f, 1.f, 0.f));
-  // model = glm::scale(model, glm::vec3(2.f, 2.f, 2.f));
-  // setModel(model);
 }
 
 Mirror::~Mirror()
 {
 }
 
-void Mirror::screenshot(Scene &scene)
+void Mirror::screenshot(Scene &scene, const glm::vec3& positionOffset)
 {
   const glm::mat4 m = model();
-  const glm::vec3 position = glm::vec3(m[3]) + glm::vec3(0.f, 0.f, -2.f);
-  const glm::vec3 normal = glm::mat3(m) * mNormal;
+  const glm::vec3 position = glm::vec3(m[3]) + positionOffset;
+  const glm::vec3 normal = glm::mat3(glm::transpose(glm::inverse(m))) * mNormal;
   ShaderUtils::screenshot(scene, mFBO, position, normal);
+}
+
+void Mirror::screenshot(Scene &scene)
+{
+  screenshot(scene, glm::vec3(0.f));
 }
 
 void Mirror::draw(const Shader& shader)
