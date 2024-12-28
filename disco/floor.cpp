@@ -52,7 +52,7 @@ void Floor::updateColors()
   {
     if (((float)rand() / (RAND_MAX)) > 0.5f)
     {
-      mColors[i] = glm::vec4(
+      mColors[i] = Color(
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
@@ -81,7 +81,7 @@ void Floor::draw(const Shader& shader)
     shader.setVec4fv("u_material.diffuse_color", mColors[i]);
     shader.setVec4fv("u_material.specular_color", mColors[i]);
     mTileMesh.draw(shader, mTileTextures);
-    shader.setVec4fv("u_material.diffuse_color", glm::vec4(0.f));
-    shader.setVec4fv("u_material.specular_color", glm::vec4(0.f));
+    shader.setVec4fv("u_material.diffuse_color", Color(0.f));
+    shader.setVec4fv("u_material.specular_color", Color(0.f));
   }
 }

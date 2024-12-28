@@ -44,29 +44,26 @@ void LightingSettings::setViewPosition(Shader &shader, const glm::vec3& position
 
 void LightingSettings::initDirLight(Shader &shader)
 {
-  const glm::vec4 AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
-  const glm::vec4 DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
-  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
-  const glm::vec4 color   (1.0f, 1.0f, 1.0f, 1.f);
+  const Color AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
+  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
+  const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
+  const Color color   (1.0f, 1.0f, 1.0f, 1.f);
 
   const glm::vec3 direction(0.f, -1.0f, 1.f);
   const bool off = false;
-  const glm::vec4 ambient = color * AMBIENT;
-  const glm::vec4 diffuse = color * DIFFUSE;
-  const glm::vec4 specular = color * SPECULAR;
 
   shader.setVec3fv("u_dir_lights[0].direction", direction);
   shader.setBool("u_dir_lights[0].off", off);
-  shader.setVec4fv("u_dir_lights[0].light.ambient", ambient);
-  shader.setVec4fv("u_dir_lights[0].light.diffuse", diffuse);
-  shader.setVec4fv("u_dir_lights[0].light.specular", specular);
+  shader.setVec4fv("u_dir_lights[0].light.ambient", color * AMBIENT);
+  shader.setVec4fv("u_dir_lights[0].light.diffuse", color * DIFFUSE);
+  shader.setVec4fv("u_dir_lights[0].light.specular", color * SPECULAR);
 }
 
 void LightingSettings::initPointLights(Shader &shader)
 {
-  const glm::vec4 AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
-  const glm::vec4 DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
-  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
+  const Color AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
+  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
+  const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
 
   const float aConstant = 1.f;
   const float aLinear = 0.09f;
@@ -101,9 +98,9 @@ void LightingSettings::toggelPointLights1to4(const Shader& shader, bool off)
 
 void LightingSettings::initFloorLights(const Shader& shader, const Floor& floor)
 {
-  const glm::vec4 AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
-  const glm::vec4 DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
-  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
+  const Color AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
+  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
+  const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
   // https://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
   //  7, 1.0, 0.7, 1.8
   // 13, 1.0, 0.35, 0.44
@@ -115,7 +112,7 @@ void LightingSettings::initFloorLights(const Shader& shader, const Floor& floor)
   // const float attenuation[] = { 1.0f, 1.0f, 2.1f };
 
   const std::vector<glm::vec3> positions = floor.positions();
-  const std::vector<glm::vec4> colors = floor.colors();
+  const std::vector<Color> colors = floor.colors();
   const glm::mat4 model = floor.model();
 
   for(unsigned int i = 0; i < positions.size(); i++)
@@ -139,11 +136,11 @@ void LightingSettings::initFloorLights(const Shader& shader, const Floor& floor)
 
 void LightingSettings::updateFloorLights(const Shader& shader, const Floor& floor)
 {
-  const glm::vec4 AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
-  const glm::vec4 DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
-  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
+  const Color AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
+  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
+  const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
 
-  const std::vector<glm::vec4> colors = floor.colors();
+  const std::vector<Color> colors = floor.colors();
 
   for(unsigned int i = 0; i < colors.size(); i++)
   {
@@ -162,9 +159,9 @@ void LightingSettings::updatePointLight0Position(Shader &shader)
 
 void LightingSettings::initSpotLights(Shader &shader)
 {
-  const glm::vec4 AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
-  const glm::vec4 DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
-  const glm::vec4 SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
+  const Color AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
+  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
+  const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
 
   const float cutOff = glm::cos(glm::radians(12.5f));
   const float outerCutOff = glm::cos(glm::radians(17.5f));
@@ -179,10 +176,6 @@ void LightingSettings::initSpotLights(Shader &shader)
 
   for(unsigned int i = 0; i < NR_SPOT_LIGHTS; i++)
   {
-    const glm::vec4 ambient = mSpotLights.colors[i] * AMBIENT;
-    const glm::vec4 diffuse = mSpotLights.colors[i] * DIFFUSE;
-    const glm::vec4 specular = mSpotLights.colors[i] * SPECULAR;
-
     std::stringstream key;
     key << "u_spot_lights[" << i << "]";
     shader.setVec3fv(key.str() + ".direction", mSpotLights.directions[i]);
@@ -195,9 +188,9 @@ void LightingSettings::initSpotLights(Shader &shader)
     shader.setFloat(key.str() + ".attenuation.quadratic", attenuation[2]);
 
     shader.setBool(key.str() + ".light.off", off);
-    shader.setVec4fv(key.str() + ".light.ambient", ambient);
-    shader.setVec4fv(key.str() + ".light.diffuse", diffuse);
-    shader.setVec4fv(key.str() + ".light.specular", specular);
+    shader.setVec4fv(key.str() + ".light.ambient", mSpotLights.colors[i] * AMBIENT);
+    shader.setVec4fv(key.str() + ".light.diffuse", mSpotLights.colors[i] * DIFFUSE);
+    shader.setVec4fv(key.str() + ".light.specular", mSpotLights.colors[i] * SPECULAR);
   }
 }
 

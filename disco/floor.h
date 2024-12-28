@@ -4,6 +4,7 @@
 #include "../drawable.h"
 #include "../mesh.h"
 #include "../texture.h"
+#include "../color.h"
 
 class Floor : public Drawable
 {
@@ -18,7 +19,7 @@ public:
     for(Texture t : mTileTextures) glDeleteTextures(1, &t.id);
   }
   const std::vector<glm::vec3>& positions() const { return mPositions; };
-  const std::vector<glm::vec4>& colors() const { return mColors; };
+  const std::vector<Color>& colors() const { return mColors; };
 
 private:
   void updateColors();
@@ -27,7 +28,7 @@ private:
   std::vector<Texture> mTileTextures;
   unsigned int mRows;
   unsigned int mColumns;
-  std::vector<glm::vec4> mColors;
+  std::vector<Color> mColors;
   std::vector<glm::vec3> mPositions;
   float mPreviousUpdate;
 };

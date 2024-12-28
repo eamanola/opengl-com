@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include "../shader.h"
 #include "floor.h"
+#include "../color.h"
 
 #define NR_LIGHTS 4
 #define NR_SPOTLIGHTS 2
@@ -21,11 +22,11 @@ public:
       glm::vec3(-4.0f,  2.0f, -12.0f),
       glm::vec3( 0.0f,  0.0f,   0.0f)
     };
-    std::vector<glm::vec4> colors = {
-      glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-      glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
-      glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-      glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
+    std::vector<Color> colors = {
+      Color(1.0f, 1.0f, 1.0f, 1.0f),
+      Color(1.0f, 0.0f, 0.0f, 1.0f),
+      Color(0.0f, 1.0f, 0.0f, 1.0f),
+      Color(0.0f, 0.0f, 1.0f, 1.0f)
     };
   };
 
@@ -34,9 +35,9 @@ public:
       glm::vec3( 2.5f, 1.5f, 0.f),
       glm::vec3(-2.5f, 1.5f, 0.f)
     };
-    std::vector<glm::vec4> colors = {
-      glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
-      glm::vec4(1.0f, 0.0f, 1.0f, 1.0f)
+    std::vector<Color> colors = {
+      Color(1.0f, 0.0f, 0.0f, 1.0f),
+      Color(1.0f, 0.0f, 1.0f, 1.0f)
     };
     std::vector<glm::vec3> directions = {
       glm::vec3(0.0f, 0.0f, 0.0f),

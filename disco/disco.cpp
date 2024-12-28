@@ -184,13 +184,13 @@ void Disco::drawLightDebugs(const glm::mat4& proj_x_view)
   mpPlain.setProjXView(proj_x_view);
 
   std::vector<glm::vec3> positions;
-  std::vector<glm::vec4> colors;
+  std::vector<Color> colors;
 
   positions = lightingSettings.mLights.positions;
   colors = lightingSettings.mLights.colors;
   for(unsigned int i = 0; i < lightingSettings.NR_POINT_LIGHTS; i++)
   {
-    mpPlain.setColor(Color { colors[i] });
+    mpPlain.setColor(colors[i]);
 
     glm::mat4 model = glm::translate(glm::mat4(1.0), positions[i]);
     model = glm::scale(model, glm::vec3(0.2f));
@@ -202,7 +202,7 @@ void Disco::drawLightDebugs(const glm::mat4& proj_x_view)
   colors = floor.colors();
   for(unsigned int i = 0; i < positions.size(); i++)
   {
-    mpPlain.setColor(Color { colors[i] });
+    mpPlain.setColor(colors[i]);
 
     glm::mat4 model = glm::translate(floor.model(), positions[i] + glm::vec3(0.f, 0.f, 0.5f));
     model = glm::scale(model, glm::vec3(0.2f));
@@ -214,7 +214,7 @@ void Disco::drawLightDebugs(const glm::mat4& proj_x_view)
   colors = lightingSettings.mSpotLights.colors;
   for(unsigned int i = 0; i < positions.size(); i++)
   {
-    mpPlain.setColor(Color { colors[i] });
+    mpPlain.setColor(colors[i]);
 
     glm::mat4 model = glm::translate(glm::mat4(1.0), positions[i]);
     model = glm::scale(model, glm::vec3(0.2f));
@@ -222,12 +222,12 @@ void Disco::drawLightDebugs(const glm::mat4& proj_x_view)
     pointLightDebug.draw(mpLighting);
 
     model = glm::translate(glm::mat4(1.0), positions[i] + lightingSettings.mSpotLights.directions[i]);
-    model = glm::scale(model, glm::vec3(0.2f));
+    model = glm::scale(model, glm::vec3(0.1f));
     mpPlain.setModel(model);
     pointLightDebug.draw(mpLighting);
   }
 
-  mpPlain.setColor(Color { glm::vec4(0.f) });
+  mpPlain.setColor(Color(0.f));
 }
 
 void Disco::handleInput(const GLFWwindow* window)

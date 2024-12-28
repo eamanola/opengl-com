@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include "../shader-utils/shader-utils.h"
 #include <glm/gtx/matrix_decompose.hpp>
+#include "../color.h"
 
 // #define MERGE
 Whipper::Whipper() : Character("assets/whipper/scene.gltf")
@@ -61,13 +62,13 @@ void Whipper::draw(const Shader &shader)
 
   setModel(transform);
 
-  shader.setVec4fv("u_material.diffuse_color", glm::vec4(255.f/255.f, 192.f/255.f, 203.f/255.f, 1.0));
-  shader.setVec4fv("u_material.specular_color", glm::vec4(0.2f, 0.2f, 0.2f, 1.0));
+  shader.setVec4fv("u_material.diffuse_color", Color(255.f/255.f, 192.f/255.f, 203.f/255.f, 1.0));
+  shader.setVec4fv("u_material.specular_color", Color(0.4f, 0.4f, 0.4f, 1.0));
 
   Character::draw(shader);
 
-  shader.setVec4fv("u_material.diffuse_color", glm::vec4(0.f));
-  shader.setVec4fv("u_material.specular_color", glm::vec4(0.f));
+  shader.setVec4fv("u_material.diffuse_color", Color(0.f));
+  shader.setVec4fv("u_material.specular_color", Color(0.f));
 
   #ifdef MERGE
   mPosition = glm::vec3(0.f);
