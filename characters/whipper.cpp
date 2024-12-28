@@ -10,9 +10,6 @@ Whipper::Whipper() : Character("assets/whipper/scene.gltf")
   mRotation = 0.f;
 
   setState(WHIPPER_STATES::DANCE);
-
-  textureId = ShaderUtils::loadTexture("assets/pink.png");
-  specularId = ShaderUtils::loadTexture("assets/grey.png");
 }
 
 #ifdef MERGE
@@ -61,30 +58,23 @@ void Whipper::draw(const Shader &shader)
   // transform *= glm::toMat4(glm::quat(glm::vec3(0.f, glm::radians(mRotation), 0.f)) * orientation);
   transform = glm::scale(transform, scale);
 
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, textureId);
-  shader.setInt("u_material.texture_diffuse1", 0);
-
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, specularId);
-  shader.setInt("u_material.texture_specular1", 1);
 
   setModel(transform);
+
+  shader.setVec4fv("u_material.diffuse_color", glm::vec4(255.f/255.f, 192.f/255.f, 203.f/255.f, 1.0));
+  shader.setVec4fv("u_material.specular_color", glm::vec4(0.2f, 0.2f, 0.2f, 1.0));
+
   Character::draw(shader);
+
+  shader.setVec4fv("u_material.diffuse_color", glm::vec4(0.f));
+  shader.setVec4fv("u_material.specular_color", glm::vec4(0.f));
+
   #ifdef MERGE
   mPosition = glm::vec3(0.f);
   mRotation = 0;
   #else
   setModel(model);
   #endif
-
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glActiveTexture(GL_TEXTURE1);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  glActiveTexture(0);
-  shader.setInt("u_material.texture_diffuse1", 0);
-  shader.setInt("u_material.texture_specular1", 0);
 }
 
 void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
@@ -141,14 +131,6 @@ void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
   setState(newState);
 
   Character::handleInput(window, scene);
-}
-
-void Whipper::free()
-{
-  Character::free();
-
-  glDeleteTextures(1, &textureId);
-  glDeleteTextures(1, &specularId);
 }
 
 

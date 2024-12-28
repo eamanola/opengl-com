@@ -12,10 +12,6 @@ mTileTextures({
     .id = ShaderUtils::loadTexture("./assets/floor-tile.png"),
     .type = TEXTURE_TYPE_DIFFUSE
   },
-  Texture {
-    .id = ShaderUtils::loadTexture("./assets/floor-tile-spec.png"),
-    .type = TEXTURE_TYPE_SPECULAR
-  }
 }),
 mRows(rows),
 mColumns(columns)
@@ -82,8 +78,10 @@ void Floor::draw(const Shader& shader)
   for (unsigned int i = 0; i < mRows * mColumns; i++)
   {
     shader.setMat4fv("u_model", glm::translate(model, mPositions[i]));
-    shader.setVec4fv("u_color", mColors[i]);
+    shader.setVec4fv("u_material.diffuse_color", mColors[i]);
+    shader.setVec4fv("u_material.specular_color", mColors[i]);
     mTileMesh.draw(shader, mTileTextures);
-    shader.setVec4fv("u_color", glm::vec4(0.f));
+    shader.setVec4fv("u_material.diffuse_color", glm::vec4(0.f));
+    shader.setVec4fv("u_material.specular_color", glm::vec4(0.f));
   }
 }

@@ -4,6 +4,8 @@
 struct Material {
   sampler2D texture_diffuse1;
   sampler2D texture_specular1;
+  vec4 diffuse_color;
+  vec4 specular_color;
   float     shininess;
 };
 #endif
@@ -198,6 +200,16 @@ mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
 
   vec4 diffuseColor = vec4(texture(u_material.texture_diffuse1, fs_in.tex_coords));
   vec4 specularColor = vec4(texture(u_material.texture_specular1, fs_in.tex_coords));
+
+  if(u_material.diffuse_color != vec4(0.0))
+  {
+    diffuseColor += u_material.diffuse_color;
+  }
+
+  if(u_material.specular_color != vec4(0.0))
+  {
+    specularColor += u_material.specular_color;
+  }
 
   Light light = dirLight.light;
   vec4 ambient = light.ambient * diffuseColor;

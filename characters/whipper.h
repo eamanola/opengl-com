@@ -22,14 +22,11 @@ public:
   void handleInput(const GLFWwindow* window, const Scene& scene) override;
   void update(const float& time) override;
   void draw(const Shader& shader) override;
-  void free() override;
 
   const glm::vec3 position() const;
 
   const float& rotation() const { return mRotation; };
 private:
-  unsigned int textureId;
-  unsigned int specularId;
   WHIPPER_STATES mState;
 
   glm::vec3 mPosition;

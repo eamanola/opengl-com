@@ -71,7 +71,7 @@ void LightingSettings::initPointLights(Shader &shader)
   const float aConstant = 1.f;
   const float aLinear = 0.09f;
   const float aQuadratic = 0.032f;
-
+  const bool off = false;
   for(unsigned int i = 0; i < NR_POINT_LIGHTS; i++)
   {
     std::stringstream key;
@@ -82,7 +82,7 @@ void LightingSettings::initPointLights(Shader &shader)
     shader.setFloat(key.str() + ".attenuation.linear", aLinear);
     shader.setFloat(key.str() + ".attenuation.quadratic", aQuadratic);
 
-    shader.setBool(key.str() + ".light.off", false);
+    shader.setBool(key.str() + ".light.off", off);
     shader.setVec4fv(key.str() + ".light.ambient", mLights.colors[i] * AMBIENT);
     shader.setVec4fv(key.str() + ".light.diffuse", mLights.colors[i] * DIFFUSE);
     shader.setVec4fv(key.str() + ".light.specular", mLights.colors[i] * SPECULAR);
@@ -169,10 +169,10 @@ void LightingSettings::initSpotLights(Shader &shader)
   const float cutOff = glm::cos(glm::radians(12.5f));
   const float outerCutOff = glm::cos(glm::radians(17.5f));
 
-  // const float attenuation[] = { 1.f, 0.007, 0.0002 };
+  const float attenuation[] = { 1.f, 0.007, 0.0002 };
   // const float attenuation[] = { 1.0, 0.022, 0.0019 };
   // const float attenuation[] = { 1.f, 0.09f, 0.032f };
-  const float attenuation[] = { 1.0, 0.14, 0.07 };
+  // const float attenuation[] = { 1.0, 0.14, 0.07 };
   // const float attenuation[] = { 1.0, 0.22, 0.20 };
   // const float attenuation[] = { 1.0, 0.35, 0.44 };
   const bool off = false;
