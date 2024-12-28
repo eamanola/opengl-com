@@ -148,48 +148,48 @@ void Disco::render()
   // mpLighting.setVec4fv("u_color", floor.colors()[0]);
   mirror.draw(mpLighting);
 
-  // #ifdef DISCO_DEBUG
-  // // mpPlain.use();
-  // // mpPlain.setMat4fv("u_proj_x_view", proj_x_view);
-  // for(unsigned int i = 0; i < lightingSettings.NR_POINT_LIGHTS; i++)
-  // {
-  //   glm::mat4 model = glm::translate(glm::mat4(1.0), lightingSettings.mLights.positions[i]);
-  //   model = glm::scale(model, glm::vec3(0.2f));
+  #ifdef DISCO_DEBUG
+  // mpPlain.use();
+  // mpPlain.setMat4fv("u_proj_x_view", proj_x_view);
+  for(unsigned int i = 0; i < lightingSettings.NR_POINT_LIGHTS; i++)
+  {
+    glm::mat4 model = glm::translate(glm::mat4(1.0), lightingSettings.mLights.positions[i]);
+    model = glm::scale(model, glm::vec3(0.2f));
 
-  //   mpLighting.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
-  //   mpLighting.setMat4fv("u_model", model);
-  //   pointLightDebug.draw(mpLighting);
-  // }
-  // mpLighting.setVec4fv("u_color", glm::vec4(0));
+    mpLighting.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
+    mpLighting.setMat4fv("u_model", model);
+    pointLightDebug.draw(mpLighting);
+  }
+  mpLighting.setVec4fv("u_color", glm::vec4(0));
 
-  // const std::vector<glm::vec3> positions = floor.positions();
-  // const std::vector<glm::vec4> colors = floor.colors();
-  // for(unsigned int i = 0; i < positions.size(); i++)
-  // {
-  //   glm::mat4 model = glm::translate(floor.model(), positions[i] + glm::vec3(0.f, 0.f, 0.5f));
-  //   model = glm::scale(model, glm::vec3(0.2f));
-  //   mpLighting.setVec4fv("u_color", colors[i]);
-  //   mpLighting.setMat4fv("u_model", model);
-  //   pointLightDebug.draw(mpLighting);
-  // }
-  // mpLighting.setVec4fv("u_color", glm::vec4(0));
+  const std::vector<glm::vec3> positions = floor.positions();
+  const std::vector<glm::vec4> colors = floor.colors();
+  for(unsigned int i = 0; i < positions.size(); i++)
+  {
+    glm::mat4 model = glm::translate(floor.model(), positions[i] + glm::vec3(0.f, 0.f, 0.5f));
+    model = glm::scale(model, glm::vec3(0.2f));
+    mpLighting.setVec4fv("u_color", colors[i]);
+    mpLighting.setMat4fv("u_model", model);
+    pointLightDebug.draw(mpLighting);
+  }
+  mpLighting.setVec4fv("u_color", glm::vec4(0));
 
-  // for(unsigned int i = 0; i < lightingSettings.mSpotLights.positions.size(); i++)
-  // {
-  //   glm::mat4 model = glm::translate(glm::mat4(1.0), lightingSettings.mSpotLights.positions[i]);
-  //   model = glm::scale(model, glm::vec3(0.2f));
-  //   mpLighting.setVec4fv("u_color", lightingSettings.mSpotLights.colors[i]);
-  //   mpLighting.setMat4fv("u_model", model);
-  //   pointLightDebug.draw(mpLighting);
+  for(unsigned int i = 0; i < lightingSettings.mSpotLights.positions.size(); i++)
+  {
+    glm::mat4 model = glm::translate(glm::mat4(1.0), lightingSettings.mSpotLights.positions[i]);
+    model = glm::scale(model, glm::vec3(0.2f));
+    mpLighting.setVec4fv("u_color", lightingSettings.mSpotLights.colors[i]);
+    mpLighting.setMat4fv("u_model", model);
+    pointLightDebug.draw(mpLighting);
 
-  //   model = glm::translate(glm::mat4(1.0), lightingSettings.mSpotLights.directions[i]);
-  //   model = glm::scale(model, glm::vec3(0.2f));
-  //   mpLighting.setVec4fv("u_color", lightingSettings.mSpotLights.colors[i]);
-  //   mpLighting.setMat4fv("u_model", model);
-  //   pointLightDebug.draw(mpLighting);
-  // }
-  // mpLighting.setVec4fv("u_color", glm::vec4(0));
-  // #endif
+    model = glm::translate(glm::mat4(1.0), lightingSettings.mSpotLights.directions[i]);
+    model = glm::scale(model, glm::vec3(0.2f));
+    mpLighting.setVec4fv("u_color", lightingSettings.mSpotLights.colors[i]);
+    mpLighting.setMat4fv("u_model", model);
+    pointLightDebug.draw(mpLighting);
+  }
+  mpLighting.setVec4fv("u_color", glm::vec4(0));
+  #endif
 
   // mpSkybox.use();
   // const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
