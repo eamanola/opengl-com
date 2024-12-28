@@ -110,8 +110,6 @@ uniform PointLight u_point_lights[IN_NR_POINT_LIGHTS];
 uniform SpotLight u_spot_lights[IN_NR_SPOT_LIGHTS];
 #endif
 
-uniform vec4 u_color;
-
 void main()
 {
   vec4 color = vec4(0.0);
@@ -156,15 +154,6 @@ void main()
     }
   }
 #endif
-
-  if(color == vec4(0.0))
-  {
-    color = u_color;
-  }
-  else if (u_color != vec4(0.0))
-  {
-    color += u_color;
-  }
 
   if(color.a < 0.1)
   {

@@ -10,6 +10,7 @@
 #include "../characters/dae.h"
 #include "../characters/whipper.h"
 #ifdef DISCO_DEBUG
+#include "../shaders/plain-shader.h"
 #include "../playground/light.h"
 #endif
 #include "../playground/mirror.h"
@@ -29,6 +30,7 @@ public:
   void teardown() override;
 
   #ifdef DISCO_DEBUG
+  void drawLightDebugs(const glm::mat4& proj_x_view);
   void handleInput(const GLFWwindow* window) override;
   void onChar(const char c) override {};
   void onMouse(const GLFWwindow* window, const double x, const double y) override;
@@ -49,6 +51,7 @@ private:
   Skybox skybox;
 
   #ifdef DISCO_DEBUG
+  PlainShader mpPlain;
   Light pointLightDebug;
   #endif
 
