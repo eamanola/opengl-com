@@ -2,9 +2,6 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define DIRECTIONAL_LIGHT
-#define SPOT_LIGHT
-
 LightingSettings::LightingSettings()
 {
 }
@@ -17,26 +14,18 @@ void LightingSettings::setup(const LightedShader& shader)
 {
   shader.setShininess(32.f);
 
-  #ifdef DIRECTIONAL_LIGHT
   initDirLight(shader);
-  #else
-  shader.setBool("u_dir_lights[0].light.off", true);
-  #endif
-  #ifdef SPOT_LIGHT
   initSpotLights(shader);
-  #else
-  shader.setBool("u_spot_lights[0].light.off", true);
-  #endif
 }
 
 void LightingSettings::initDirLight(const LightedShader& shader)
 {
-  const Color AMBIENT (0.2f, 0.2f, 0.2f, 0.25f);
-  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 0.25f);
-  const Color SPECULAR(1.0f, 1.0f, 1.0f, 0.25f);
+  const Color AMBIENT (0.2f, 0.2f, 0.2f, 0.2f);
+  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 0.5f);
+  const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.0f);
   const bool off = false;
 
-  const Color color(1.f, 1.f, 1.f, 1.f);
+  const Color color(0.2f, 0.2f, 0.2f, 0.2f);
   const glm::vec3 direction(0.f, -1.0f, 1.f);
 
   DirLight dirLight
@@ -59,9 +48,6 @@ void LightingSettings::initDirLight(const LightedShader& shader)
 
 void LightingSettings::initFloorLights(const LightedShader& shader, const Floor& floor)
 {
-  const Color AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
-  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
-  const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
   const bool off = false;
 
   // https://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
@@ -78,58 +64,65 @@ void LightingSettings::initFloorLights(const LightedShader& shader, const Floor&
   // const Attenuation attenuation = { 1.0, 0.35,   0.44     }; // 13
   const Attenuation attenuation = { 1.0, 0.7,    1.8      }; // 7
   const std::vector<glm::vec3> positions = floor.positions();
-  const std::vector<Color> colors = floor.colors();
 
   const glm::mat4 model = floor.model();
 
   for(unsigned int i = 0; i < positions.size(); i++)
   {
     PointLight pointLight = {
-      .position = glm::vec3(glm::translate(model, positions[i] + glm::vec3(0.f, 0.f, 0.5f))[3]),
+      .position = glm::vec3(glm::translate(model, positions[i] + glm::vec3(0.f, 0.f, -0.2f))[3]),
       .attenuation = attenuation,
       .light = Light {
         .off = off,
-        .color = PhongColor {
-          .ambient = colors[i] * AMBIENT,
-          .diffuse = colors[i] * DIFFUSE,
-          .specular = colors[i] * SPECULAR
-        }
       }
     };
 
     shader.setPointLight(i, pointLight);
   }
+
+  updateFloorLights(shader, floor);
 }
 
 void LightingSettings::updateFloorLights(const Shader& shader, const Floor& floor)
 {
-  const Color AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
-  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
+  const Color AMBIENT (0.2f, 0.2f, 0.2f, 0.2f);
+  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 0.5f);
   const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
 
   const std::vector<Color> colors = floor.colors();
 
   for(unsigned int i = 0; i < colors.size(); i++)
   {
+    Color color(colors[i]);
+    color.a = 1.f;
+
     std::stringstream key;
     key << "u_point_lights[" << i << "]";
-    shader.setVec4fv(key.str() + ".light.ambient", colors[i] * AMBIENT);
-    shader.setVec4fv(key.str() + ".light.diffuse", colors[i] * DIFFUSE);
-    shader.setVec4fv(key.str() + ".light.specular", colors[i] * SPECULAR);
+    shader.setVec4fv(key.str() + ".light.ambient", color * AMBIENT);
+    shader.setVec4fv(key.str() + ".light.diffuse", color * DIFFUSE);
+    shader.setVec4fv(key.str() + ".light.specular", color * SPECULAR);
   }
 }
 
 void LightingSettings::initSpotLights(const LightedShader& shader)
 {
-  const Color AMBIENT (0.2f, 0.2f, 0.2f, 1.f);
-  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 1.f);
+  const Color AMBIENT (0.2f, 0.2f, 0.2f, 0.2f);
+  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 0.5f);
   const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
   const bool off = false;
 
-  // const Attenuation attenuation = { 1.0, 0.022,  0.0019 };   // 200
-  const Attenuation attenuation = { 1.0, 0.027,  0.0028 };   // 160
-  // const Attenuation attenuation = { 1.0, 0.045,  0.0075 };   // 100
-  // const Attenuation attenuation = { 1.0, 0.09,   0.032 };    // 50
+  // const Attenuation attenuation = { 1.0, 0.0014, 0.000007 }; // 3250
+  // const Attenuation attenuation = { 1.0, 0.007,  0.0002   }; // 600
+  // const Attenuation attenuation = { 1.0, 0.014,  0.0007   }; // 325
+  // const Attenuation attenuation = { 1.0, 0.022,  0.0019   }; // 200
+  // const Attenuation attenuation = { 1.0, 0.027,  0.0028   }; // 160
+  const Attenuation attenuation = { 1.0, 0.045,  0.0075   }; // 100
+  // const Attenuation attenuation = { 1.0, 0.07,   0.017    }; // 65
+  // const Attenuation attenuation = { 1.0, 0.09,   0.032    }; // 50
+  // const Attenuation attenuation = { 1.0, 0.14,   0.07     }; // 32
+  // const Attenuation attenuation = { 1.0, 0.22,   0.20     }; // 20
+  // const Attenuation attenuation = { 1.0, 0.35,   0.44     }; // 13
+  // const Attenuation attenuation = { 1.0, 0.7,    1.8      }; // 7
   const std::vector<glm::vec3>& positions = mSpotLights.positions;
   const std::vector<Color>& colors = mSpotLights.colors;
 
@@ -159,7 +152,7 @@ void LightingSettings::initSpotLights(const LightedShader& shader)
   }
 }
 
-void LightingSettings::updateSpotLights(Shader &shader, bool off)
+void LightingSettings::updateSpotLights(Shader &shader)
 {
   for(unsigned int i = 0; i < NR_SPOT_LIGHTS; i++)
   {
@@ -167,6 +160,5 @@ void LightingSettings::updateSpotLights(Shader &shader, bool off)
     key << "u_spot_lights[" << i << "]";
 
     shader.setVec3fv(key.str() + ".direction", mSpotLights.directions[i]);
-    shader.setBool("u_spot_lights[0].light.off", off);
   }
 }

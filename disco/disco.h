@@ -39,6 +39,8 @@ public:
   #endif
 
 private:
+  LightingSettings lightingSettings;
+
   LightedShader mpSkeletal;
   Tifa tifa;
   Dae dae;
@@ -55,8 +57,6 @@ private:
   PlainShader mpPlain;
   LightDebug pointLightDebug;
   #endif
-
-  LightingSettings lightingSettings;
 
   float mLastFrame;
   float mLastX;

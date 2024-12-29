@@ -1,12 +1,18 @@
 #include "disco.h"
 
-const unsigned NR_DIR_LIGHTS = 1;
-const unsigned NR_POINT_LIGHTS = 25;
-const unsigned NR_SPOT_LIGHTS = 2;
 Disco::Disco()
 :
-mpSkeletal(NR_DIR_LIGHTS, NR_POINT_LIGHTS, NR_SPOT_LIGHTS, "./skeletal/skeletal.vs", "./shaders/lighting.fs"),
-mpLighting(NR_DIR_LIGHTS, NR_POINT_LIGHTS, NR_SPOT_LIGHTS),
+mpSkeletal(
+  lightingSettings.NR_DIR_LIGHTS,
+  lightingSettings.NR_POINT_LIGHTS,
+  lightingSettings.NR_SPOT_LIGHTS,
+  "./skeletal/skeletal.vs", "./shaders/lighting.fs"
+),
+mpLighting(
+  lightingSettings.NR_DIR_LIGHTS,
+  lightingSettings.NR_POINT_LIGHTS,
+  lightingSettings.NR_SPOT_LIGHTS
+),
 mpSkybox("./playground/skybox/cube.vs", "./playground/skybox/cube.fs")
 {
   mLastFrame = 0.f;
@@ -68,9 +74,9 @@ void Disco::update(const float &time)
   lightingSettings.mSpotLights.directions[0] =
   glm::normalize(
     glm::vec3(
-      sin(time) * 2.f,
-      -2.5,
-      cos(time + 2.f) * 2.f
+      sin(time + 2.f) * 2.f,
+      -1.5,
+      cos(time * 1.5f) * 2.f
     )
     - lightingSettings.mSpotLights.positions[0]
   );
@@ -84,18 +90,19 @@ void Disco::update(const float &time)
     - lightingSettings.mSpotLights.positions[1]
   );
 
-  const bool animatingPos = camera().updatePosition(time);
-  const bool animatingDir = camera().updateDirection(time);
-
+  #ifndef DISCO_DEBUG
+  // const float mult = cos(time) > 0.f ? 2.f : 1.f;
+  camera().setPosition(glm::vec3(
+    sin(time) * 4.f,
+    cos(time) * 1.f - 1.f,
+    cos(time) * 3.f
+  ));
+  camera().pointTo(glm::vec3(0.f, -1.f, 0.f));
+  #endif
   tifa.update(time);
   dae.update(time);
   whipper.update(time);
   floor.update(time);
-
-  if(animatingPos || animatingDir)
-  {
-    return;
-  }
 
   mirror.screenshot(*this, glm::vec3(0.f, 0.f,-2.f));
 }
@@ -184,7 +191,7 @@ void Disco::drawLightDebugs()
   {
     mpPlain.setColor(colors[i]);
 
-    glm::mat4 model = glm::translate(floor.model(), positions[i] + glm::vec3(0.f, 0.f, 0.5f));
+    glm::mat4 model = glm::translate(floor.model(), positions[i] + glm::vec3(0.f, 0.f, -0.2f));
     model = glm::scale(model, glm::vec3(0.2f));
     mpPlain.setModel(model);
     pointLightDebug.draw(mpLighting);
