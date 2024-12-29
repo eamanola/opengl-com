@@ -56,7 +56,7 @@ void Floor::updateColors()
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
-        0.f
+        1.f
       );
     }
   }
@@ -77,9 +77,12 @@ void Floor::draw(const Shader& shader)
 
   for (unsigned int i = 0; i < mRows * mColumns; i++)
   {
+    Color color = Color(mColors[i]);
+    color.a = 0.f;
+
     shader.setMat4fv("u_model", glm::translate(model, mPositions[i]));
-    shader.setVec4fv("u_material.diffuse_color", mColors[i]);
-    shader.setVec4fv("u_material.specular_color", mColors[i]);
+    shader.setVec4fv("u_material.diffuse_color", color);
+    shader.setVec4fv("u_material.specular_color", color);
     mTileMesh.draw(shader, mTileTextures);
     shader.setVec4fv("u_material.diffuse_color", Color(0.f));
     shader.setVec4fv("u_material.specular_color", Color(0.f));

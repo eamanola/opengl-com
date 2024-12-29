@@ -16,9 +16,9 @@ public:
   : Shader(vPath, fPath, defines) {}
   virtual ~PlainShader() {};
 
-  virtual void setModel(const glm::mat4& model) { setMat4fv("u_model", model ); }
-  virtual void setProjXView(const glm::mat4& proj_x_view) { setMat4fv("u_proj_x_view", proj_x_view); }
-  virtual void setColor(const Color& color) { setVec4fv("u_color", color); }
+  virtual void setModel(const glm::mat4& model) const { setMat4fv("u_model", model ); }
+  virtual void setProjXView(const glm::mat4& proj_x_view) const { setMat4fv("u_proj_x_view", proj_x_view); }
+  virtual void setColor(const Color& color) const { setVec4fv("u_color", color); }
 };
 
 #endif

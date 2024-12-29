@@ -1,21 +1,12 @@
 #include "disco.h"
 
+const unsigned NR_DIR_LIGHTS = 1;
+const unsigned NR_POINT_LIGHTS = 25;
+const unsigned NR_SPOT_LIGHTS = 2;
 Disco::Disco()
 :
-mpSkeletal("./skeletal/skeletal.vs", "./shaders/lighting.fs",
-  {
-    "#define IN_NR_POINT_LIGHTS 29",
-    "#define IN_NR_SPOT_LIGHTS 2",
-    "#define IN_NR_DIR_LIGHTS 1"
-  }
-),
-mpLighting("./shaders/lighting.vs", "./shaders/lighting.fs",
-  {
-    "#define IN_NR_POINT_LIGHTS 29",
-    "#define IN_NR_SPOT_LIGHTS 2",
-    "#define IN_NR_DIR_LIGHTS 1"
-  }
-),
+mpSkeletal(NR_DIR_LIGHTS, NR_POINT_LIGHTS, NR_SPOT_LIGHTS, "./skeletal/skeletal.vs", "./shaders/lighting.fs"),
+mpLighting(NR_DIR_LIGHTS, NR_POINT_LIGHTS, NR_SPOT_LIGHTS),
 mpSkybox("./playground/skybox/cube.vs", "./playground/skybox/cube.fs")
 {
   mLastFrame = 0.f;
@@ -59,7 +50,6 @@ void Disco::setup()
   mpSkeletal.use();
   lightingSettings.setup(mpSkeletal);
   lightingSettings.initFloorLights(mpSkeletal, floor);
-  lightingSettings.toggelPointLights1to4(mpSkeletal, true);
 
   mpLighting.use();
   lightingSettings.setup(mpLighting);
@@ -75,9 +65,6 @@ void Disco::setup()
 
 void Disco::update(const float &time)
 {
-  lightingSettings.mLights.positions[0].x = 1.0f + sin(time) * 2.0f;
-  lightingSettings.mLights.positions[0].y = sin(time / 2.0f) * 1.0f;
-
   lightingSettings.mSpotLights.directions[0] =
   glm::normalize(
     glm::vec3(
@@ -121,9 +108,8 @@ void Disco::render()
   const glm::vec3 view_pos = camera().position();
 
   mpSkeletal.use();
-  mpSkeletal.setMat4fv("u_proj_x_view", proj_x_view);
-  lightingSettings.setViewPosition(mpSkeletal, view_pos);
-  lightingSettings.updatePointLight0Position(mpSkeletal);
+  mpSkeletal.setProjXView(proj_x_view);
+  mpSkeletal.setViewPos(view_pos);
   lightingSettings.updateFloorLights(mpSkeletal, floor);
   lightingSettings.updateSpotLights(mpSkeletal);
 
@@ -137,9 +123,8 @@ void Disco::render()
   whipper.draw(mpSkeletal);
 
   mpLighting.use();
-  mpLighting.setMat4fv("u_proj_x_view", proj_x_view);
-  lightingSettings.setViewPosition(mpLighting, view_pos);
-  lightingSettings.updatePointLight0Position(mpLighting);
+  mpLighting.setProjXView(proj_x_view);
+  mpLighting.setViewPos(view_pos);
   lightingSettings.updateFloorLights(mpLighting, floor);
   lightingSettings.updateSpotLights(mpLighting);
 
@@ -149,7 +134,17 @@ void Disco::render()
   mirror.draw(mpLighting);
 
   #ifdef DISCO_DEBUG
-  drawLightDebugs(proj_x_view);
+  mpPlain.use();
+  mpPlain.setProjXView(proj_x_view);
+
+  glm::mat4 origin(1.f);
+  origin = glm::translate(origin, glm::vec3(0.f));
+  origin = glm::scale(origin, glm::vec3(0.2f));
+  mpPlain.setModel(origin);
+  mpPlain.setColor(Color{ 0.f, 0.f, 1.f, 1.f });
+  pointLightDebug.draw(mpPlain);
+
+  drawLightDebugs();
   #endif
 
   // mpSkybox.use();
@@ -178,25 +173,10 @@ void Disco::teardown()
 }
 
 #ifdef DISCO_DEBUG
-void Disco::drawLightDebugs(const glm::mat4& proj_x_view)
+void Disco::drawLightDebugs()
 {
-  mpPlain.use();
-  mpPlain.setProjXView(proj_x_view);
-
   std::vector<glm::vec3> positions;
   std::vector<Color> colors;
-
-  positions = lightingSettings.mLights.positions;
-  colors = lightingSettings.mLights.colors;
-  for(unsigned int i = 0; i < lightingSettings.NR_POINT_LIGHTS; i++)
-  {
-    mpPlain.setColor(colors[i]);
-
-    glm::mat4 model = glm::translate(glm::mat4(1.0), positions[i]);
-    model = glm::scale(model, glm::vec3(0.2f));
-    mpPlain.setModel(model);
-    pointLightDebug.draw(mpPlain);
-  }
 
   positions = floor.positions();
   colors = floor.colors();

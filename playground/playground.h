@@ -11,7 +11,7 @@
 #include "../characters/whipper.h"
 #include "lighting.h"
 #ifdef POINTLIGHT_DEBUG
-#include "light.h"
+#include "light-debug.h"
 #endif
 #include "box.h"
 #include "grass.h"
@@ -61,7 +61,7 @@ private:
   SkyboxReflector skyboxReflector;
 
   #ifdef POINTLIGHT_DEBUG
-  Light pointLightDebug;
+  LightDebug pointLightDebug;
   // Shader mpPlain;
   #endif
 

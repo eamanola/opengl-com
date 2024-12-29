@@ -11,12 +11,13 @@
 #include "../characters/whipper.h"
 #ifdef DISCO_DEBUG
 #include "../shaders/plain-shader.h"
-#include "../playground/light.h"
+#include "../playground/light-debug.h"
 #endif
 #include "../playground/mirror.h"
 #include "../playground/skybox/skybox.h"
 #include "floor.h"
 #include "lighting-settings.h"
+#include "../shaders/lighted-shader.h"
 
 class Disco : public Scene
 {
@@ -30,7 +31,7 @@ public:
   void teardown() override;
 
   #ifdef DISCO_DEBUG
-  void drawLightDebugs(const glm::mat4& proj_x_view);
+  void drawLightDebugs();
   void handleInput(const GLFWwindow* window) override;
   void onChar(const char c) override {};
   void onMouse(const GLFWwindow* window, const double x, const double y) override;
@@ -38,12 +39,12 @@ public:
   #endif
 
 private:
-  Shader mpSkeletal;
+  LightedShader mpSkeletal;
   Tifa tifa;
   Dae dae;
   Whipper whipper;
 
-  Shader mpLighting;
+  LightedShader mpLighting;
   Mirror mirror;
   Floor floor;
 
@@ -52,7 +53,7 @@ private:
 
   #ifdef DISCO_DEBUG
   PlainShader mpPlain;
-  Light pointLightDebug;
+  LightDebug pointLightDebug;
   #endif
 
   LightingSettings lightingSettings;

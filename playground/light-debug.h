@@ -1,15 +1,15 @@
-#ifndef LIGHT_H
-#define LIGHT_H
+#ifndef LIGHT_DEBUG_H
+#define LIGHT_DEBUG_H
 
 #include "../mesh.h"
 #include "../drawable.h"
 #include "../shapes.h"
 
-class Light : public Drawable
+class LightDebug : public Drawable
 {
 public:
-  Light() : mMesh(Shapes::CUBE_ONLY_P) {}
-  ~Light() {}
+  LightDebug() : mMesh(Shapes::CUBE_ONLY_P) {}
+  ~LightDebug() {}
 
   void update(const float& time) override {};
   void draw(const Shader& shader) override { mMesh.draw(shader); }
