@@ -56,7 +56,7 @@ void Floor::updateColors()
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
-        0.f
+        0.1f
       );
     }
   }
@@ -73,6 +73,8 @@ void Floor::update(const float& time)
 
 void Floor::draw(const Shader& shader)
 {
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   const glm::mat4& model = this->model();
 
   for (unsigned int i = 0; i < mRows * mColumns; i++)
@@ -84,4 +86,6 @@ void Floor::draw(const Shader& shader)
     shader.setVec4fv("u_material.diffuse_color", Color(0.f));
     shader.setVec4fv("u_material.specular_color", Color(0.f));
   }
+
+  glDisable(GL_BLEND);
 }

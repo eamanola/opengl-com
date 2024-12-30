@@ -3,7 +3,7 @@
 
 #include "../scene.h"
 
-#define DISCO_DEBUG
+// #define DISCO_DEBUG
 
 #include "../camera.h"
 #include "../characters/tifa.h"

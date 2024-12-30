@@ -18,6 +18,28 @@ void LightingSettings::setup(const LightedShader& shader)
   initSpotLights(shader);
 }
 
+void LightingSettings::update(float time)
+{
+  mSpotLights.directions[0] =
+    glm::normalize(
+      glm::vec3(
+        sin(time + 2.f) * 2.f,
+        -1.5,
+        cos(time * 1.5f) * 2.f
+      )
+      - mSpotLights.positions[0]
+  );
+  mSpotLights.directions[1] =
+  glm::normalize(
+    glm::vec3(
+      cos(time + 2.f) * 2.f,
+      -1.5,
+      sin(time * 1.5f) * 2.f
+    )
+    - mSpotLights.positions[1]
+  );
+}
+
 void LightingSettings::initDirLight(const LightedShader& shader)
 {
   const Color AMBIENT (0.2f, 0.2f, 0.2f, 0.2f);
@@ -25,7 +47,7 @@ void LightingSettings::initDirLight(const LightedShader& shader)
   const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.0f);
   const bool off = false;
 
-  const Color color(0.2f, 0.2f, 0.2f, 0.2f);
+  const Color color(0.4f, 0.4f, 0.4f, 0.4f);
   const glm::vec3 direction(0.f, -1.0f, 1.f);
 
   DirLight dirLight
@@ -85,7 +107,7 @@ void LightingSettings::initFloorLights(const LightedShader& shader, const Floor&
 
 void LightingSettings::updateFloorLights(const Shader& shader, const Floor& floor)
 {
-  const Color AMBIENT (0.2f, 0.2f, 0.2f, 0.2f);
+  const Color AMBIENT (0.1f, 0.1f, 0.1f, 0.1f);
   const Color DIFFUSE (0.5f, 0.5f, 0.5f, 0.5f);
   const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
 
@@ -99,8 +121,8 @@ void LightingSettings::updateFloorLights(const Shader& shader, const Floor& floo
     std::stringstream key;
     key << "u_point_lights[" << i << "]";
     shader.setVec4fv(key.str() + ".light.ambient", color * AMBIENT);
-    shader.setVec4fv(key.str() + ".light.diffuse", color * DIFFUSE);
-    shader.setVec4fv(key.str() + ".light.specular", color * SPECULAR);
+    shader.setVec4fv(key.str() + ".light.diffuse", color * DIFFUSE); // glm::vec4(0.1));
+    shader.setVec4fv(key.str() + ".light.specular", color * SPECULAR); //  glm::vec4(0.1));
   }
 }
 

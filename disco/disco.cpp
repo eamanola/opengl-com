@@ -61,7 +61,7 @@ void Disco::setup()
   lightingSettings.setup(mpLighting);
   lightingSettings.initFloorLights(mpLighting, floor);
 
-  glm::vec3 cameraPos = glm::vec3(0.f, 0.f, 8.f);
+  glm::vec3 cameraPos = glm::vec3(0.f, 0.f, 10.f);
   glm::vec3 pointTo = glm::vec3(0.f);
 
   const bool animate = false;
@@ -71,26 +71,9 @@ void Disco::setup()
 
 void Disco::update(const float &time)
 {
-  lightingSettings.mSpotLights.directions[0] =
-  glm::normalize(
-    glm::vec3(
-      sin(time + 2.f) * 2.f,
-      -1.5,
-      cos(time * 1.5f) * 2.f
-    )
-    - lightingSettings.mSpotLights.positions[0]
-  );
-  lightingSettings.mSpotLights.directions[1] =
-  glm::normalize(
-    glm::vec3(
-      cos(time + 2.f) * 2.f,
-      -1.5,
-      sin(time * 1.5f) * 2.f
-    )
-    - lightingSettings.mSpotLights.positions[1]
-  );
+  lightingSettings.update(time);
 
-  #ifndef DISCO_DEBUG
+  #ifdef CAMERA_ANIM
   // const float mult = cos(time) > 0.f ? 2.f : 1.f;
   camera().setPosition(glm::vec3(
     sin(time) * 4.f,
@@ -114,6 +97,20 @@ void Disco::render()
   const glm::mat4 proj_x_view = projection * view;
   const glm::vec3 view_pos = camera().position();
 
+  #ifdef DISCO_DEBUG
+  mpPlain.use();
+  mpPlain.setProjXView(proj_x_view);
+
+  glm::mat4 origin(1.f);
+  origin = glm::translate(origin, glm::vec3(0.f));
+  origin = glm::scale(origin, glm::vec3(0.2f));
+  mpPlain.setModel(origin);
+  mpPlain.setColor(Color{ 0.f, 0.f, 1.f, 1.f });
+  pointLightDebug.draw(mpPlain);
+
+  drawLightDebugs();
+  #endif
+
   mpSkeletal.use();
   mpSkeletal.setProjXView(proj_x_view);
   mpSkeletal.setViewPos(view_pos);
@@ -135,24 +132,11 @@ void Disco::render()
   lightingSettings.updateFloorLights(mpLighting, floor);
   lightingSettings.updateSpotLights(mpLighting);
 
+
   floor.draw(mpLighting);
   // looks good
   // mpLighting.setVec4fv("u_color", floor.colors()[0]);
   mirror.draw(mpLighting);
-
-  #ifdef DISCO_DEBUG
-  mpPlain.use();
-  mpPlain.setProjXView(proj_x_view);
-
-  glm::mat4 origin(1.f);
-  origin = glm::translate(origin, glm::vec3(0.f));
-  origin = glm::scale(origin, glm::vec3(0.2f));
-  mpPlain.setModel(origin);
-  mpPlain.setColor(Color{ 0.f, 0.f, 1.f, 1.f });
-  pointLightDebug.draw(mpPlain);
-
-  drawLightDebugs();
-  #endif
 
   // mpSkybox.use();
   // const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));

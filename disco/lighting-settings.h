@@ -36,6 +36,7 @@ public:
   const unsigned NR_SPOT_LIGHTS = 2;
 
   void setup(const LightedShader& shader);
+  void update(float time);
   void initFloorLights(const LightedShader& shader, const Floor& floor);
   void updateFloorLights(const Shader& shader, const Floor& floor);
 
