@@ -73,6 +73,7 @@ void Floor::update(const float& time)
 
 void Floor::draw(const Shader& shader)
 {
+  glDisable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   const glm::mat4& model = this->model();
@@ -88,4 +89,5 @@ void Floor::draw(const Shader& shader)
   }
 
   glDisable(GL_BLEND);
+  glEnable(GL_CULL_FACE);
 }

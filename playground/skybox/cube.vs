@@ -7,7 +7,6 @@ uniform mat4 u_proj_x_view;
 
 void main()
 {
-  v_tex_coords = in_position;
-  vec4 position = u_proj_x_view * vec4(in_position, 1.0);
-  gl_Position = position.xyzz;
+  v_tex_coords = -in_position;
+  gl_Position = vec4(u_proj_x_view * vec4(in_position, 1.0)).xyzz;
 }

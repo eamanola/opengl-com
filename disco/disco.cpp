@@ -73,12 +73,13 @@ void Disco::update(const float &time)
 {
   lightingSettings.update(time);
 
+  #define CAMERA_ANIM
   #ifdef CAMERA_ANIM
   // const float mult = cos(time) > 0.f ? 2.f : 1.f;
   camera().setPosition(glm::vec3(
     sin(time) * 4.f,
     cos(time) * 1.f - 1.f,
-    cos(time) * 3.f
+    cos(time) * 4.5f + 1.f
   ));
   camera().pointTo(glm::vec3(0.f, -1.f, 0.f));
   #endif
@@ -138,10 +139,10 @@ void Disco::render()
   // mpLighting.setVec4fv("u_color", floor.colors()[0]);
   mirror.draw(mpLighting);
 
-  // mpSkybox.use();
-  // const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
-  // mpSkybox.setMat4fv("u_proj_x_view", projection * skyboxView);
-  // skybox.draw(mpSkybox);
+  mpSkybox.use();
+  const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
+  mpSkybox.setMat4fv("u_proj_x_view", projection * skyboxView);
+  skybox.draw(mpSkybox);
 }
 
 void Disco::teardown()

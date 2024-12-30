@@ -42,13 +42,13 @@ void LightingSettings::update(float time)
 
 void LightingSettings::initDirLight(const LightedShader& shader)
 {
-  const Color AMBIENT (0.2f, 0.2f, 0.2f, 0.2f);
-  const Color DIFFUSE (0.5f, 0.5f, 0.5f, 0.5f);
-  const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.0f);
+  const Color AMBIENT (0.2f);
+  const Color DIFFUSE (0.5f);
+  const Color SPECULAR(1.0f);
   const bool off = false;
 
   const Color color(0.4f, 0.4f, 0.4f, 0.4f);
-  const glm::vec3 direction(0.f, -1.0f, 1.f);
+  const glm::vec3 direction(-1.f, -1.0f, -1.f);
 
   DirLight dirLight
   {
