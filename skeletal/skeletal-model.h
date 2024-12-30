@@ -14,41 +14,33 @@
 class SkeletalModel : public Model
 {
 public:
-  SkeletalModel();
+  SkeletalModel(const char* path) : Model()
+  {
+    // call from this to get processScene
+    loadModel(path);
+  };
   ~SkeletalModel();
 
-  virtual void free() override;
-  virtual void draw(const Shader &shader) override;
-  virtual void update(const float &time) override;
+  void free() override;
 
-  const std::vector<glm::mat4>& pose() const;
-  const Animation* setAnimation(unsigned int animationIndex);
   unsigned int addAnimation(Animation animation);
 
-protected:
-  void processScene(const aiScene* scene) override;
+  const std::vector<Animation>& animations() { return mAnimations; }
+  const Bone& rootBone() { return mRootBone; }
+  const unsigned int& boneCount() { return mBoneCount; }
 
 private:
-  unsigned int mAnimationIndex;
+  unsigned int mBoneCount;
   std::vector<Animation> mAnimations;
-  std::vector<SkeletalMesh> mMeshes;
   Bone mRootBone;
-  std::vector<glm::mat4> mCurrentPose;
 
+  void processScene(const aiScene* scene) override;
+  std::vector<SkeletalMesh> mMeshes;
   Animation readAnimation(const aiAnimation* scene) const;
   std::vector<SkeletalVertex> readBoneData(const aiMesh* mesh, BoneInfos& outBoneInfos) const;
   unsigned int replaceIndex(const float* weights, const float& weight) const;
   void addBone(const aiBone* aiBone, BoneInfos& outBoneInfos) const;
   bool readSkeleton(const aiNode* node, const BoneInfos& boneInfos, Bone& outSkeleton) const;
-  std::pair<int, float> getTimeFraction(const std::vector<float>& times, float dt) const;
-  glm::mat4 localTransform(const BoneTransforms& transforms, const unsigned int &time) const;
-  void updatePose(
-    const Animation& animation,
-    const Bone& skeleton,
-    const float& dt,
-    const glm::mat4& parentTransform,
-    std::vector<glm::mat4>& output
-  ) const;
 };
 
 #endif

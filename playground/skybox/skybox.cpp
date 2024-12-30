@@ -1,27 +1,9 @@
 #include "skybox.h"
 #include "../../shader-utils/shader-utils.h"
+#include "../../shapes.h"
 Skybox::Skybox(/* args */)
 :
-mMesh(
-  std::vector<Vertex> {
-    { .position = { -1.0f, -1.0f,  1.0f } },
-    { .position = {  1.0f, -1.0f,  1.0f } },
-    { .position = {  1.0f,  1.0f,  1.0f } },
-    { .position = { -1.0f,  1.0f,  1.0f } },
-    { .position = { -1.0f, -1.0f, -1.0f } },
-    { .position = {  1.0f, -1.0f, -1.0f } },
-    { .position = {  1.0f,  1.0f, -1.0f } },
-    { .position = { -1.0f,  1.0f, -1.0f } }
-  },
-    std::vector<unsigned int> {
-      1, 0, 3, 1, 3, 2, // front
-      5, 1, 2, 5, 2, 6, // right
-      4, 5, 6, 4, 6, 7, // back
-      0, 4, 7, 0, 7, 3, // left
-      3, 6, 2, 3, 7, 6, // top
-      0, 1, 5, 0, 5, 4  // bottom
-    }
-),
+mMesh(Shapes::CUBE_ONLY_P),
 mTexture(
   Texture {
     .id = ShaderUtils::loadCubemap({

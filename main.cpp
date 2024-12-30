@@ -1,4 +1,4 @@
-#define SHOW_DISCO
+// #define SHOW_DISCO
 
 #include "util.h"
 #include "playground/playground.h"

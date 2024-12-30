@@ -7,25 +7,23 @@
 #include "mesh.h"
 #include <assimp/scene.h>
 
-class Model : public Drawable
+class Model
 {
 public:
   Model() {};
+  Model(const char* path) : Model() { loadModel(path); }
   virtual ~Model() {};
 
-  Model(const char* path) : Model() { loadModel(path); }
-
-  void loadModel(const std::string path);
-
-  virtual void update(const float& time) override {};
-  virtual void draw(const Shader &shader) override;
-  virtual void free() override;
+  void draw(const Shader &shader);
+  virtual void free();
 
 protected:
-  std::vector<Mesh> meshes;
+  void loadModel(const std::string path);
   virtual void processScene(const aiScene* scene);
+  const std::vector<Mesh>& meshes() { return mMeshes; };
 
 private:
+  std::vector<Mesh> mMeshes;
   std::string mDirectory;
   std::vector<Texture> mTextures;
   std::vector<std::vector<unsigned int>> mMeshTextureMap;

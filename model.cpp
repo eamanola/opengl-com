@@ -29,7 +29,7 @@ void Model::processScene(const aiScene* scene)
   for(unsigned int i = 0; i < scene->mNumMeshes; i++)
   {
     aiMesh* mesh = scene->mMeshes[i];
-    meshes.push_back(processMesh(scene, mesh));
+    mMeshes.push_back(processMesh(scene, mesh));
   }
 
   if(scene->HasMaterials())
@@ -142,9 +142,7 @@ std::vector<unsigned int> Model::loadMaterialTextures(
 
 void Model::draw(const Shader &shader)
 {
-  shader.setMat4fv("u_model", model());
-
-  for(unsigned int i = 0; i < meshes.size(); i++)
+  for(unsigned int i = 0; i < mMeshes.size(); i++)
   {
     const std::vector<unsigned int>& texIndices = mMeshTextureMap[i];
     const unsigned int texLen = texIndices.size();
@@ -155,15 +153,15 @@ void Model::draw(const Shader &shader)
       textures[j] = &mTextures[texIndices[j]];
     }
 
-    meshes[i].draw(shader, textures[0], texLen);
+    mMeshes[i].draw(shader, textures[0], texLen);
   }
 }
 
 void Model::free()
 {
-  for(unsigned int i = 0; i < meshes.size(); i++)
+  for(unsigned int i = 0; i < mMeshes.size(); i++)
   {
-    meshes[i].free();
+    mMeshes[i].free();
   }
 
   const unsigned int texLen = mTextures.size();

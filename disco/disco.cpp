@@ -73,7 +73,7 @@ void Disco::update(const float &time)
 {
   lightingSettings.update(time);
 
-  #define CAMERA_ANIM
+  // #define CAMERA_ANIM
   #ifdef CAMERA_ANIM
   // const float mult = cos(time) > 0.f ? 2.f : 1.f;
   camera().setPosition(glm::vec3(

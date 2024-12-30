@@ -47,11 +47,6 @@ Playground::~Playground()
 
 void Playground::setup()
 {
-  glm::mat4 model2b = glm::mat4(1.f);
-  model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
-  model2b = glm::translate(model2b, glm::vec3(0.f, 1.5f, -0.75f));
-  simpleModel.setModel(model2b);
-
   glm::mat4 modelDae = glm::mat4(1.f);
   modelDae = glm::translate(modelDae, glm::vec3(0.f, -1.f, 1.f));
   modelDae = glm::rotate(modelDae, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
@@ -144,7 +139,12 @@ void Playground::render()
   lightingSettings.updatePointLight0Position(mpLighting);
   lightingSettings.updateSpotLight(mpLighting, view_pos, camera().front(), !mSpotlightOn);
 
+  glm::mat4 model2b = glm::mat4(1.f);
+  model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
+  model2b = glm::translate(model2b, glm::vec3(0.f, 1.5f, -0.75f));
+  mpLighting.setMat4fv("u_model", model2b);
   simpleModel.draw(mpLighting);
+
   box.draw(mpLighting);
   window.draw(mpLighting);
   mirror.draw(mpLighting);
@@ -159,11 +159,11 @@ void Playground::render()
     glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightingSettings.mLights.positions[i]);
     lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
-    mpLighting.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
+    mpLighting.setVec4fv("u_material.diffuse_color", lightingSettings.mLights.colors[i]);
     mpLighting.setMat4fv("u_model", lightModel);
     pointLightDebug.draw(mpLighting);
   }
-  mpLighting.setVec4fv("u_color", glm::vec4(0));
+  mpLighting.setVec4fv("u_material.diffuse_color", glm::vec4(0));
   #endif
 
   mpSkybox.use();
