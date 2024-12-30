@@ -5,14 +5,21 @@
 #include <stb_image.h>
 
 const unsigned int ShaderUtils::compileShader(
-  GLenum type, const char* path, const std::vector<std::string>& defines
+  GLenum type, const char* path,
+  const std::vector<std::string>& prependTexts,
+  const std::vector<std::string>& prependFiles
 )
 {
   std::string source;
-
+  std::vector<std::string> pFiles;
   try
   {
     source = ShaderUtils::readFile(path);
+
+    for(unsigned int i = 0; i < prependFiles.size(); i++)
+    {
+      pFiles.push_back(ShaderUtils::readFile(prependFiles[i].c_str()));
+    }
   }
   catch(std::ifstream::failure& e)
   {
@@ -20,19 +27,22 @@ const unsigned int ShaderUtils::compileShader(
     return 0;
   }
 
-  if(defines.size() > 0)
+  if(prependTexts.size() > 0 || prependFiles.size() > 0)
   {
-    std::size_t version = 0;
+    std::size_t versionEndPos = 0;
     if(source.rfind("#version", 0) == 0)
     {
-      version = source.find('\n') + 1;
+      versionEndPos = source.find('\n') + 1;
     }
 
-    source.insert(version, ShaderUtils::readFile("./shaders/defines"));
-
-    for(unsigned int i = defines.size(); i-- > 0;)
+    for(unsigned int i = pFiles.size(); i-- > 0;)
     {
-      source.insert(version, defines[i] + '\n');
+      source.insert(versionEndPos, pFiles[i]);
+    }
+
+    for(unsigned int i = prependTexts.size(); i-- > 0;)
+    {
+      source.insert(versionEndPos, prependTexts[i]);
     }
   }
 

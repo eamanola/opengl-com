@@ -6,17 +6,19 @@ Playground::Playground()
 :
 mpSkeletal("./skeletal/skeletal.vs", "./shaders/lighting.fs",
   {
-    "#define IN_NR_SPOT_LIGHTS 1",
-    "#define IN_NR_POINT_LIGHTS 4",
-    "#define IN_NR_DIR_LIGHTS 1"
-  }
+    "#define IN_NR_SPOT_LIGHTS 1\n",
+    "#define IN_NR_POINT_LIGHTS 4\n",
+    "#define IN_NR_DIR_LIGHTS 1\n"
+  },
+  { "shaders/lighted-shader-defines" }
 ),
 mpLighting("./shaders/lighting.vs", "./shaders/lighting.fs",
   {
-    "#define IN_NR_SPOT_LIGHTS 1",
-    "#define IN_NR_POINT_LIGHTS 4",
-    "#define IN_NR_DIR_LIGHTS 1"
-  }
+    "#define IN_NR_SPOT_LIGHTS 1\n",
+    "#define IN_NR_POINT_LIGHTS 4\n",
+    "#define IN_NR_DIR_LIGHTS 1\n"
+  },
+  { "shaders/lighted-shader-defines" }
 ),
 simpleModel("assets/2b-jumps2/scene.gltf"),
 mpSkybox("./playground/skybox/cube.vs", "./playground/skybox/cube.fs"),

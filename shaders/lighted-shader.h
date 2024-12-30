@@ -55,19 +55,26 @@ public:
     const unsigned int nrSpotLights,
     const char* vPath = "./shaders/lighting.vs",
     const char* fPath = "./shaders/lighting.fs",
-    const std::vector<std::string>& defines = {}
+    const std::vector<std::string>& prependTexts = {},
+    const std::vector<std::string>& prependFiles = {}
   )
   :
   PlainShader(
     vPath,
     fPath,
-    concat_defines(
+    concat(
       {
-        "#define IN_NR_DIR_LIGHTS " + std::to_string(nrDirLights),
-        "#define IN_NR_POINT_LIGHTS " + std::to_string(nrPointLights),
-        "#define IN_NR_SPOT_LIGHTS " + std::to_string(nrSpotLights)
+        "#define IN_NR_DIR_LIGHTS " + std::to_string(nrDirLights) + "\n" +
+        "#define IN_NR_POINT_LIGHTS " + std::to_string(nrPointLights) + "\n" +
+        "#define IN_NR_SPOT_LIGHTS " + std::to_string(nrSpotLights) + "\n"
       },
-      defines
+      prependTexts
+    ),
+    concat(
+      {
+        "shaders/lighted-shader-defines"
+      },
+      prependFiles
     )
   ),
   NR_DIR_LIGHTS(nrDirLights),
@@ -137,14 +144,13 @@ public:
   }
 
 private:
-  static std::vector<std::string> concat_defines(
-    const std::vector<std::string> &a, const std::vector<std::string> &b
+  static std::vector<std::string> concat(
+    const std::vector<std::string>& a, const std::vector<std::string>& b
   ) {
     std::vector<std::string> ret = std::vector<std::string>(a);
     ret.insert(ret.end(), b.begin(), b.end());
     return ret;
   }
-  /* data */
 };
 
 #endif

@@ -6,15 +6,19 @@
 #include "shader.h"
 #include "shader-utils/shader-utils.h"
 
-Shader::Shader(const char* vPath, const char* fPath, const std::vector<std::string>& defines)
+Shader::Shader(
+  const char* vPath, const char* fPath,
+  const std::vector<std::string>& prependTexts,
+  const std::vector<std::string>& prependFiles
+)
 {
-  const unsigned int vShader = ShaderUtils::compileShader(GL_VERTEX_SHADER, vPath, defines);
+  const unsigned int vShader = ShaderUtils::compileShader(GL_VERTEX_SHADER, vPath, prependTexts, prependFiles);
   if (!vShader) {
     glDeleteShader(vShader);
     return;
   }
 
-  const unsigned int fShader = ShaderUtils::compileShader(GL_FRAGMENT_SHADER, fPath, defines);
+  const unsigned int fShader = ShaderUtils::compileShader(GL_FRAGMENT_SHADER, fPath, prependTexts, prependFiles);
   if (!fShader) {
     glDeleteShader(vShader);
     glDeleteShader(fShader);

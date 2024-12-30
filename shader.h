@@ -16,12 +16,8 @@ public:
     Shader(
         const char* vertexPath,
         const char* fragmentPath,
-        // lines to prepend (after version line)
-        // added in order
-        // '\n' appended to each line
-        // no #define nor anything else (other than '\n') added
-        // added to both shaders (?)
-        const std::vector<std::string>& defines = {}
+        const std::vector<std::string>& prependTexts = {},
+        const std::vector<std::string>& prependFiles = {}
     );
 
     void use() const;

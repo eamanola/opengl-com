@@ -11,9 +11,11 @@ public:
   PlainShader(
     const char* vPath = "./shaders/plain.vs",
     const char* fPath = "./shaders/single-color.fs",
-    const std::vector<std::string>& defines = {}
+    const std::vector<std::string>& prependTexts = {},
+    const std::vector<std::string>& prependFiles = {}
   )
-  : Shader(vPath, fPath, defines) {}
+  : Shader(vPath, fPath, prependTexts, prependFiles) {}
+
   virtual ~PlainShader() {};
 
   virtual void setModel(const glm::mat4& model) const { setMat4fv("u_model", model ); }
