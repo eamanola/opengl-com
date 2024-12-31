@@ -4,20 +4,13 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include "../color.h"
 
-// #define MERGE
 Whipper::Whipper() : Character("assets/whipper/scene.gltf")
 {
-  mPosition = glm::vec3(0.f);
   mRotation = 0.f;
-
   setState(WHIPPER_STATES::DANCE);
 }
 
-#ifdef MERGE
 const glm::vec3 Whipper::position() const { return glm::vec3(model()[3]); };
-#else
-const glm::vec3 Whipper::position() const { return mPosition; };
-#endif
 
 void Whipper::update(const float& time)
 {
@@ -41,27 +34,6 @@ void Whipper::update(const float& time)
 
 void Whipper::draw(const Shader &shader)
 {
-  const glm::mat4 model = this->model();
-
-  glm::vec3 scale;
-  glm::quat orientation;
-  glm::vec3 translation;
-  glm::vec3 foo;
-  glm::vec4 bar;
-  glm::decompose(model, scale, orientation, translation, foo, bar);
-
-  glm::mat4 transform = glm::mat4(1.f);
-  transform = glm::translate(transform, mPosition);
-  transform = glm::translate(transform, translation);
-  // transform = glm::translate(transform, mPosition + translation);
-  transform = glm::rotate(transform, glm::radians(mRotation), glm::vec3(0.f, 1.f, 0.f));
-  transform *= glm::toMat4(orientation);
-  // transform *= glm::toMat4(glm::quat(glm::vec3(0.f, glm::radians(mRotation), 0.f)) * orientation);
-  transform = glm::scale(transform, scale);
-
-
-  setModel(transform);
-
   shader.setVec4fv("u_material.diffuse_color", Color(255.f/255.f, 192.f/255.f, 203.f/255.f, 1.0));
   shader.setVec4fv("u_material.specular_color", Color(0.4f, 0.4f, 0.4f, 1.0));
 
@@ -69,13 +41,6 @@ void Whipper::draw(const Shader &shader)
 
   shader.setVec4fv("u_material.diffuse_color", Color(0.f));
   shader.setVec4fv("u_material.specular_color", Color(0.f));
-
-  #ifdef MERGE
-  mPosition = glm::vec3(0.f);
-  mRotation = 0;
-  #else
-  setModel(model);
-  #endif
 }
 
 void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
@@ -97,33 +62,20 @@ void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
     glm::vec3 front = scene.cameraDir();
     float x = front.x * cos(glm::radians(angle)) - front.z * sin(glm::radians(angle));
     float z = front.x * sin(glm::radians(angle)) + front.z * cos(glm::radians(angle));
-    glm::vec3 direction = glm::vec3(x, front.y, -z);
+    glm::vec3 direction = glm::vec3(x, 0.f, -z);
+    move(direction * (2.5f * deltaTime));
 
-    #ifdef MERGE
-    glm::vec3 scale;
-    glm::quat orientation;
-    glm::vec3 translation;
-    glm::vec3 foo;
-    glm::vec4 bar;
-    glm::decompose(model(), scale, orientation, translation, foo, bar);
-    glm::vec3 euler = glm::eulerAngles(orientation);
-    const float prev = glm::degrees(euler.y);
-    // float prev = std::floor(glm::degrees(asin(orientation.y) * 2));
-    mRotation = angle - prev;
-
-    std::cout << angle << " - " << prev << " = --" << mRotation << "--\n";
-    #else
-    mRotation = angle;
-    #endif
-    mPosition += direction * (2.5f * deltaTime);
+    if(mRotation != angle)
+    {
+      rotate(angle - mRotation);
+      mRotation = angle;
+    }
   }
 
   WHIPPER_STATES newState;
   if(isJumping(mState)) newState = mState;
   else if(SPACE) {
-    #ifdef MERGE
-    jumpStartY = position().y;
-    #endif
+    mJumpStartY = position().y;
     newState = WHIPPER_STATES::JUMP_UP;
   }
   else if (angle >= 0) newState = WHIPPER_STATES::RUNNING;
@@ -153,11 +105,7 @@ void Whipper::updateJumping(float frac)
 {
   if(mState == WHIPPER_STATES::JUMP_UP)
   {
-    #ifdef MERGE
-    mPosition.y += 0.03f;
-    #else
-    mPosition.y = sin(frac * M_PI_2) * 3.0f;
-    #endif
+    move(glm::vec3(0.f, 0.03f, 0.f));
     if(frac >= 0.95f)
     {
       setState(WHIPPER_STATES::JUMP_DOWN);
@@ -165,12 +113,7 @@ void Whipper::updateJumping(float frac)
   }
   else if(mState == WHIPPER_STATES::JUMP_DOWN)
   {
-    #ifdef MERGE
-    mPosition.y -= 0.03f;
-    #else
-    mPosition.y = 0.0f + cos(frac * M_PI_2) * 3.0f;
-    #endif
-
+    move(glm::vec3(0.f, -0.03f, 0.f));
     if(frac >= 0.95f)
     {
       setState(WHIPPER_STATES::LANDING);
@@ -178,12 +121,9 @@ void Whipper::updateJumping(float frac)
   }
   else if(mState == WHIPPER_STATES::LANDING)
   {
-    #ifdef MERGE
     glm::vec3 p = position();
-    mPosition.y = jumpStartY - p.y;
-    #else
-    mPosition.y = 0.f;
-    #endif
+
+    move(glm::vec3(0.f, mJumpStartY - p.y, 0.f));
     if(frac >= 0.99f)
     {
       setState(WHIPPER_STATES::IDLE);
@@ -214,3 +154,44 @@ float Whipper::getAngle(bool W, bool D, bool S, bool A)
   return angle;
 }
 
+void Whipper::move(const glm::vec3& translation)
+{
+  glm::vec3 scale;
+  glm::quat orientation;
+  glm::vec3 trans;
+  glm::vec3 foo;
+  glm::vec4 bar;
+  glm::decompose(model(), scale, orientation, trans, foo, bar);
+
+  glm::mat4 transform = glm::mat4(1.f);
+
+  transform = glm::translate(transform, translation);
+  transform = glm::translate(transform, trans);
+  // transform = glm::translate(transform, translation + trans);
+
+  transform *= glm::toMat4(orientation);
+  transform = glm::scale(transform, scale);
+
+  setModel(transform);
+}
+
+void Whipper::rotate(const float& rotation)
+{
+  glm::vec3 scale;
+  glm::quat orientation;
+  glm::vec3 translation;
+  glm::vec3 foo;
+  glm::vec4 bar;
+  glm::decompose(model(), scale, orientation, translation, foo, bar);
+
+  glm::mat4 transform = glm::mat4(1.f);
+  transform = glm::translate(transform, translation);
+
+  transform = glm::rotate(transform, glm::radians(rotation), glm::vec3(0.f, 1.f, 0.f));
+  transform *= glm::toMat4(orientation);
+  // transform *= glm::toMat4(glm::quat(glm::vec3(0.f, glm::radians(rotation), 0.f)) * orientation);
+
+  transform = glm::scale(transform, scale);
+
+  setModel(transform);
+}

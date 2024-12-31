@@ -25,12 +25,11 @@ public:
 
   const glm::vec3 position() const;
 
-  const float& rotation() const { return mRotation; };
 private:
   WHIPPER_STATES mState;
 
-  glm::vec3 mPosition;
   float mRotation;
+  float mJumpStartY;
 
   bool setState(WHIPPER_STATES state);
   bool isJumping(const WHIPPER_STATES &state);
@@ -38,7 +37,8 @@ private:
 
   float getAngle(bool W, bool D, bool S, bool A);
   float lastFrame = 0.f;
-  float jumpStartY;
+  void move(const glm::vec3& translation);
+  void rotate(const float& rotation);
 };
 
 #endif

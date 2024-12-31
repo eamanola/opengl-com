@@ -1,6 +1,6 @@
 #include "playground.h"
 
-// #define FOLLOW_WHIPPER
+#define FOLLOW_WHIPPER
 
 Playground::Playground()
 :
@@ -75,9 +75,9 @@ void Playground::setup()
   glm::vec3 pointTo = glm::vec3(0.f);
 
 #ifdef FOLLOW_WHIPPER
-  // glm::vec3 whipperPos = glm::vec3(whipper.model()[3]);
-  cameraPos = whipper.position() + cameraPos;
-  pointTo = whipper.position();
+  const glm::vec3& whipperPos = whipper.position();
+  cameraPos = whipperPos + cameraPos + glm::vec3(0.f, 2.f, 0.f);
+  pointTo = whipperPos;
 #endif
 
   const bool animate = false;
@@ -103,9 +103,9 @@ void Playground::update(const float &time)
     return;
   }
 #ifdef FOLLOW_WHIPPER
-  glm::vec3 cameraPos = whipper.position() + glm::vec3(0.f, 0.f, 8.f);
-  camera().setPosition(cameraPos);
-  camera().pointTo(whipper.position());
+  const glm::vec3& whipperPos = whipper.position();
+  camera().setPosition(whipperPos + glm::vec3(0.f, 2.f, 8.f));
+  camera().pointTo(whipperPos);
 #endif
 
   mirror.screenshot(*this);
@@ -116,13 +116,14 @@ void Playground::render()
   const glm::mat4 view = camera().view();
   const glm::mat4 projection = camera().projection();
   const glm::mat4 proj_x_view = projection * view;
-  const glm::vec3 view_pos = camera().position();
+  const glm::vec3& view_pos = camera().position();
+  const glm::vec3& view_dir = camera().front();
 
   mpSkeletal.use();
   mpSkeletal.setMat4fv("u_proj_x_view", proj_x_view);
   lightingSettings.setViewPosition(mpSkeletal, view_pos);
   lightingSettings.updatePointLight0Position(mpSkeletal);
-  lightingSettings.updateSpotLight(mpSkeletal, view_pos, camera().front(), !mSpotlightOn);
+  lightingSettings.updateSpotLight(mpSkeletal, view_pos, view_dir, !mSpotlightOn);
 
   // tifa
   tifa.draw(mpSkeletal);
@@ -137,7 +138,7 @@ void Playground::render()
   mpLighting.setMat4fv("u_proj_x_view", proj_x_view);
   lightingSettings.setViewPosition(mpLighting, view_pos);
   lightingSettings.updatePointLight0Position(mpLighting);
-  lightingSettings.updateSpotLight(mpLighting, view_pos, camera().front(), !mSpotlightOn);
+  lightingSettings.updateSpotLight(mpLighting, view_pos, view_dir, !mSpotlightOn);
 
   glm::mat4 model2b = glm::mat4(1.f);
   model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
