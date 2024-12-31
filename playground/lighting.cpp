@@ -72,20 +72,19 @@ void Lighting::initPointLights(Shader &shader)
   const float aLinear = 0.09f;
   const float aQuadratic = 0.032f;
 
-  for(unsigned int i = 0; i < NR_POINT_LIGHTS; i++)
+  for(unsigned int i = 0; i < mLights.positions.size(); i++)
   {
-    std::stringstream key;
-    key << "u_point_lights[" << i << "]";
-    shader.setVec3fv(key.str() + ".position", mLights.positions[i]);
+    std::string key = "u_point_lights[" + std::to_string(i) + "]";
+    shader.setVec3fv((key + ".position").c_str(), mLights.positions[i]);
 
-    shader.setFloat(key.str() + ".attenuation.contant", aConstant);
-    shader.setFloat(key.str() + ".attenuation.linear", aLinear);
-    shader.setFloat(key.str() + ".attenuation.quadratic", aQuadratic);
+    shader.setFloat((key + ".attenuation.contant").c_str(), aConstant);
+    shader.setFloat((key + ".attenuation.linear").c_str(), aLinear);
+    shader.setFloat((key + ".attenuation.quadratic").c_str(), aQuadratic);
 
-    shader.setBool(key.str() + ".light.off", false);
-    shader.setVec4fv(key.str() + ".light.ambient", mLights.colors[i] * AMBIENT);
-    shader.setVec4fv(key.str() + ".light.diffuse", mLights.colors[i] * DIFFUSE);
-    shader.setVec4fv(key.str() + ".light.specular", mLights.colors[i] * SPECULAR);
+    shader.setBool((key + ".light.off").c_str(), false);
+    shader.setVec4fv((key + ".light.ambient").c_str(), mLights.colors[i] * AMBIENT);
+    shader.setVec4fv((key + ".light.diffuse").c_str(), mLights.colors[i] * DIFFUSE);
+    shader.setVec4fv((key + ".light.specular").c_str(), mLights.colors[i] * SPECULAR);
   }
 }
 

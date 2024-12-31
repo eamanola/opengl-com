@@ -15,13 +15,12 @@ public:
   virtual ~Mesh();
 
   void draw(const Shader &shader, const Texture* textures, const unsigned int texLen) const;
-  void draw(const Shader &shader) const { draw(shader, nullptr, 0); }
   void draw(const Shader &shader, const Texture* texture) const { draw(shader, texture, 1); }
-  void draw(const Shader &shader, const std::vector<Texture> &textures) const { draw(shader, &textures[0], textures.size()); }
+  void draw(const Shader &shader) const { draw(shader, nullptr, 0); }
 
   void free() const;
 
-  const unsigned int vao() const;
+  const unsigned int& vao() const { return VAO; }
 
 private:
   unsigned int VAO, VBO, EBO;

@@ -2,10 +2,6 @@
 #include "assimp-2-glm.h"
 #include <glm/gtx/quaternion.hpp>
 
-SkeletalModel::~SkeletalModel()
-{
-}
-
 void SkeletalModel::processScene(const aiScene* scene)
 {
   Model::processScene(scene);
@@ -26,7 +22,7 @@ void SkeletalModel::processScene(const aiScene* scene)
   }
 
   BoneInfos boneInfos;
-  const std::vector<Mesh>& meshes = this->meshes();
+  const Mesh* meshes = this->meshes();
   for(unsigned int i = 0; i < scene->mNumMeshes; i++)
   {
     aiMesh* aiMesh = scene->mMeshes[i];

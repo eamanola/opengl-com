@@ -3,7 +3,9 @@
 void SkeletalAnimation::updatePose(const float &time)
 {
   glm::mat4 identity = glm::mat4(1.0f);
-  updatePose(animations()[mAnimationIndex], rootBone(), time, identity, mCurrentPose);
+  const Array<Animation> animations = mModel.animations();
+  const Bone& rootBone = mModel.rootBone();
+  updatePose(animations[mAnimationIndex], rootBone, time, identity, mCurrentPose);
 }
 
 void SkeletalAnimation::updatePose(
@@ -113,12 +115,11 @@ glm::mat4 SkeletalAnimation::localTransform(
 
 const Animation* SkeletalAnimation::setAnimation(const unsigned int animationIndex)
 {
-  const std::vector<Animation>& anims = animations();
-
-  if(animationIndex < anims.size())
+  const Array<Animation> animations = mModel.animations();
+  if(animationIndex < animations.size())
   {
     mAnimationIndex = animationIndex;
-    return &anims[animationIndex];
+    return &animations[animationIndex];
   }
 
   return nullptr;

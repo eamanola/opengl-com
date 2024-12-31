@@ -123,11 +123,6 @@ void Mesh::draw(const Shader &shader, const Texture* textures, const unsigned in
   }
 }
 
-const unsigned int Mesh::vao() const
-{
-  return VAO;
-}
-
 void Mesh::free() const
 {
   glDeleteVertexArrays(1, &VAO);

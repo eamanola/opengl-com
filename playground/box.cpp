@@ -41,7 +41,7 @@ void Box::draw(const Shader &shader) const
     glm::mat4 model = glm::translate(Drawable::model(), mPositions[i]);
     model = glm::rotate(model, glm::radians(20.f  * i), glm::vec3(1.0f, 0.3f, 0.5f));
     shader.setMat4fv("u_model", model);
-    mMesh.draw(shader, mTextures);
+    mMesh.draw(shader, &mTextures[0], mTextures.size());
 
     // if(i == boxPositions.size() - 1)
     // {

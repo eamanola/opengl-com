@@ -167,20 +167,20 @@ void Disco::teardown()
 #ifdef DISCO_DEBUG
 void Disco::drawLightDebugs()
 {
-  std::vector<glm::vec3> positions;
-  std::vector<Color> colors;
-
-  positions = floor.positions();
-  colors = floor.colors();
-  for(unsigned int i = 0; i < positions.size(); i++)
+  const Array<glm::vec3> fPositions = floor.positions();
+  const Array<Color> fColors = floor.colors();
+  for(unsigned int i = 0; i < fPositions.size(); i++)
   {
-    mpPlain.setColor(colors[i]);
+    mpPlain.setColor(fColors[i]);
 
-    glm::mat4 model = glm::translate(floor.model(), positions[i] + glm::vec3(0.f, 0.f, -0.2f));
+    glm::mat4 model = glm::translate(floor.model(), fPositions[i] + glm::vec3(0.f, 0.f, -0.2f));
     model = glm::scale(model, glm::vec3(0.2f));
     mpPlain.setModel(model);
     pointLightDebug.draw(mpLighting);
   }
+
+  std::vector<glm::vec3> positions;
+  std::vector<Color> colors;
 
   positions = lightingSettings.mSpotLights.positions;
   colors = lightingSettings.mSpotLights.colors;

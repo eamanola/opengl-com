@@ -9,6 +9,7 @@ class Box : public Drawable
 public:
   Box();
   ~Box() {};
+
   virtual void update(const float& time) override {};
   void draw(const Shader &shader) const override;
   void free() const override;

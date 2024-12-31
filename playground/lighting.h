@@ -11,22 +11,21 @@ public:
   ~Lighting();
 
   struct Lights {
-    glm::vec3 positions[4] = {
+    std::vector<glm::vec3> positions = {
       glm::vec3( 0.7f,  0.2f,  2.0f),
       glm::vec3( 2.3f, -3.3f, -4.0f),
       glm::vec3(-4.0f,  2.0f, -12.0f),
       glm::vec3( 0.0f,  0.0f, -2.0f)
     };
-    glm::vec4 colors[4] = {
+    std::vector<glm::vec4> colors = {
       glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
       glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
       glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
       glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)
     };
-  };
+  } mLights;
 
-  const unsigned int NR_POINT_LIGHTS = 4;
-  Lights mLights;
+  // const unsigned int NR_POINT_LIGHTS = mLights.positions.size();
 
   void setup(Shader &shader);
   void setViewPosition(Shader &shader, const glm::vec3& position);

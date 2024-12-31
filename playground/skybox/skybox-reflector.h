@@ -9,6 +9,7 @@ class SkyboxReflector
 public:
   SkyboxReflector(/* args */);
   ~SkyboxReflector() { };
+
   void draw(Shader &shader);
   void free();
 

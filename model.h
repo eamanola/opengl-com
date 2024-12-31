@@ -20,7 +20,7 @@ public:
 protected:
   void loadModel(const std::string path);
   virtual void processScene(const aiScene* scene);
-  const std::vector<Mesh>& meshes() { return mMeshes; };
+  const Mesh* meshes() { return &mMeshes[0]; };
 
 private:
   std::vector<Mesh> mMeshes;

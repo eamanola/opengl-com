@@ -77,7 +77,7 @@ void LightingSettings::initFloorLights(const LightedShader& shader, const Floor&
   // const Attenuation attenuation = { 1.0, 0.22,   0.20     }; // 20
   // const Attenuation attenuation = { 1.0, 0.35,   0.44     }; // 13
   const Attenuation attenuation = { 1.0, 0.7,    1.8      }; // 7
-  const std::vector<glm::vec3> positions = floor.positions();
+  const Array<glm::vec3> positions = floor.positions();
 
   const glm::mat4 model = floor.model();
 
@@ -103,18 +103,17 @@ void LightingSettings::updateFloorLights(const Shader& shader, const Floor& floo
   const Color DIFFUSE (0.5f, 0.5f, 0.5f, 0.5f);
   const Color SPECULAR(1.0f, 1.0f, 1.0f, 1.f);
 
-  const std::vector<Color> colors = floor.colors();
+  const Array<Color> colors = floor.colors();
 
   for(unsigned int i = 0; i < colors.size(); i++)
   {
     Color color(colors[i]);
     color.a = 1.f;
 
-    std::stringstream key;
-    key << "u_point_lights[" << i << "]";
-    shader.setVec4fv(key.str() + ".light.ambient", color * AMBIENT);
-    shader.setVec4fv(key.str() + ".light.diffuse", color * DIFFUSE); // glm::vec4(0.1));
-    shader.setVec4fv(key.str() + ".light.specular", color * SPECULAR); //  glm::vec4(0.1));
+    std::string key = "u_point_lights[" + std::to_string(i) + "]";
+    shader.setVec4fv((key + ".light.ambient").c_str(), color * AMBIENT);
+    shader.setVec4fv((key + ".light.diffuse").c_str(), color * DIFFUSE); // glm::vec4(0.1));
+    shader.setVec4fv((key + ".light.specular").c_str(), color * SPECULAR); //  glm::vec4(0.1));
   }
 }
 
@@ -170,9 +169,9 @@ void LightingSettings::updateSpotLights(Shader &shader)
 {
   for(unsigned int i = 0; i < NR_SPOT_LIGHTS; i++)
   {
-    std::stringstream key;
-    key << "u_spot_lights[" << i << "]";
+    std::string key;
+    key = "u_spot_lights[" + std::to_string(i) + "]";
 
-    shader.setVec3fv(key.str() + ".direction", mSpotLights.directions[i]);
+    shader.setVec3fv((key + ".direction").c_str(), mSpotLights.directions[i]);
   }
 }

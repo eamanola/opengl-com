@@ -9,8 +9,6 @@ struct BoneInfo
   glm::mat4 offset;
 };
 
-struct BoneInfos : public std::unordered_map<std::string, BoneInfo>
-{
-};
+typedef std::unordered_map<std::string, BoneInfo> BoneInfos;
 
 #endif

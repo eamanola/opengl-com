@@ -145,15 +145,14 @@ void Model::draw(const Shader &shader) const
   for(unsigned int i = 0; i < mMeshes.size(); i++)
   {
     const std::vector<unsigned int>& texIndices = mMeshTextureMap[i];
-    const unsigned int texLen = texIndices.size();
-    const Texture* textures[texLen];
+    std::vector<Texture> textures;
 
-    for(unsigned int j = 0; j < texLen; j++)
+    for(unsigned int j : texIndices)
     {
-      textures[j] = &mTextures[texIndices[j]];
+      textures.push_back(mTextures[j]);
     }
 
-    mMeshes[i].draw(shader, textures[0], texLen);
+    mMeshes[i].draw(shader, &textures[0], textures.size());
   }
 }
 

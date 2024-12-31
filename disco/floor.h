@@ -5,6 +5,7 @@
 #include "../mesh.h"
 #include "../texture.h"
 #include "../color.h"
+#include "../array.h"
 
 class Floor : public Drawable
 {
@@ -16,16 +17,16 @@ public:
   void draw(const Shader& shader) const override;
   void free() const override;
 
-  const std::vector<glm::vec3>& positions() const { return mPositions; };
-  const std::vector<Color>& colors() const { return mColors; };
+  const Array<glm::vec3> positions() const { return Array(mPositions); };
+  const Array<Color> colors() const { return Array(mColors); };
 
 private:
   void updateColors();
   void setPositions();
   Mesh mTileMesh;
   std::vector<Texture> mTileTextures;
-  unsigned int mRows;
-  unsigned int mColumns;
+  const unsigned int mRows;
+  const unsigned int mColumns;
   std::vector<Color> mColors;
   std::vector<glm::vec3> mPositions;
   float mPreviousUpdate;

@@ -58,32 +58,32 @@ void Shader::free() const
   glDeleteProgram(ID);
 }
 
-void Shader::setBool(const std::string &name, const bool &value) const
+void Shader::setBool(const char* name, const bool &value) const
 {
-  glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+  glUniform1i(glGetUniformLocation(ID, name), (int)value);
 }
 
-void Shader::setInt(const std::string &name, const int &value) const
+void Shader::setInt(const char* name, const int &value) const
 {
-  glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+  glUniform1i(glGetUniformLocation(ID, name), value);
 }
 
-void Shader::setFloat(const std::string &name, const float &value) const
+void Shader::setFloat(const char* name, const float &value) const
 {
-  glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+  glUniform1f(glGetUniformLocation(ID, name), value);
 }
 
-void Shader::setMat4fv(const std::string &name, const glm::mat4 &value) const
+void Shader::setMat4fv(const char* name, const glm::mat4 &value) const
 {
-  glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+  glUniformMatrix4fv(glGetUniformLocation(ID, name), 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void Shader::setVec3fv(const std::string &name, const glm::vec3 &value) const
+void Shader::setVec3fv(const char* name, const glm::vec3 &value) const
 {
-  glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, (float*)glm::value_ptr(value));
+  glUniform3fv(glGetUniformLocation(ID, name), 1, (float*)glm::value_ptr(value));
 }
 
-void Shader::setVec4fv(const std::string &name, const glm::vec4 &value) const
+void Shader::setVec4fv(const char* name, const glm::vec4 &value) const
 {
-  glUniform4fv(glGetUniformLocation(ID, name.c_str()), 1, (float*)glm::value_ptr(value));
+  glUniform4fv(glGetUniformLocation(ID, name), 1, (float*)glm::value_ptr(value));
 }

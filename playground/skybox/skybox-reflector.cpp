@@ -48,21 +48,15 @@ mMesh(
 mTexture(
   Texture {
     .id = ShaderUtils::loadCubemap({
-      "assets/citadella/negx.jpg",
-      "assets/citadella/posx.jpg",
-      "assets/citadella/posy.jpg",
-      "assets/citadella/negy.jpg",
-      "assets/citadella/posz.jpg",
-      "assets/citadella/negz.jpg"
-      // "assets/skybox/right.jpg",
-      // "assets/skybox/left.jpg",
-      // "assets/skybox/top.jpg",
-      // "assets/skybox/bottom.jpg",
-      // "assets/skybox/back.jpg",
-      // "assets/skybox/front.jpg"
+      "assets/skybox/right.jpg",
+      "assets/skybox/left.jpg",
+      "assets/skybox/bottom.jpg",
+      "assets/skybox/top.jpg",
+      "assets/skybox/front.jpg",
+      "assets/skybox/back.jpg"
     }),
     .type = TEXTURE_TYPE_DIFFUSE,
-    .path = "assets/citadella/*.jpg"
+    .path = "assets/skybox/*.jpg"
   }
 )
 {

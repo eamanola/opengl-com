@@ -83,7 +83,7 @@ void Floor::draw(const Shader& shader) const
     shader.setMat4fv("u_model", glm::translate(model, mPositions[i]));
     shader.setVec4fv("u_material.diffuse_color", mColors[i]);
     shader.setVec4fv("u_material.specular_color", mColors[i]);
-    mTileMesh.draw(shader, mTileTextures);
+    mTileMesh.draw(shader, &mTileTextures[0], mTileTextures.size());
     shader.setVec4fv("u_material.diffuse_color", Color(0.f));
     shader.setVec4fv("u_material.specular_color", Color(0.f));
   }

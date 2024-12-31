@@ -10,6 +10,7 @@
 #include "bone.h"
 #include "animation.h"
 #include "bone-info.h"
+#include "../array.h"
 
 class SkeletalModel : public Model
 {
@@ -19,15 +20,15 @@ public:
     // call from this to get processScene
     loadModel(path);
   };
-  ~SkeletalModel();
+  ~SkeletalModel() { }
 
   void free() const override;
 
   unsigned int addAnimation(Animation animation);
 
-  const std::vector<Animation>& animations() { return mAnimations; }
-  const Bone& rootBone() { return mRootBone; }
-  const unsigned int& boneCount() { return mBoneCount; }
+  const Array<Animation> animations() const { return Array(mAnimations); }
+  const Bone& rootBone() const { return mRootBone; }
+  const unsigned int& boneCount() const { return mBoneCount; }
 
 private:
   unsigned int mBoneCount;

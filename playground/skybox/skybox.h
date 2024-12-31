@@ -12,6 +12,7 @@ public:
 
   void draw(Shader &shader);
   void free();
+
 private:
   Mesh mMesh;
   Texture mTexture;

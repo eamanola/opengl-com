@@ -155,7 +155,7 @@ void Playground::render()
   #ifdef POINTLIGHT_DEBUG
   // mpPlain.use();
   // mpPlain.setMat4fv("u_proj_x_view", proj_x_view);
-  for(unsigned int i = 0; i < lightingSettings.NR_POINT_LIGHTS; i++)
+  for(unsigned int i = 0; i < lightingSettings.mLights.positions.size(); i++)
   {
     glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightingSettings.mLights.positions[i]);
     lightModel = glm::scale(lightModel, glm::vec3(0.2f));
