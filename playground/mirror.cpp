@@ -57,6 +57,6 @@ void Mirror::draw(const Shader& shader) const
 void Mirror::free() const
 {
   glDeleteFramebuffers(1, &mFBO);
-  glDeleteTextures(1, &mTexture.id);
+  ShaderUtils::deleteTextures({ mTexture });
   glDeleteRenderbuffers(1, &mRBO);
 }

@@ -195,3 +195,16 @@ const unsigned int ShaderUtils::compile(GLenum type, const char* source)
   return shaderId;
 }
 
+void ShaderUtils::deleteTextures(const std::vector<Texture>& textures)
+{
+  std::vector<unsigned int> textureIds;
+  for(const Texture& t: textures)
+  {
+    textureIds.push_back(t.id);
+  }
+
+  if(textureIds.size())
+  {
+    glDeleteTextures(textureIds.size(), &textureIds[0]);
+  }
+}

@@ -2,14 +2,6 @@
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
 
-LightingSettings::LightingSettings()
-{
-}
-
-LightingSettings::~LightingSettings()
-{
-}
-
 void LightingSettings::setup(const LightedShader& shader)
 {
   shader.setShininess(32.f);

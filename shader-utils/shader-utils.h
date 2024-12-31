@@ -6,6 +6,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "../scene.h"
+#include "../texture.h"
 
 class ShaderUtils
 {
@@ -24,6 +25,7 @@ class ShaderUtils
     void static screenshot(
       Scene &scene, const unsigned int& FBO, const glm::vec3& position, const glm::vec3& normal
     );
+    void static deleteTextures(const std::vector<Texture>& textures);
     // paths order:
     // GL_TEXTURE_CUBE_MAP_POSITIVE_X 	Right
     // GL_TEXTURE_CUBE_MAP_NEGATIVE_X 	Left

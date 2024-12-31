@@ -60,8 +60,5 @@ void Box::free() const
 {
   mMesh.free();
 
-  for(unsigned int i = 0; i < mTextures.size(); i ++)
-  {
-    glDeleteTextures(1, &i);
-  }
+  ShaderUtils::deleteTextures(mTextures);
 }

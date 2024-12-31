@@ -49,5 +49,5 @@ void Window::draw(const Shader& shader) const
 void Window::free() const
 {
   mMesh.free();
-  glDeleteTextures(1, &mTexture.id);
+  ShaderUtils::deleteTextures({ mTexture });
 }

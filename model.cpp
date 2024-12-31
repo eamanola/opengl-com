@@ -164,14 +164,5 @@ void Model::free() const
     mMeshes[i].free();
   }
 
-  const unsigned int texLen = mTextures.size();
-  if(texLen)
-  {
-    unsigned int textureIds[texLen];
-    for(unsigned int i = 0; i < mTextures.size(); i ++)
-    {
-      textureIds[i] = mTextures[i].id;
-    }
-    glDeleteTextures(texLen, &textureIds[0]);
-  }
+  ShaderUtils::deleteTextures(mTextures);
 }

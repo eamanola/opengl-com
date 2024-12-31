@@ -82,3 +82,9 @@ void SkyboxReflector::draw(Shader& shader)
   mMesh.draw(shader);
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
+
+void SkyboxReflector::free()
+{
+  mMesh.free();
+  ShaderUtils::deleteTextures({ mTexture });
+};

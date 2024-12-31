@@ -95,5 +95,5 @@ void Floor::draw(const Shader& shader) const
 void Floor::free() const
 {
   mTileMesh.free();
-  for(Texture t : mTileTextures) glDeleteTextures(1, &t.id);
+  ShaderUtils::deleteTextures(mTileTextures);
 }

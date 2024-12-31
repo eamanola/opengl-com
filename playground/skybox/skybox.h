@@ -11,10 +11,7 @@ public:
   ~Skybox() { };
 
   void draw(Shader &shader);
-  void free() {
-    mMesh.free();
-    glDeleteTextures(1, &mTexture.id);
-  }
+  void free();
 private:
   Mesh mMesh;
   Texture mTexture;

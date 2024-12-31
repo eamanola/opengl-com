@@ -31,3 +31,9 @@ void Skybox::draw(Shader &shader)
 
   glDepthFunc(GL_LESS);
 }
+
+void Skybox::free()
+{
+  mMesh.free();
+  ShaderUtils::deleteTextures({ mTexture });
+}

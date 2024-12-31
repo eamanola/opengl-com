@@ -38,5 +38,5 @@ void Grass::draw(const Shader& shader) const
 void Grass::free() const
 {
   mMesh.free();
-  glDeleteTextures(1, &mTexture.id);
+  ShaderUtils::deleteTextures({ mTexture });
 }

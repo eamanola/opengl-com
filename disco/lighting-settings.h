@@ -10,8 +10,8 @@
 class LightingSettings
 {
 public:
-  LightingSettings();
-  ~LightingSettings();
+  LightingSettings() { };
+  ~LightingSettings() { };
 
   struct SpotLights {
     std::vector<glm::vec3> positions = {
