@@ -13,8 +13,8 @@ public:
   ~Grass() {};
 
   void update(const float& time) override {};
-  void draw(const Shader& shader) override;
-  void free() override;
+  void draw(const Shader& shader) const override;
+  void free() const override;
 
 private:
   std::vector<glm::vec3> mPositions;

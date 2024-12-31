@@ -23,7 +23,7 @@ mTexture(
   setModel(glm::mat4(1.f));
 }
 
-void Grass::draw(const Shader& shader)
+void Grass::draw(const Shader& shader) const
 {
   glDisable(GL_CULL_FACE);
   for(unsigned int i = 0; i < mPositions.size(); i++)
@@ -35,7 +35,7 @@ void Grass::draw(const Shader& shader)
   glEnable(GL_CULL_FACE);
 }
 
-void Grass::free()
+void Grass::free() const
 {
   mMesh.free();
   glDeleteTextures(1, &mTexture.id);

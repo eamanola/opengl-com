@@ -77,7 +77,7 @@ void Mesh::setupMesh(const std::vector<Vertex> &vertices, const std::vector<unsi
   glBindVertexArray(0);
 }
 
-void Mesh::draw(const Shader &shader, const Texture* textures, const unsigned int texLen)
+void Mesh::draw(const Shader &shader, const Texture* textures, const unsigned int texLen) const
 {
   assert(texLen <= 2);
   unsigned int diffuseNr = 1;
@@ -128,7 +128,7 @@ const unsigned int Mesh::vao() const
   return VAO;
 }
 
-void Mesh::free()
+void Mesh::free() const
 {
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);

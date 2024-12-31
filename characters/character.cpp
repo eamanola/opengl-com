@@ -19,7 +19,7 @@ void Character::update(const float& time)
   mAnimation.updatePose(time);
 }
 
-void Character::draw(const Shader& shader)
+void Character::draw(const Shader& shader) const
 {
   shader.setMat4fv("u_model", model());
 
@@ -33,5 +33,5 @@ void Character::draw(const Shader& shader)
   mAnimation.draw(shader);
 };
 
-void Character::free() { mAnimation.free(); };
+void Character::free() const { mAnimation.free(); };
 

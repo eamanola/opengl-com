@@ -14,8 +14,8 @@ public:
   Model(const char* path) : Model() { loadModel(path); }
   virtual ~Model() {};
 
-  void draw(const Shader &shader);
-  virtual void free();
+  void draw(const Shader &shader) const;
+  virtual void free() const;
 
 protected:
   void loadModel(const std::string path);

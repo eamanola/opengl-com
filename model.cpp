@@ -140,7 +140,7 @@ std::vector<unsigned int> Model::loadMaterialTextures(
   return textureMapping;
 }
 
-void Model::draw(const Shader &shader)
+void Model::draw(const Shader &shader) const
 {
   for(unsigned int i = 0; i < mMeshes.size(); i++)
   {
@@ -157,7 +157,7 @@ void Model::draw(const Shader &shader)
   }
 }
 
-void Model::free()
+void Model::free() const
 {
   for(unsigned int i = 0; i < mMeshes.size(); i++)
   {

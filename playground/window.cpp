@@ -18,7 +18,7 @@ mTexture(
 {
 }
 
-void Window::draw(const Shader& shader)
+void Window::draw(const Shader& shader) const
 {
   glDisable(GL_CULL_FACE);
 
@@ -46,7 +46,7 @@ void Window::draw(const Shader& shader)
   glEnable(GL_CULL_FACE);
 }
 
-void Window::free()
+void Window::free() const
 {
   mMesh.free();
   glDeleteTextures(1, &mTexture.id);

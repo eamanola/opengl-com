@@ -34,7 +34,7 @@ mPositions({
   setModel(glm::mat4(1.f));
 }
 
-void Box::draw(const Shader &shader)
+void Box::draw(const Shader &shader) const
 {
   for(unsigned int i = 0; i < mPositions.size(); i++)
   {
@@ -56,7 +56,7 @@ void Box::draw(const Shader &shader)
 
 }
 
-void Box::free()
+void Box::free() const
 {
   mMesh.free();
 

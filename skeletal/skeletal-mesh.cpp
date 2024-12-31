@@ -46,7 +46,7 @@ void SkeletalMesh::setupBones(unsigned int VAO, const std::vector<SkeletalVertex
   glBindVertexArray(0);
 }
 
-void SkeletalMesh::free()
+void SkeletalMesh::free() const
 {
   glDeleteBuffers(1, &VBO);
 }

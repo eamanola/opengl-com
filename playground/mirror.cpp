@@ -47,14 +47,14 @@ void Mirror::screenshot(Scene &scene)
   screenshot(scene, glm::vec3(0.f));
 }
 
-void Mirror::draw(const Shader& shader)
+void Mirror::draw(const Shader& shader) const
 {
   shader.setMat4fv("u_model", model());
 
   mMesh.draw(shader, &mTexture);
 }
 
-void Mirror::free()
+void Mirror::free() const
 {
   glDeleteFramebuffers(1, &mFBO);
   glDeleteTextures(1, &mTexture.id);

@@ -19,8 +19,8 @@ public:
 
   virtual void handleInput(const GLFWwindow* window, const Scene& scene) { };
   virtual void update(const float& time) override;
-  virtual void draw(const Shader& shader) override;
-  virtual void free() override;
+  virtual void draw(const Shader& shader) const override;
+  virtual void free() const override;
 
 protected:
   SkeletalAnimation mAnimation;

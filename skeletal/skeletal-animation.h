@@ -16,7 +16,7 @@ public:
 
   const Animation* setAnimation(unsigned int animationIndex);
   void updatePose(const float& time);
-  const std::vector<glm::mat4>& pose() { return mCurrentPose; }
+  const std::vector<glm::mat4>& pose() const { return mCurrentPose; }
 
 private:
   void updatePose(

@@ -21,7 +21,7 @@ public:
   };
   ~SkeletalModel();
 
-  void free() override;
+  void free() const override;
 
   unsigned int addAnimation(Animation animation);
 

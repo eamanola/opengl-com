@@ -11,7 +11,7 @@ public:
   SkeletalMesh(unsigned int VAO, const std::vector<SkeletalVertex> &vertices);
   ~SkeletalMesh();
 
-  void free();
+  void free() const;
 
 private:
   void setupBones(unsigned int VAO, const std::vector<SkeletalVertex> &vertices);

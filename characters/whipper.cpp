@@ -32,7 +32,7 @@ void Whipper::update(const float& time)
   }
 }
 
-void Whipper::draw(const Shader &shader)
+void Whipper::draw(const Shader &shader) const
 {
   shader.setVec4fv("u_material.diffuse_color", Color(255.f/255.f, 192.f/255.f, 203.f/255.f, 1.0));
   shader.setVec4fv("u_material.specular_color", Color(0.4f, 0.4f, 0.4f, 1.0));

@@ -223,7 +223,7 @@ bool SkeletalModel::readSkeleton(const aiNode* node, const BoneInfos& boneInfos,
   return false;
 }
 
-void SkeletalModel::free()
+void SkeletalModel::free() const
 {
   for(unsigned int i = 0; i < mMeshes.size(); i ++)
   {

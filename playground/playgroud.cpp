@@ -1,6 +1,6 @@
 #include "playground.h"
 
-#define FOLLOW_WHIPPER
+// #define FOLLOW_WHIPPER
 
 Playground::Playground()
 :

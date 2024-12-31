@@ -71,7 +71,7 @@ void Floor::update(const float& time)
   }
 }
 
-void Floor::draw(const Shader& shader)
+void Floor::draw(const Shader& shader) const
 {
   glDisable(GL_CULL_FACE);
   glEnable(GL_BLEND);
@@ -90,4 +90,10 @@ void Floor::draw(const Shader& shader)
 
   glDisable(GL_BLEND);
   glEnable(GL_CULL_FACE);
+}
+
+void Floor::free() const
+{
+  mTileMesh.free();
+  for(Texture t : mTileTextures) glDeleteTextures(1, &t.id);
 }

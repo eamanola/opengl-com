@@ -13,11 +13,9 @@ public:
   ~Floor() {};
 
   void update(const float& time) override;
-  void draw(const Shader& shader) override;
-  void free() override {
-    mTileMesh.free();
-    for(Texture t : mTileTextures) glDeleteTextures(1, &t.id);
-  }
+  void draw(const Shader& shader) const override;
+  void free() const override;
+
   const std::vector<glm::vec3>& positions() const { return mPositions; };
   const std::vector<Color>& colors() const { return mColors; };
 

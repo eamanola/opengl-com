@@ -14,12 +14,12 @@ public:
   Mesh(const Shapes::Shape &shape) : Mesh(shape.vertices, shape.indices) {}
   virtual ~Mesh();
 
-  void draw(const Shader &shader, const Texture* textures, const unsigned int texLen);
-  void draw(const Shader &shader) { draw(shader, nullptr, 0); }
-  void draw(const Shader &shader, const Texture* texture) { draw(shader, texture, 1); }
-  void draw(const Shader &shader, const std::vector<Texture> &textures) { draw(shader, &textures[0], textures.size()); }
+  void draw(const Shader &shader, const Texture* textures, const unsigned int texLen) const;
+  void draw(const Shader &shader) const { draw(shader, nullptr, 0); }
+  void draw(const Shader &shader, const Texture* texture) const { draw(shader, texture, 1); }
+  void draw(const Shader &shader, const std::vector<Texture> &textures) const { draw(shader, &textures[0], textures.size()); }
 
-  void free();
+  void free() const;
 
   const unsigned int vao() const;
 

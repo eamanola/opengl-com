@@ -21,7 +21,7 @@ public:
 
   void handleInput(const GLFWwindow* window, const Scene& scene) override;
   void update(const float& time) override;
-  void draw(const Shader& shader) override;
+  void draw(const Shader& shader) const override;
 
   const glm::vec3 position() const;
 
