@@ -3,7 +3,8 @@ OBJS = glad/src/gl.c stb_image/src/stb_image.c \
 	characters/*.cpp \
 	playground/*.cpp playground/skybox/*.cpp \
 	disco/*.cpp \
-	shader-utils/*.cpp
+	shader-utils/*.cpp \
+	shaders/*.cpp
 
 CC = g++
 

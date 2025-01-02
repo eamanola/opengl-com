@@ -20,6 +20,7 @@
 #include "skybox/skybox.h"
 #include "skybox/skybox-reflector.h"
 #include "../disco/floor.h"
+#include "../shaders/u-proj-x-view.h"
 
 class Playground : public Scene
 {
@@ -72,6 +73,8 @@ private:
   float mLastX;
   float mLastY;
   bool mFirstMouse;
+
+  UProjXViewBuffer u_proj_x_view;
 };
 
 #endif

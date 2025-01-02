@@ -2,13 +2,21 @@
 #define LIGHTING_SHADER_H
 
 #include <glm/glm.hpp>
+#include <vector>
 #include "../shader.h"
+#include "../shaders/ub-lights-buffer.h"
 
 class Lighting
 {
 public:
-  Lighting();
-  ~Lighting();
+  Lighting(
+    const std::vector<Shader>& shaders,
+    unsigned int bindingId,
+    unsigned int numDirLights,
+    unsigned numPointLights,
+    unsigned numSpotLights
+  );
+  ~Lighting() {}
 
   struct Lights {
     std::vector<glm::vec3> positions = {
@@ -29,13 +37,15 @@ public:
 
   void setup(Shader &shader);
   void setViewPosition(Shader &shader, const glm::vec3& position);
-  void updatePointLight0Position(Shader &shader);
-  void updateSpotLight(Shader &shader, const glm::vec3& position, const glm::vec3& direction, bool off);
+  void updatePointLight0Position();
+  void updateSpotLight(const glm::vec3& position, const glm::vec3& direction, bool off);
+  void free() { ubLightsBuffer.free(); }
 
 private:
-  void initDirLight(Shader &shader);
-  void initSpotLight(Shader &shader);
-  void initPointLights(Shader &shader);
+  std::vector<DirLight> getDirLights();
+  std::vector<PointLight> getPointLights();
+  std::vector<SpotLight> getSpotLights();
+  UBLightsBuffer ubLightsBuffer;
 };
 
 #endif

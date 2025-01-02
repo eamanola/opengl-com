@@ -1,39 +1,33 @@
 #include "lighting.h"
-#include <iostream>
+#include <glm/gtc/type_ptr.hpp>
 
 #define DIRECTIONAL_LIGHT
 #define SPOT_LIGHT
 #define POINT_LIGHT
 
-Lighting::Lighting()
+Lighting::Lighting(
+  const std::vector<Shader>& shaders,
+  unsigned int bindingId,
+  unsigned int numDirLights,
+  unsigned numPointLights,
+  unsigned numSpotLights
+)
+:
+ubLightsBuffer(
+  shaders, bindingId, numDirLights, numPointLights, numSpotLights
+)
 {
-}
-
-Lighting::~Lighting()
-{
+  UBLights initValue {
+    .dirLights = getDirLights(),
+    .pointLights = getPointLights(),
+    .spotLights = getSpotLights()
+  };
+  ubLightsBuffer.set(initValue);
 }
 
 void Lighting::setup(Shader &shader)
 {
   shader.setFloat("u_material.shininess", 32.f);
-  #ifdef DIRECTIONAL_LIGHT
-  initDirLight(shader);
-  #else
-  shader.setBool("u_dir_lights[0].light.off", true);
-  #endif
-  #ifdef SPOT_LIGHT
-  initSpotLight(shader);
-  #else
-  shader.setBool("u_spot_lights[0].light.off", true);
-  #endif
-  #ifdef POINT_LIGHT
-  initPointLights(shader);
-  #else
-  shader.setBool("u_point_lights[0].light.off", true);
-  shader.setBool("u_point_lights[1].light.off", true);
-  shader.setBool("u_point_lights[2].light.off", true);
-  shader.setBool("u_point_lights[3].light.off", true);
-  #endif
 }
 
 void Lighting::setViewPosition(Shader &shader, const glm::vec3& position)
@@ -41,7 +35,7 @@ void Lighting::setViewPosition(Shader &shader, const glm::vec3& position)
   shader.setVec3fv("u_view_pos", position);
 }
 
-void Lighting::initDirLight(Shader &shader)
+std::vector<DirLight> Lighting::getDirLights()
 {
   const glm::vec4 AMBIENT (0.2f);
   const glm::vec4 DIFFUSE (0.5f);
@@ -49,51 +43,70 @@ void Lighting::initDirLight(Shader &shader)
   const glm::vec4 color   (1.0f);
 
   const glm::vec3 direction(-0.2f, -1.0f, -0.3f);
-  const bool off = false;
   const glm::vec4 ambient = color * AMBIENT;
   const glm::vec4 diffuse = color * DIFFUSE;
   const glm::vec4 specular = color * SPECULAR;
+  const bool off = false;
 
-  shader.setVec3fv("u_dir_lights[0].direction", direction);
-  shader.setBool("u_dir_lights[0].off", off);
-  shader.setVec4fv("u_dir_lights[0].light.ambient", ambient);
-  shader.setVec4fv("u_dir_lights[0].light.diffuse", diffuse);
-  shader.setVec4fv("u_dir_lights[0].light.specular", specular);
+  DirLight light {
+    .direction = direction,
+    .light = {
+      .color = {
+        .ambient = ambient,
+        .diffuse = diffuse,
+        .specular = specular
+      },
+      .off = off,
+    }
+  };
+
+  return { light };
 }
 
-void Lighting::initPointLights(Shader &shader)
+std::vector<PointLight> Lighting::getPointLights()
 {
   const glm::vec4 AMBIENT (0.2f);
   const glm::vec4 DIFFUSE (0.5f);
   const glm::vec4 SPECULAR(1.0f);
-  const glm::vec4 color   (1.0f);
 
   const float aConstant = 1.f;
   const float aLinear = 0.09f;
   const float aQuadratic = 0.032f;
 
+  const bool off = false;
+
+  std::vector<PointLight> pointLights;
+  pointLights.reserve(mLights.positions.size());
   for(unsigned int i = 0; i < mLights.positions.size(); i++)
   {
-    std::string key = "u_point_lights[" + std::to_string(i) + "]";
-    shader.setVec3fv((key + ".position").c_str(), mLights.positions[i]);
-
-    shader.setFloat((key + ".attenuation.contant").c_str(), aConstant);
-    shader.setFloat((key + ".attenuation.linear").c_str(), aLinear);
-    shader.setFloat((key + ".attenuation.quadratic").c_str(), aQuadratic);
-
-    shader.setBool((key + ".light.off").c_str(), false);
-    shader.setVec4fv((key + ".light.ambient").c_str(), mLights.colors[i] * AMBIENT);
-    shader.setVec4fv((key + ".light.diffuse").c_str(), mLights.colors[i] * DIFFUSE);
-    shader.setVec4fv((key + ".light.specular").c_str(), mLights.colors[i] * SPECULAR);
+    PointLight light = {
+      .position = mLights.positions[i],
+      .attenuation = {
+        .constant = aConstant,
+        .linear = aLinear,
+        .quadratic = aQuadratic
+      },
+      .light = {
+        .color = {
+          .ambient = mLights.colors[i] * AMBIENT,
+          .diffuse = mLights.colors[i] * DIFFUSE,
+          .specular = mLights.colors[i] * SPECULAR,
+        },
+        .off = off
+      }
+    };
+    pointLights.push_back(light);
   }
+
+  return pointLights;
 }
 
-void Lighting::updatePointLight0Position(Shader &shader)
+void Lighting::updatePointLight0Position()
 {
-  shader.setVec3fv("u_point_lights[0].position", mLights.positions[0]);
+  ubLightsBuffer.setVec3("u_point_lights[0].position", mLights.positions[0]);
 }
 
-void Lighting::initSpotLight(Shader &shader)
+std::vector<SpotLight> Lighting::getSpotLights()
 {
   const glm::vec4 AMBIENT (0.2f);
   const glm::vec4 DIFFUSE (0.5f);
@@ -113,24 +126,32 @@ void Lighting::initSpotLight(Shader &shader)
   const glm::vec4 diffuse = color * DIFFUSE;
   const glm::vec4 specular = color * SPECULAR;
 
-  shader.setVec3fv("u_spot_lights[0].direction", direction);
-  shader.setFloat("u_spot_lights[0].cutOff", cutOff);
-  shader.setFloat("u_spot_lights[0].outerCutOff", outerCutOff);
-  shader.setVec3fv("u_spot_lights[0].position", position);
+  SpotLight spotLight = {
+    .direction = direction,
+    .cutOff = cutOff,
+    .outerCutOff = outerCutOff,
+    .position = position,
+    .attenuation = {
+      .constant = aConstant,
+      .linear = aLinear,
+      .quadratic = aQuadratic
+    },
+    .light = {
+      .color = {
+        .ambient = ambient,
+        .diffuse = diffuse,
+        .specular = specular
+      },
+      .off = off
+    }
+  };
 
-  shader.setFloat("u_spot_lights[0].attenuation.contant", aConstant);
-  shader.setFloat("u_spot_lights[0].attenuation.linear", aLinear);
-  shader.setFloat("u_spot_lights[0].attenuation.quadratic", aQuadratic);
-
-  shader.setBool("u_spot_lights[0].light.off", off);
-  shader.setVec4fv("u_spot_lights[0].light.ambient", ambient);
-  shader.setVec4fv("u_spot_lights[0].light.diffuse", diffuse);
-  shader.setVec4fv("u_spot_lights[0].light.specular", specular);
+  return { spotLight };
 }
 
-void Lighting::updateSpotLight(Shader &shader, const glm::vec3& position, const glm::vec3& direction, bool off)
+void Lighting::updateSpotLight(const glm::vec3& position, const glm::vec3& direction, bool off)
 {
-  shader.setVec3fv("u_spot_lights[0].position", position);
-  shader.setVec3fv("u_spot_lights[0].direction", direction);
-  shader.setBool("u_spot_lights[0].light.off", off);
+  ubLightsBuffer.setVec3("u_spot_lights[0].position", position);
+  ubLightsBuffer.setVec3("u_spot_lights[0].direction", direction);
+  ubLightsBuffer.setBool("u_spot_lights[0].light.off", off);
 }

@@ -10,6 +10,11 @@ layout (location = 1) in vec3 in_normal;
 layout (location = 2) in vec2 in_tex_coords;
 #endif
 
+layout(packed) uniform u_proj_x_view
+{
+  mat4 proj_x_view;
+};
+
 out vsout
 {
 #ifdef NORMAL
@@ -25,7 +30,7 @@ out vsout
 #endif
 } vs_out;
 
-uniform mat4 u_proj_x_view;
+// uniform mat4 u_proj_x_view;
 uniform mat4 u_model;
 
 void main()
@@ -42,5 +47,5 @@ void main()
   vs_out.tex_coords = in_tex_coords;
   #endif
 
-  gl_Position = u_proj_x_view * u_model * vec4(in_position, 1.0f);
+  gl_Position = proj_x_view * u_model * vec4(in_position, 1.0f);
 }

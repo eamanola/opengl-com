@@ -19,11 +19,15 @@ struct Attenuation {
 #endif
 
 #ifdef CALC_DIR_LIGHT // or CALC_POINT_LIGHT or CALC_SPOT_LIGHT
-struct Light {
-  bool off;
+struct PhongColor {
   vec4 ambient;
   vec4 diffuse;
   vec4 specular;
+};
+struct Light {
+  PhongColor color;
+
+  bool off;
 };
 #endif
 
@@ -98,17 +102,21 @@ uniform vec3 u_view_pos;
 uniform Material u_material;
 #endif
 
+layout(packed) uniform ub_lights
+{
 #ifdef HAS_DIR_LIGHTS
-uniform DirLight u_dir_lights[IN_NR_DIR_LIGHTS];
+  DirLight u_dir_lights[IN_NR_DIR_LIGHTS];
 #endif
 
 #ifdef HAS_POINT_LIGHTS
-uniform PointLight u_point_lights[IN_NR_POINT_LIGHTS];
+  PointLight u_point_lights[IN_NR_POINT_LIGHTS];
 #endif
 
 #ifdef HAS_SPOT_LIGHTS
-uniform SpotLight u_spot_lights[IN_NR_SPOT_LIGHTS];
+  SpotLight u_spot_lights[IN_NR_SPOT_LIGHTS];
 #endif
+};
+
 
 void main()
 {
@@ -201,9 +209,9 @@ mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
   }
 
   Light light = dirLight.light;
-  vec4 ambient = light.ambient * diffuseColor;
-  vec4 diffuse = light.diffuse * diff * diffuseColor;
-  vec4 specular = light.specular * spec * specularColor;
+  vec4 ambient = light.color.ambient * diffuseColor;
+  vec4 diffuse = light.color.diffuse * diff * diffuseColor;
+  vec4 specular = light.color.specular * spec * specularColor;
 
   return mat3x4(ambient, diffuse, specular);
 }

@@ -2,21 +2,25 @@
 
 // #define FOLLOW_WHIPPER
 
+#define NUM_DIR_LIGHTS 1
+#define NUM_POINT_LIGHTS 4
+#define NUM_SPOT_LIGHTS 1
+
 Playground::Playground()
 :
 mpSkeletal("./skeletal/skeletal.vs", "./shaders/lighting.fs",
   {
-    "#define IN_NR_SPOT_LIGHTS 1\n",
-    "#define IN_NR_POINT_LIGHTS 4\n",
-    "#define IN_NR_DIR_LIGHTS 1\n"
+    "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+    "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+    "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
   },
   { "shaders/lighted-shader-defines" }
 ),
 mpLighting("./shaders/lighting.vs", "./shaders/lighting.fs",
   {
-    "#define IN_NR_SPOT_LIGHTS 1\n",
-    "#define IN_NR_POINT_LIGHTS 4\n",
-    "#define IN_NR_DIR_LIGHTS 1\n"
+    "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+    "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+    "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
   },
   { "shaders/lighted-shader-defines" }
 ),
@@ -27,7 +31,9 @@ mpReflectSkybox("./playground/skybox/reflect-skybox.vs", "./playground/skybox/re
 // no noticible difference in changing, use mpLighting for now
 // mpPlain("./shaders/lighting.vs", "./shaders/lighting.fs"),
 // #endif
-mSpotlightOn(false)
+lightingSettings({ mpSkeletal, mpLighting }, 1, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS),
+mSpotlightOn(false),
+u_proj_x_view({ mpSkeletal, mpLighting }, 0)
 {
   mpSkeletal.use();
   lightingSettings.setup(mpSkeletal);
@@ -44,6 +50,8 @@ mSpotlightOn(false)
 Playground::~Playground()
 {
 }
+
+
 
 void Playground::setup()
 {
@@ -119,11 +127,13 @@ void Playground::render()
   const glm::vec3& view_pos = camera().position();
   const glm::vec3& view_dir = camera().front();
 
+  lightingSettings.updatePointLight0Position();
+  lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
+
+  u_proj_x_view.set(proj_x_view);
+
   mpSkeletal.use();
-  mpSkeletal.setMat4fv("u_proj_x_view", proj_x_view);
   lightingSettings.setViewPosition(mpSkeletal, view_pos);
-  lightingSettings.updatePointLight0Position(mpSkeletal);
-  lightingSettings.updateSpotLight(mpSkeletal, view_pos, view_dir, !mSpotlightOn);
 
   // tifa
   tifa.draw(mpSkeletal);
@@ -135,10 +145,7 @@ void Playground::render()
   whipper.draw(mpSkeletal);
 
   mpLighting.use();
-  mpLighting.setMat4fv("u_proj_x_view", proj_x_view);
   lightingSettings.setViewPosition(mpLighting, view_pos);
-  lightingSettings.updatePointLight0Position(mpLighting);
-  lightingSettings.updateSpotLight(mpLighting, view_pos, view_dir, !mSpotlightOn);
 
   glm::mat4 model2b = glm::mat4(1.f);
   model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
@@ -202,6 +209,7 @@ void Playground::teardown()
 
   mpReflectSkybox.free();
   skyboxReflector.free();
+  lightingSettings.free();
 }
 
 void Playground::highlight(Box &box, glm::mat4 model)

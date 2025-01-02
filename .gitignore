@@ -2,3 +2,4 @@ glad/
 stb_image/
 output
 assets/
+.clang-format

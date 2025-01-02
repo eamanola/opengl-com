@@ -5,6 +5,11 @@ layout (location = 2) in vec2 in_tex_coords;
 layout (location = 3) in vec4 in_bone_ids;
 layout (location = 4) in vec4 in_bone_weights;
 
+layout(packed) uniform u_proj_x_view
+{
+  mat4 proj_x_view;
+};
+
 out vsout
 {
   vec3 normal;
@@ -15,7 +20,6 @@ out vsout
 const uint MAX_BONE_INFLUECE = 4;
 const uint MAX_BONES = 100;
 
-uniform mat4 u_proj_x_view;
 uniform mat4 u_model;
 uniform mat4 u_bone_transforms[MAX_BONES];
 
@@ -31,5 +35,5 @@ void main()
   vs_out.frag_pos = vec3(model * vec4(in_position, 1.0));
   vs_out.tex_coords = in_tex_coords;
 
-  gl_Position = u_proj_x_view * model * vec4(in_position, 1.0);
+  gl_Position = proj_x_view * model * vec4(in_position, 1.0);
 }
