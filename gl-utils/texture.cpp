@@ -39,13 +39,10 @@ unsigned int GLUtils::loadCubemap(std::vector<std::string> paths)
   return textureId;
 }
 
-const unsigned int GLUtils::createTexture2D(
-  int width, int height, int nrChannel, unsigned char* data,
-  const GLint wrap
+bool GLUtils::createTexture2D(
+  const int width, const int height, const int nrChannel, const unsigned char* data, unsigned int& textureId, const GLint wrap
 )
 {
-  unsigned int textureId = 0;
-
   GLenum format;
 
   if(nrChannel == 3) format = GL_RGB;
@@ -53,6 +50,7 @@ const unsigned int GLUtils::createTexture2D(
 
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
+
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -63,8 +61,12 @@ const unsigned int GLUtils::createTexture2D(
 
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  return textureId;
+  return GLUtils::noErrors();
 }
 
+bool GLUtils::deleteTextures(const unsigned int lenght, const unsigned int* textureIds)
+{
+  glDeleteTextures(lenght, textureIds);
 
-
+  return GLUtils::noErrors();
+}

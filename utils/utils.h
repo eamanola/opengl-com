@@ -30,6 +30,8 @@ public:
   static unsigned int loadTexture2D(const char* path, const int wrap = GL_REPEAT);
   static unsigned int loadTexture2D(const unsigned char* buffer, const unsigned int len, const int wrap = GL_REPEAT);
   static void deleteTextures(const std::vector<Texture>& textures);
+private:
+  static unsigned int createTexture2D(const int width, const int height, const int nrChannel, const unsigned char* data, const int wrap);
 };
 
 #endif

@@ -1,4 +1,5 @@
 #include "uniform-buffer.h"
+#include "gl-utils.h"
 
 bool UniformBuffer::createBuffer(const std::size_t size, unsigned int& bufferId)
 {
@@ -7,14 +8,14 @@ bool UniformBuffer::createBuffer(const std::size_t size, unsigned int& bufferId)
   glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-  return glGetError() == GL_NO_ERROR;
+  return GLUtils::noErrors();
 }
 
 bool UniformBuffer::bindBuffer(const unsigned int bindingId, const unsigned int bufferId)
 {
   glBindBufferBase(GL_UNIFORM_BUFFER, bindingId, bufferId);
 
-  return glGetError() == GL_NO_ERROR;
+  return GLUtils::noErrors();
 }
 
 bool UniformBuffer::update(
@@ -25,7 +26,7 @@ bool UniformBuffer::update(
   glBufferSubData(GL_UNIFORM_BUFFER, offset, size, value);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-  return glGetError() == GL_NO_ERROR;
+  return GLUtils::noErrors();
 }
 
 bool UniformBuffer::overwrite(const unsigned int bufferId, const std::size_t size, const void* value)
@@ -34,7 +35,7 @@ bool UniformBuffer::overwrite(const unsigned int bufferId, const std::size_t siz
   glBufferData(GL_UNIFORM_BUFFER, size, value, GL_DYNAMIC_DRAW);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-  return glGetError() == GL_NO_ERROR;
+  return GLUtils::noErrors();
 }
 
 bool UniformBuffer::invalidate(const unsigned int bufferId, const unsigned int offset, const std::size_t size)
@@ -44,7 +45,7 @@ bool UniformBuffer::invalidate(const unsigned int bufferId, const unsigned int o
   glUnmapBuffer(GL_UNIFORM_BUFFER);
   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-  return glGetError() == GL_NO_ERROR;
+  return GLUtils::noErrors();
 }
 
 bool UniformBuffer::invalidate(const unsigned int bufferId, const std::size_t size)

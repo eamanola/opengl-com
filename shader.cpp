@@ -13,20 +13,20 @@ Shader::Shader(
   const std::vector<std::string>& prependFiles
 )
 {
-  const unsigned int vShader = GLUtils::compileShader(
-    GL_VERTEX_SHADER, Utils::shaderSource(vPath, prependTexts, prependFiles).c_str()
-  );
-  if (!vShader) {
-    glDeleteShader(vShader);
+  unsigned int vShader;
+  if(!GLUtils::compileShader(
+    GL_VERTEX_SHADER, Utils::shaderSource(vPath, prependTexts, prependFiles).c_str(), vShader
+  )) {
+    std::cout << "Failed to compile vertex shader\n";
     return;
   }
 
-  const unsigned int fShader = GLUtils::compileShader(
-    GL_FRAGMENT_SHADER, Utils::shaderSource(fPath, prependTexts, prependFiles).c_str()
-  );
-  if (!fShader) {
-    glDeleteShader(vShader);
-    glDeleteShader(fShader);
+  unsigned int fShader;
+  if(!GLUtils::compileShader(
+    GL_FRAGMENT_SHADER, Utils::shaderSource(fPath, prependTexts, prependFiles).c_str(), fShader
+  ))
+  {
+    std::cout << "Failed to compile fragment shader\n";
     return;
   }
 

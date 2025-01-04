@@ -1,9 +1,9 @@
 #include "gl-utils.h"
 #include <iostream>
 
-const unsigned int GLUtils::compileShader(GLenum type, const char* source)
+bool GLUtils::compileShader(const GLenum type, const char* source, unsigned int& shaderId)
 {
-  unsigned int shaderId = glCreateShader(type);
+  shaderId = glCreateShader(type);
   glShaderSource(shaderId, 1, &source, nullptr);
   glCompileShader(shaderId);
 
@@ -15,17 +15,13 @@ const unsigned int GLUtils::compileShader(GLenum type, const char* source)
     char infoLog[maxLength];
     glGetShaderInfoLog(shaderId, maxLength, nullptr, infoLog);
 
-    std::cout << "Shader compilation failed ("
-      << (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment") << "): \n"
-      << infoLog << std::endl;
+    std::cout << infoLog << "\n";
 
-    return 0;
+    glDeleteShader(shaderId);
+    shaderId = 0;
+    // GLUtils::checkErrors(); // flush errors?
+    return false;
   }
 
-  return shaderId;
-}
-
-void GLUtils::deleteTextures(const unsigned int lenght, const unsigned int* textureIds)
-{
-  glDeleteTextures(lenght, textureIds);
+  return GLUtils::noErrors();
 }

@@ -20,11 +20,11 @@ class GLUtils
     // GL_TEXTURE_CUBE_MAP_POSITIVE_Z 	Back
     // GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 	Front
     static unsigned int loadCubemap(std::vector<std::string> paths);
-    static const unsigned int compileShader(GLenum type, const char* source);
-    static const unsigned int createTexture2D(int width, int height, int nrChannel, unsigned char* data, const GLint wrap = GL_REPEAT);
-    static void deleteTextures(const unsigned int lenght, const unsigned int* textureId);
-
-  private:
+    static bool compileShader(const GLenum type, const char* source, unsigned int& shaderId);
+    static bool createTexture2D(const int width, const int height, const int nrChannel, const unsigned char* data, unsigned int& textureId, const GLint wrap = GL_REPEAT);
+    static bool deleteTextures(const unsigned int lenght, const unsigned int* textureId);
+    static std::vector<int> checkErrors();
+    static bool noErrors();
 };
 
 #endif

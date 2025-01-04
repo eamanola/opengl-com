@@ -1,4 +1,5 @@
 #include "uniform-block.h"
+#include "gl-utils.h"
 
 bool UniformBlock::getBlockIndex(
   const unsigned int shaderId, const char* blockName, unsigned int& blockIndex
@@ -6,7 +7,7 @@ bool UniformBlock::getBlockIndex(
 {
   blockIndex = glGetUniformBlockIndex(shaderId, blockName);
 
-  return glGetError() == GL_NO_ERROR;
+  return GLUtils::noErrors();
 }
 
 bool UniformBlock::getBlockDataSize(
@@ -17,14 +18,14 @@ bool UniformBlock::getBlockDataSize(
     shaderId, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockDataSize
   );
 
-  return glGetError() == GL_NO_ERROR;
+  return GLUtils::noErrors();
 }
 
 bool UniformBlock::bindBlock(const int bindingId, const unsigned int shaderId, const unsigned int blockIndex)
 {
   glUniformBlockBinding(shaderId, blockIndex, bindingId);
 
-  return glGetError() == GL_NO_ERROR;
+  return GLUtils::noErrors();
 }
 
 bool UniformBlock::getUniformOffsets(
@@ -45,5 +46,5 @@ bool UniformBlock::getUniformOffsets(
 
   glGetActiveUniformsiv(shaderId, uniformCount, indices, GL_UNIFORM_OFFSET, offsets);
 
-  return glGetError() == GL_NO_ERROR;
+  return GLUtils::noErrors();
 }

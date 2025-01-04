@@ -115,7 +115,7 @@ void Mesh::draw(const Shader &shader, const Texture* textures, const unsigned in
       glActiveTexture(GL_TEXTURE0 + i);
       glBindTexture(GL_TEXTURE_2D, 0);
     }
-    glActiveTexture(0);
+    glActiveTexture(GL_TEXTURE0);
 
     // TODO
     shader.setInt("u_material.texture_diffuse1", 0);
