@@ -1,6 +1,7 @@
 #include "skybox-reflector.h"
-#include "../../shader-utils/shader-utils.h"
+#include "gl-utils/gl-utils.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include "utils/utils.h"
 
 SkyboxReflector::SkyboxReflector(/* args */)
 :
@@ -47,7 +48,7 @@ mMesh(
 ),
 mTexture(
   Texture {
-    .id = ShaderUtils::loadCubemap({
+    .id = GLUtils::loadCubemap({
       "assets/skybox/right.jpg",
       "assets/skybox/left.jpg",
       "assets/skybox/bottom.jpg",
@@ -56,7 +57,7 @@ mTexture(
       "assets/skybox/back.jpg"
     }),
     .type = TEXTURE_TYPE_DIFFUSE,
-    .path = "assets/skybox/*.jpg"
+    .key = "assets/skybox/*.jpg"
   }
 )
 {
@@ -80,5 +81,5 @@ void SkyboxReflector::draw(Shader& shader)
 void SkyboxReflector::free()
 {
   mMesh.free();
-  ShaderUtils::deleteTextures({ mTexture });
+  Utils::deleteTextures({ mTexture });
 };

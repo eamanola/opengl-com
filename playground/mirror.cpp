@@ -2,7 +2,8 @@
 #include <glad/gl.h>
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
-#include "../shader-utils/shader-utils.h"
+#include "gl-utils/gl-utils.h"
+#include "utils/utils.h"
 
 Mirror::Mirror(const float vWidth, const float vHeight)
 :
@@ -23,11 +24,11 @@ mMesh(
 mTexture(
   Texture {
     .type = TEXTURE_TYPE_DIFFUSE,
-    .path = ""
+    .key = ""
   }
 )
 {
-  ShaderUtils::createFramebufferTexture2D(vWidth, vHeight, mFBO, mTexture.id, mRBO);
+  GLUtils::createFramebufferTexture2D(vWidth, vHeight, mFBO, mTexture.id, mRBO);
 }
 
 Mirror::~Mirror()
@@ -39,7 +40,7 @@ void Mirror::screenshot(Scene &scene, const glm::vec3& positionOffset)
   const glm::mat4 m = model();
   const glm::vec3 position = glm::vec3(m[3]) + positionOffset;
   const glm::vec3 normal = glm::mat3(glm::transpose(glm::inverse(m))) * mNormal;
-  ShaderUtils::screenshot(scene, mFBO, position, normal);
+  Utils::screenshot(scene, mFBO, position, normal);
 }
 
 void Mirror::screenshot(Scene &scene)
@@ -57,6 +58,6 @@ void Mirror::draw(const Shader& shader) const
 void Mirror::free() const
 {
   glDeleteFramebuffers(1, &mFBO);
-  ShaderUtils::deleteTextures({ mTexture });
+  Utils::deleteTextures({ mTexture });
   glDeleteRenderbuffers(1, &mRBO);
 }

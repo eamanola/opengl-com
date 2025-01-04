@@ -3,21 +3,21 @@
 
 #include <iostream>
 #include <glad/gl.h>
-#include <unordered_map>
 
-class UniformBlockBuffer
+class UniformBuffer
 {
 public:
-  UniformBlockBuffer() {}
-  ~UniformBlockBuffer() {}
+  UniformBuffer() {}
+  ~UniformBuffer() {}
 
   static bool createBuffer(const std::size_t size, unsigned int& bufferId);
   static bool bindBuffer(const unsigned int bindingId, const unsigned int bufferId);
-  static bool set(
+  static bool update(
     const unsigned int bufferId,
-    std::unordered_map<std::string, unsigned int> offsets,
-    const char* uniformName, const std::size_t size, const void* value
+    const unsigned int offset, const std::size_t size, const void* value
   );
   static bool overwrite(const unsigned int bufferId, const std::size_t size, const void* value);
+  static bool invalidate(const unsigned int bufferId, const std::size_t size);
+  static bool invalidate(const unsigned int bufferId, const unsigned int offset, const std::size_t size);
 };
 #endif

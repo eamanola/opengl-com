@@ -1,5 +1,6 @@
 #include "skeletal-mesh.h"
-#include "../shaders/attrib-locations.h"
+#include "shaders/attrib-locations.h"
+#include <glad/gl.h>
 
 SkeletalMesh::SkeletalMesh(unsigned int VAO, const std::vector<SkeletalVertex> &vertices)
 {

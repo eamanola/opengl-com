@@ -1,22 +1,14 @@
 #include "box.h"
-#include "../shader-utils/shader-utils.h"
 #include "glm/gtc/matrix_transform.hpp"
-#include "../shapes.h"
+#include "shapes.h"
+#include "utils/utils.h"
 
 Box::Box()
 :
 mMesh(Shapes::CUBE),
 mTextures({
-  Texture {
-    .id = ShaderUtils::loadTexture("assets/container2.png"),
-    .type = TEXTURE_TYPE_DIFFUSE,
-    .path = "assets/container2.png"
-  },
-  Texture {
-    .id = ShaderUtils::loadTexture("assets/container2_specular.png"),
-    .type = TEXTURE_TYPE_SPECULAR,
-    .path = "assets/container2_specular.png"
-  }
+  Utils::loadTexture2D("assets/container2.png", TEXTURE_TYPE_DIFFUSE),
+  Utils::loadTexture2D("assets/container2_specular.png", TEXTURE_TYPE_SPECULAR)
 }),
 mPositions({
   glm::vec3( 0.0f,  0.0f,  0.0f),
@@ -60,5 +52,5 @@ void Box::free() const
 {
   mMesh.free();
 
-  ShaderUtils::deleteTextures(mTextures);
+  Utils::deleteTextures(mTextures);
 }

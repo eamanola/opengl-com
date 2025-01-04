@@ -2,31 +2,27 @@
 #define U_PROJ_X_VIEW_H
 
 #include <glm/gtc/type_ptr.hpp>
-#include "../shader-utils/uniform-block-buffer.h"
-#include "../shader-utils/uniform-block.h"
+#include "gl-utils/uniform-buffer.h"
+#include "gl-utils/uniform-block.h"
 
 class UProjXViewBuffer
 {
 public:
-  UProjXViewBuffer(const std::vector<Shader>& shaders,unsigned int bindingId) {
+  UProjXViewBuffer(unsigned int bindingId, const std::vector<Shader>& shaders) {
     const char * blockName = "u_proj_x_view";
 
-    std::vector<unsigned int> uniformBlockIndices;
-    uniformBlockIndices.reserve(shaders.size());
     for(Shader shader: shaders)
     {
+      const unsigned int shaderId = shader.id();
+
       unsigned int blockIndex;
-      if(!UniformBlock::getBlockIndex(shader.id(), blockName, blockIndex))
+      if(!UniformBlock::getBlockIndex(shaderId, blockName, blockIndex))
       {
         std::cout << "Failed to find block\n";
         return;
       }
-      uniformBlockIndices.push_back(blockIndex);
-    }
 
-    for(unsigned int i = 0; i < shaders.size(); i++)
-    {
-      if(!UniformBlock::bindBlock(bindingId, shaders[i].id(), uniformBlockIndices[i]))
+      if(!UniformBlock::bindBlock(bindingId, shaderId, blockIndex))
       {
         std::cout << "Failed to bind shaders \n";
         free();
@@ -34,14 +30,14 @@ public:
       }
     }
 
-    if(!UniformBlockBuffer::createBuffer(sizeof(glm::mat4), mBufferId))
+    if(!UniformBuffer::createBuffer(sizeof(glm::mat4), mBufferId))
     {
       std::cout << "Failed to create buffer\n";
       free();
       return;
     }
 
-    if(!UniformBlockBuffer::bindBuffer(bindingId, mBufferId))
+    if(!UniformBuffer::bindBuffer(bindingId, mBufferId))
     {
       std::cout << "Failed to bind buffer\n";
       free();
@@ -54,7 +50,7 @@ public:
 
   void set(const glm::mat4& proj_x_view)
   {
-    UniformBlockBuffer::overwrite(mBufferId, sizeof(glm::mat4), glm::value_ptr(proj_x_view));
+    UniformBuffer::overwrite(mBufferId, sizeof(glm::mat4), glm::value_ptr(proj_x_view));
   }
 
   private:

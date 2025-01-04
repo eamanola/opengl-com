@@ -27,19 +27,23 @@ mpLighting("./shaders/lighting.vs", "./shaders/lighting.fs",
 simpleModel("assets/2b-jumps2/scene.gltf"),
 mpSkybox("./playground/skybox/cube.vs", "./playground/skybox/cube.fs"),
 mpReflectSkybox("./playground/skybox/reflect-skybox.vs", "./playground/skybox/reflect-skybox.fs"),
-// #ifdef POINTLIGHT_DEBUG
-// no noticible difference in changing, use mpLighting for now
-// mpPlain("./shaders/lighting.vs", "./shaders/lighting.fs"),
-// #endif
-lightingSettings({ mpSkeletal, mpLighting }, 1, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS),
+#ifdef POINTLIGHT_DEBUG
+mpPlain("./shaders/plain.vs", "./shaders/single-color.fs"),
+#endif
+lightingSettings(1, { mpSkeletal, mpLighting }, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS),
 mSpotlightOn(false),
-u_proj_x_view({ mpSkeletal, mpLighting }, 0)
+u_proj_x_view(0, {
+  mpSkeletal, mpLighting
+  #ifdef POINTLIGHT_DEBUG
+  ,mpPlain
+  #endif
+})
 {
   mpSkeletal.use();
-  lightingSettings.setup(mpSkeletal);
+  mpSkeletal.setFloat("u_material.shininess", 32.f);
 
   mpLighting.use();
-  lightingSettings.setup(mpLighting);
+  mpLighting.setFloat("u_material.shininess", 32.f);
 
   mLastFrame = 0.f;
   mLastX = 400;
@@ -127,13 +131,13 @@ void Playground::render()
   const glm::vec3& view_pos = camera().position();
   const glm::vec3& view_dir = camera().front();
 
+
   lightingSettings.updatePointLight0Position();
   lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
-
   u_proj_x_view.set(proj_x_view);
 
   mpSkeletal.use();
-  lightingSettings.setViewPosition(mpSkeletal, view_pos);
+  mpSkeletal.setVec3fv("u_view_pos", view_pos);
 
   // tifa
   tifa.draw(mpSkeletal);
@@ -145,7 +149,7 @@ void Playground::render()
   whipper.draw(mpSkeletal);
 
   mpLighting.use();
-  lightingSettings.setViewPosition(mpLighting, view_pos);
+  mpLighting.setVec3fv("u_view_pos", view_pos);
 
   glm::mat4 model2b = glm::mat4(1.f);
   model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
@@ -160,18 +164,17 @@ void Playground::render()
   floor.draw(mpLighting);
 
   #ifdef POINTLIGHT_DEBUG
-  // mpPlain.use();
-  // mpPlain.setMat4fv("u_proj_x_view", proj_x_view);
+  mpPlain.use();
   for(unsigned int i = 0; i < lightingSettings.mLights.positions.size(); i++)
   {
     glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightingSettings.mLights.positions[i]);
     lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
-    mpLighting.setVec4fv("u_material.diffuse_color", lightingSettings.mLights.colors[i]);
-    mpLighting.setMat4fv("u_model", lightModel);
+    mpPlain.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
+    mpPlain.setMat4fv("u_model", lightModel);
     pointLightDebug.draw(mpLighting);
   }
-  mpLighting.setVec4fv("u_material.diffuse_color", glm::vec4(0));
+  mpLighting.setVec4fv("u_color", glm::vec4(0));
   #endif
 
   mpSkybox.use();
@@ -194,7 +197,7 @@ void Playground::teardown()
 
   #ifdef POINTLIGHT_DEBUG
   pointLightDebug.free();
-  // mpPlain.free();
+  mpPlain.free();
   #endif
 
   simpleModel.free();

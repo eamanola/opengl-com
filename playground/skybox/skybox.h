@@ -1,8 +1,8 @@
 #ifndef SKYBOX_H
 #define SKYBOX_H
 
-#include "../../mesh.h"
-#include "../../shader.h"
+#include "mesh.h"
+#include "shader.h"
 
 class Skybox
 {

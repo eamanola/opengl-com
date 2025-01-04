@@ -1,8 +1,8 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include "../drawable.h"
-#include "../mesh.h"
+#include "drawable.h"
+#include "mesh.h"
 
 class Box : public Drawable
 {

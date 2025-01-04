@@ -1,10 +1,10 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include "../drawable.h"
+#include "drawable.h"
 #include <vector>
 #include <glm/glm.hpp>
-#include "../mesh.h"
+#include "mesh.h"
 
 class Window : public Drawable
 {

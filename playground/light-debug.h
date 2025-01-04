@@ -1,9 +1,9 @@
 #ifndef LIGHT_DEBUG_H
 #define LIGHT_DEBUG_H
 
-#include "../mesh.h"
-#include "../drawable.h"
-#include "../shapes.h"
+#include "mesh.h"
+#include "drawable.h"
+#include "shapes.h"
 
 class LightDebug : public Drawable
 {

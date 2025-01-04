@@ -2,7 +2,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include "shader-utils/shader-utils.h"
+#include "utils/utils.h"
 
 void Model::loadModel(const std::string path)
 {
@@ -100,7 +100,7 @@ std::vector<unsigned int> Model::loadMaterialTextures(
     bool skip = false;
     for(unsigned int j = 0; j < mTextures.size(); j++)
     {
-      if(std::strcmp(mTextures[j].path.data(), str.C_Str()) == 0)
+      if(std::strcmp(mTextures[j].key.data(), str.C_Str()) == 0)
       {
         textureMapping.push_back(j);
         skip = true;
@@ -125,14 +125,14 @@ std::vector<unsigned int> Model::loadMaterialTextures(
       unsigned int length = embedded->mWidth;
       if(embedded->mHeight > 0) length *= embedded->mHeight;
 
-      textureId = ShaderUtils::loadTexture((unsigned char*)embedded->pcData, length);
+      textureId = Utils::loadTexture2D((unsigned char*)embedded->pcData, length);
     }
     else
     {
-      textureId = ShaderUtils::loadTexture((mDirectory + '/' + str.C_Str()).c_str());
+      textureId = Utils::loadTexture2D((mDirectory + '/' + str.C_Str()).c_str());
     }
 
-    Texture texture { .id = textureId, .type = type, .path = str.C_Str() };
+    Texture texture { .id = textureId, .type = type, .key = str.C_Str() };
     mTextures.push_back(texture);
     textureMapping.push_back(mTextures.size() - 1);
   }
@@ -163,5 +163,5 @@ void Model::free() const
     mMeshes[i].free();
   }
 
-  ShaderUtils::deleteTextures(mTextures);
+  Utils::deleteTextures(mTextures);
 }

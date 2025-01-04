@@ -1,5 +1,4 @@
 #include "character.h"
-#include <glm/glm.hpp>
 
 bool Character::setAnimation(unsigned int animationIndex)
 {

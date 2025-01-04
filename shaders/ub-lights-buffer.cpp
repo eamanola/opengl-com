@@ -2,92 +2,23 @@
 #include <glm/gtc/type_ptr.hpp>
 
 UBLightsBuffer::UBLightsBuffer(
-  const std::vector<Shader>& shaders,
   const unsigned int bindingId,
+  const std::vector<Shader>& shaders,
   const unsigned int numDirLights,
   const unsigned int numPointLights,
   const unsigned int numSpotLights
 )
+:
+UniformBlockBuffer(
+  bindingId,
+  shaders,
+  "ub_lights",
+  getUniformNames(numDirLights, numPointLights, numSpotLights)
+)
 {
-  const char* blockName = "ub_lights";
-
-  std::vector<std::string> uniformNames;
-  getDirLightUniformNames(numDirLights, uniformNames);
-  getPointLightUniformNames(numPointLights, uniformNames);
-  getSpotLightUniformNames(numSpotLights, uniformNames);
-
-  if(uniformNames.size() == 0)
-  {
-    std::cout << "no uniforms to bind";
-    return;
-  }
-
-  if(shaders.size() == 0)
-  {
-    std::cout << "no shaders to bind";
-  }
-
-  const unsigned int shaderId = shaders[0].id();
-
-  std::vector<unsigned int> uniformBlockIndices;
-  uniformBlockIndices.reserve(shaders.size());
-  for(Shader shader: shaders)
-  {
-    unsigned int blockIndex;
-    if(!UniformBlock::getBlockIndex(shader.id(), blockName, blockIndex))
-    {
-      std::cout << "Failed to find block\n";
-      return;
-    }
-    uniformBlockIndices.push_back(blockIndex);
-  }
-
-  for(unsigned int i = 0; i < shaders.size(); i++)
-  {
-    if(!UniformBlock::bindBlock(bindingId, shaders[i].id(), uniformBlockIndices[i]))
-    {
-      std::cout << "Failed to bind shaders \n";
-      free();
-      return;
-    }
-  }
-
-  if(!UniformBlock::getBlockDataSize(shaderId, uniformBlockIndices[0], mBlockDataSize))
-  {
-    std::cout << "Failed to get block data size\n";
-    return;
-  }
-
-  if(!UniformBlockBuffer::createBuffer(mBlockDataSize, mBufferId))
-  {
-    std::cout << "Failed to create buffer\n";
-    free();
-    return;
-  }
-
-  if(!UniformBlockBuffer::bindBuffer(bindingId, mBufferId))
-  {
-    std::cout << "Failed to bind buffer\n";
-    free();
-    return;
-  }
-
-  int offsets[uniformNames.size()];
-  if(!UniformBlock::getUniformOffsets(shaderId, uniformNames, offsets))
-  {
-    std::cout << "Failed to get offsets, error:\n";
-    free();
-    return;
-  }
-
-  mOffsets.reserve(uniformNames.size());
-  for(unsigned int i = 0; i < uniformNames.size(); i++)
-  {
-    mOffsets[uniformNames[i]] = offsets[i];
-  }
 }
 
-bool UBLightsBuffer::set(const UBLights& lights)
+bool UBLightsBuffer::set(const UBLights& lights) const
 {
   char padded[mBlockDataSize] = {};
 
@@ -95,25 +26,39 @@ bool UBLightsBuffer::set(const UBLights& lights)
   copyPointLights(lights, padded);
   copySpotLights(lights, padded);
 
-  return UniformBlockBuffer::overwrite(mBufferId, sizeof(padded), padded);
+  return UniformBlockBuffer::overwrite(sizeof(padded), padded);
 }
 
-bool UBLightsBuffer::setVec3(const char* key, const glm::vec3& value)
+bool UBLightsBuffer::setVec3(const char* uniformName, const glm::vec3& value) const
 {
-  return UniformBlockBuffer::set(mBufferId, mOffsets, key, sizeof(glm::vec3), glm::value_ptr(value));
+  return update(uniformName, sizeof(glm::vec3), glm::value_ptr(value));
 }
 
-bool UBLightsBuffer::setBool(const char* key, const bool& value)
+bool UBLightsBuffer::setBool(const char* uniformName, const bool& value) const
 {
-  return UniformBlockBuffer::set(mBufferId, mOffsets, key, sizeof(bool), &value);
+  return update(uniformName, sizeof(bool), &value);
 }
 
-bool UBLightsBuffer::setColor(const char* key, const Color& value)
+bool UBLightsBuffer::setColor(const char* uniformName, const Color& value) const
 {
-  return UniformBlockBuffer::set(mBufferId, mOffsets, key, sizeof(Color), glm::value_ptr(value));
+  return update(uniformName, sizeof(Color), glm::value_ptr(value));
 }
 
-void UBLightsBuffer::getLightUniformNames(const std::string& prefix, std::vector<std::string>& uniformNames)
+std::vector<std::string> UBLightsBuffer::getUniformNames(
+  unsigned int numDirLights, unsigned int numPointLights, unsigned int numSpotLights
+) const
+{
+  std::vector<std::string> uniformNames;
+  getDirLightUniformNames(numDirLights, uniformNames);
+  getPointLightUniformNames(numPointLights, uniformNames);
+  getSpotLightUniformNames(numSpotLights, uniformNames);
+
+  return uniformNames;
+}
+
+void UBLightsBuffer::getLightUniformNames(
+  const std::string& prefix, std::vector<std::string>& uniformNames
+) const
 {
   uniformNames.reserve(uniformNames.size() + 4);
   uniformNames.push_back(prefix + ".color.ambient");
@@ -124,7 +69,7 @@ void UBLightsBuffer::getLightUniformNames(const std::string& prefix, std::vector
 
 void UBLightsBuffer::getAttenuationUniformNames(
   const std::string& prefix, std::vector<std::string>& uniformNames
-)
+) const
 {
   uniformNames.reserve(uniformNames.size() + 3);
   uniformNames.push_back(prefix + ".constant");
@@ -134,7 +79,7 @@ void UBLightsBuffer::getAttenuationUniformNames(
 
 void UBLightsBuffer::getDirLightUniformNames(
   const unsigned int numDirLights, std::vector<std::string>& uniformNames
-)
+) const
 {
   uniformNames.reserve(uniformNames.size() + numDirLights * 1);
   for(unsigned int i = 0; i < numDirLights; i++)
@@ -149,7 +94,7 @@ void UBLightsBuffer::getDirLightUniformNames(
 
 void UBLightsBuffer::getPointLightUniformNames(
   const unsigned int numPointLights, std::vector<std::string>& uniformNames
-)
+) const
 {
   uniformNames.reserve(uniformNames.size() + numPointLights * 1);
   for(unsigned int i = 0; i < numPointLights; i ++)
@@ -165,7 +110,7 @@ void UBLightsBuffer::getPointLightUniformNames(
 
 void UBLightsBuffer::getSpotLightUniformNames(
   const unsigned int numSpotLights, std::vector<std::string>& uniformNames
-)
+) const
 {
   uniformNames.reserve(uniformNames.size() + numSpotLights * 4);
   for(unsigned int i = 0; i < numSpotLights; i ++)
@@ -182,7 +127,7 @@ void UBLightsBuffer::getSpotLightUniformNames(
   }
 }
 
-void UBLightsBuffer::copyDirLights(const UBLights& lights, char* padded)
+void UBLightsBuffer::copyDirLights(const UBLights& lights, char* padded) const
 {
   for(unsigned int i = 0; i < lights.dirLights.size(); i++)
   {
@@ -190,7 +135,7 @@ void UBLightsBuffer::copyDirLights(const UBLights& lights, char* padded)
   }
 }
 
-void UBLightsBuffer::copyPointLights(const UBLights& lights, char* padded)
+void UBLightsBuffer::copyPointLights(const UBLights& lights, char* padded) const
 {
   for(unsigned int i = 0; i < lights.pointLights.size(); i++)
   {
@@ -198,7 +143,7 @@ void UBLightsBuffer::copyPointLights(const UBLights& lights, char* padded)
   }
 }
 
-void UBLightsBuffer::copySpotLights(const UBLights& lights, char* padded)
+void UBLightsBuffer::copySpotLights(const UBLights& lights, char* padded) const
 {
   for(unsigned int i = 0; i < lights.spotLights.size(); i++)
   {
@@ -206,44 +151,44 @@ void UBLightsBuffer::copySpotLights(const UBLights& lights, char* padded)
   }
 }
 
-void UBLightsBuffer::copyLight(const std::string& prefix, Light light, char* padded)
+void UBLightsBuffer::copyLight(const std::string& prefix, Light light, char* padded) const
 {
-  memcpy(&padded[mOffsets[prefix + ".color.ambient"]], glm::value_ptr(light.color.ambient), sizeof(Color));
-  memcpy(&padded[mOffsets[prefix + ".color.diffuse"]], glm::value_ptr(light.color.diffuse), sizeof(Color));
-  memcpy(&padded[mOffsets[prefix + ".color.specular"]], glm::value_ptr(light.color.specular), sizeof(Color));
-  memcpy(&padded[mOffsets[prefix + ".off"]], &light.off, sizeof(bool));
+  memcpy(&padded[mOffsets.at(prefix + ".color.ambient")], glm::value_ptr(light.color.ambient), sizeof(Color));
+  memcpy(&padded[mOffsets.at(prefix + ".color.diffuse")], glm::value_ptr(light.color.diffuse), sizeof(Color));
+  memcpy(&padded[mOffsets.at(prefix + ".color.specular")], glm::value_ptr(light.color.specular), sizeof(Color));
+  memcpy(&padded[mOffsets.at(prefix + ".off")], &light.off, sizeof(bool));
 }
 
-void UBLightsBuffer::copyAttenuation(const std::string& prefix, Attenuation attenuation, char* padded)
+void UBLightsBuffer::copyAttenuation(const std::string& prefix, Attenuation attenuation, char* padded) const
 {
-  memcpy(&padded[mOffsets[prefix + ".constant"]], &attenuation.constant, sizeof(float));
-  memcpy(&padded[mOffsets[prefix + ".linear"]], &attenuation.linear, sizeof(float));
-  memcpy(&padded[mOffsets[prefix + ".quadratic"]], &attenuation.quadratic, sizeof(float));
+  memcpy(&padded[mOffsets.at(prefix + ".constant")], &attenuation.constant, sizeof(float));
+  memcpy(&padded[mOffsets.at(prefix + ".linear")], &attenuation.linear, sizeof(float));
+  memcpy(&padded[mOffsets.at(prefix + ".quadratic")], &attenuation.quadratic, sizeof(float));
 }
 
-void UBLightsBuffer::copyDirLight(const unsigned int index, const DirLight& dirLight, char* padded)
+void UBLightsBuffer::copyDirLight(const unsigned int index, const DirLight& dirLight, char* padded) const
 {
   const std::string prefix = "u_dir_lights[" + std::to_string(index) + "]";
   copyLight(prefix + ".light", dirLight.light, padded);
 }
 
-void UBLightsBuffer::copyPointLight(const unsigned int index, const PointLight& pointLight, char* padded)
+void UBLightsBuffer::copyPointLight(const unsigned int index, const PointLight& pointLight, char* padded) const
 {
   const std::string prefix = "u_point_lights[" + std::to_string(index) + "]";
 
-  memcpy(&padded[mOffsets[prefix + ".position"]], glm::value_ptr(pointLight.position), sizeof(glm::vec3));
+  memcpy(&padded[mOffsets.at(prefix + ".position")], glm::value_ptr(pointLight.position), sizeof(glm::vec3));
   copyAttenuation(prefix + ".attenuation", pointLight.attenuation, padded);
   copyLight(prefix + ".light", pointLight.light, padded);
 }
 
-void UBLightsBuffer::copySpotLight(const unsigned int index, const SpotLight& spotLight, char* padded)
+void UBLightsBuffer::copySpotLight(const unsigned int index, const SpotLight& spotLight, char* padded) const
 {
   const std::string prefix = "u_spot_lights[" + std::to_string(index) + "]";
 
-  memcpy(&padded[mOffsets[prefix + ".direction"]], glm::value_ptr(spotLight.direction), sizeof(glm::vec3));
-  memcpy(&padded[mOffsets[prefix + ".cutOff"]], &spotLight.cutOff, sizeof(float));
-  memcpy(&padded[mOffsets[prefix + ".outerCutOff"]], &spotLight.outerCutOff, sizeof(float));
-  memcpy(&padded[mOffsets[prefix + ".position"]], glm::value_ptr(spotLight.position), sizeof(glm::vec3));
+  memcpy(&padded[mOffsets.at(prefix + ".direction")], glm::value_ptr(spotLight.direction), sizeof(glm::vec3));
+  memcpy(&padded[mOffsets.at(prefix + ".cutOff")], &spotLight.cutOff, sizeof(float));
+  memcpy(&padded[mOffsets.at(prefix + ".outerCutOff")], &spotLight.outerCutOff, sizeof(float));
+  memcpy(&padded[mOffsets.at(prefix + ".position")], glm::value_ptr(spotLight.position), sizeof(glm::vec3));
 
   copyAttenuation(prefix + ".attenuation", spotLight.attenuation, padded);
   copyLight(prefix + ".light", spotLight.light, padded);

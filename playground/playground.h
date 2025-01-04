@@ -1,14 +1,13 @@
 #ifndef PLAYGROUND_H
 #define PLAYGROUND_H
 
-#include "../scene.h"
-
 #define POINTLIGHT_DEBUG
 
-#include "../camera.h"
-#include "../characters/tifa.h"
-#include "../characters/dae.h"
-#include "../characters/whipper.h"
+#include "scene.h"
+#include "camera.h"
+#include "characters/tifa.h"
+#include "characters/dae.h"
+#include "characters/whipper.h"
 #include "lighting.h"
 #ifdef POINTLIGHT_DEBUG
 #include "light-debug.h"
@@ -19,8 +18,8 @@
 #include "mirror.h"
 #include "skybox/skybox.h"
 #include "skybox/skybox-reflector.h"
-#include "../disco/floor.h"
-#include "../shaders/u-proj-x-view.h"
+#include "disco/floor.h"
+#include "shaders/u-proj-x-view.h"
 
 class Playground : public Scene
 {
@@ -63,7 +62,7 @@ private:
 
   #ifdef POINTLIGHT_DEBUG
   LightDebug pointLightDebug;
-  // Shader mpPlain;
+  Shader mpPlain;
   #endif
 
   Lighting lightingSettings;

@@ -1,10 +1,10 @@
 #ifndef MIRROR_H
 #define MIRROR_H
 
-#include "../drawable.h"
-#include "../scene.h"
+#include "drawable.h"
+#include "scene.h"
 #include <glm/glm.hpp>
-#include "../mesh.h"
+#include "mesh.h"
 
 class Mirror : public Drawable
 {

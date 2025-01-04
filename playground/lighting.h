@@ -3,15 +3,15 @@
 
 #include <glm/glm.hpp>
 #include <vector>
-#include "../shader.h"
-#include "../shaders/ub-lights-buffer.h"
+#include "shader.h"
+#include "shaders/ub-lights-buffer.h"
 
 class Lighting
 {
 public:
   Lighting(
-    const std::vector<Shader>& shaders,
     unsigned int bindingId,
+    const std::vector<Shader>& shaders,
     unsigned int numDirLights,
     unsigned numPointLights,
     unsigned numSpotLights
@@ -36,7 +36,6 @@ public:
   // const unsigned int NR_POINT_LIGHTS = mLights.positions.size();
 
   void setup(Shader &shader);
-  void setViewPosition(Shader &shader, const glm::vec3& position);
   void updatePointLight0Position();
   void updateSpotLight(const glm::vec3& position, const glm::vec3& direction, bool off);
   void free() { ubLightsBuffer.free(); }

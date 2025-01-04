@@ -1,18 +1,13 @@
 #include "floor.h"
-#include "../shapes.h"
-#include "../shader-utils/shader-utils.h"
+#include "shapes.h"
+#include "utils/utils.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 Floor::Floor(unsigned int rows, unsigned columns)
 :
 mTileMesh(Shapes::QUAD),
-mTileTextures({
-  Texture {
-    .id = ShaderUtils::loadTexture("./assets/floor-tile.png"),
-    .type = TEXTURE_TYPE_DIFFUSE
-  },
-}),
+mTileTextures(Utils::loadTexture2D("./assets/floor-tile.png", TEXTURE_TYPE_DIFFUSE)),
 mRows(rows),
 mColumns(columns)
 {
@@ -83,7 +78,7 @@ void Floor::draw(const Shader& shader) const
     shader.setMat4fv("u_model", glm::translate(model, mPositions[i]));
     shader.setVec4fv("u_material.diffuse_color", mColors[i]);
     shader.setVec4fv("u_material.specular_color", mColors[i]);
-    mTileMesh.draw(shader, &mTileTextures[0], mTileTextures.size());
+    mTileMesh.draw(shader, &mTileTextures);
     shader.setVec4fv("u_material.diffuse_color", Color(0.f));
     shader.setVec4fv("u_material.specular_color", Color(0.f));
   }
@@ -95,5 +90,5 @@ void Floor::draw(const Shader& shader) const
 void Floor::free() const
 {
   mTileMesh.free();
-  ShaderUtils::deleteTextures(mTileTextures);
+  Utils::deleteTextures({ mTileTextures });
 }

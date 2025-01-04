@@ -3,7 +3,7 @@
 
 #include "skeletal-model.h"
 #include <glm/glm.hpp>
-#include "../array.h"
+#include "array.h"
 
 class SkeletalAnimation
 {

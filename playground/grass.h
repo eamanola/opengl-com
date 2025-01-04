@@ -1,10 +1,10 @@
 #ifndef GRASS_H
 #define GRASS_H
 
-#include "../drawable.h"
+#include "drawable.h"
 #include <vector>
 #include <glm/glm.hpp>
-#include "../mesh.h"
+#include "mesh.h"
 
 class Grass : public Drawable
 {

@@ -1,7 +1,7 @@
 #ifndef SKELETAL_MODEL_H
 #define SKELETAL_MODEL_H
 
-#include "../model.h"
+#include "model.h"
 #include <vector>
 #include <glm/glm.hpp>
 #include <assimp/scene.h>
@@ -10,7 +10,7 @@
 #include "bone.h"
 #include "animation.h"
 #include "bone-info.h"
-#include "../array.h"
+#include "array.h"
 
 class SkeletalModel : public Model
 {

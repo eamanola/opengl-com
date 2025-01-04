@@ -1,8 +1,7 @@
 #include "whipper.h"
 #include <glm/glm.hpp>
-#include "../shader-utils/shader-utils.h"
 #include <glm/gtx/matrix_decompose.hpp>
-#include "../color.h"
+#include "color.h"
 
 Whipper::Whipper() : Character("assets/whipper/scene.gltf")
 {

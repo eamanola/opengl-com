@@ -4,7 +4,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
-#include "shader-utils/shader-utils.h"
+#include "gl-utils/gl-utils.h"
+#include "utils/utils.h"
 
 Shader::Shader(
   const char* vPath, const char* fPath,
@@ -12,13 +13,17 @@ Shader::Shader(
   const std::vector<std::string>& prependFiles
 )
 {
-  const unsigned int vShader = ShaderUtils::compileShader(GL_VERTEX_SHADER, vPath, prependTexts, prependFiles);
+  const unsigned int vShader = GLUtils::compileShader(
+    GL_VERTEX_SHADER, Utils::shaderSource(vPath, prependTexts, prependFiles).c_str()
+  );
   if (!vShader) {
     glDeleteShader(vShader);
     return;
   }
 
-  const unsigned int fShader = ShaderUtils::compileShader(GL_FRAGMENT_SHADER, fPath, prependTexts, prependFiles);
+  const unsigned int fShader = GLUtils::compileShader(
+    GL_FRAGMENT_SHADER, Utils::shaderSource(fPath, prependTexts, prependFiles).c_str()
+  );
   if (!fShader) {
     glDeleteShader(vShader);
     glDeleteShader(fShader);

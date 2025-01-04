@@ -13,7 +13,7 @@ struct Texture
 {
   unsigned int id;
   TEXTURE_TYPE type;
-  std::string path;
+  std::string key = "";
 };
 
 #endif

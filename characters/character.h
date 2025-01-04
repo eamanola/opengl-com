@@ -1,13 +1,12 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
-#include "../skeletal/skeletal-animation.h"
-#include "../shader.h"
-#include <glm/glm.hpp>
+#include "skeletal/skeletal-animation.h"
+#include "shader.h"
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#include "../scene.h"
-#include "../drawable.h"
+#include "scene.h"
+#include "drawable.h"
 
 class Character : public Drawable
 {

@@ -1,11 +1,11 @@
 #ifndef FLOOR
 #define FLOOR
 
-#include "../drawable.h"
-#include "../mesh.h"
-#include "../texture.h"
-#include "../color.h"
-#include "../array.h"
+#include "drawable.h"
+#include "mesh.h"
+#include "texture.h"
+#include "color.h"
+#include "array.h"
 
 class Floor : public Drawable
 {
@@ -24,7 +24,7 @@ private:
   void updateColors();
   void setPositions();
   Mesh mTileMesh;
-  std::vector<Texture> mTileTextures;
+  Texture mTileTextures;
   const unsigned int mRows;
   const unsigned int mColumns;
   std::vector<Color> mColors;

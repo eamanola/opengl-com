@@ -1,6 +1,6 @@
 #include "grass.h"
-#include "../vertex.h"
-#include "../shader-utils/shader-utils.h"
+#include "vertex.h"
+#include "utils/utils.h"
 #include "glm/gtc/matrix_transform.hpp"
 Grass::Grass(/* args */)
 :
@@ -14,9 +14,9 @@ mPositions({
 mMesh(Shapes::QUAD),
 mTexture(
   Texture {
-    .id = ShaderUtils::loadTexture("assets/grass.png", GL_CLAMP_TO_EDGE),
+    .id = Utils::loadTexture2D("assets/grass.png", GL_CLAMP_TO_EDGE),
     .type = TEXTURE_TYPE_DIFFUSE,
-    .path = "assets/grass.png"
+    .key = "assets/grass.png"
   }
 )
 {
@@ -38,5 +38,5 @@ void Grass::draw(const Shader& shader) const
 void Grass::free() const
 {
   mMesh.free();
-  ShaderUtils::deleteTextures({ mTexture });
+  Utils::deleteTextures({ mTexture });
 }

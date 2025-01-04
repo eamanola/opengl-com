@@ -1,20 +1,13 @@
 #include "window.h"
-#include "../vertex.h"
-#include "../shader-utils/shader-utils.h"
+#include "vertex.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include "../shapes.h"
+#include "shapes.h"
+#include "utils/utils.h"
 
 Window::Window()
 :
 mMesh(Shapes::QUAD),
-mTexture(
-  Texture
-  {
-    .id = ShaderUtils::loadTexture("assets/blending_transparent_window.png"),
-    .type = TEXTURE_TYPE_DIFFUSE,
-    .path = "assets/blending_transparent_window.png"
-  }
-)
+mTexture(Utils::loadTexture2D("assets/blending_transparent_window.png", TEXTURE_TYPE_DIFFUSE))
 {
 }
 
@@ -49,5 +42,5 @@ void Window::draw(const Shader& shader) const
 void Window::free() const
 {
   mMesh.free();
-  ShaderUtils::deleteTextures({ mTexture });
+  Utils::deleteTextures({ mTexture });
 }

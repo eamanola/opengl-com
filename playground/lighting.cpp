@@ -6,15 +6,15 @@
 #define POINT_LIGHT
 
 Lighting::Lighting(
-  const std::vector<Shader>& shaders,
   unsigned int bindingId,
+  const std::vector<Shader>& shaders,
   unsigned int numDirLights,
   unsigned numPointLights,
   unsigned numSpotLights
 )
 :
 ubLightsBuffer(
-  shaders, bindingId, numDirLights, numPointLights, numSpotLights
+  bindingId, shaders, numDirLights, numPointLights, numSpotLights
 )
 {
   UBLights initValue {
@@ -27,12 +27,6 @@ ubLightsBuffer(
 
 void Lighting::setup(Shader &shader)
 {
-  shader.setFloat("u_material.shininess", 32.f);
-}
-
-void Lighting::setViewPosition(Shader &shader, const glm::vec3& position)
-{
-  shader.setVec3fv("u_view_pos", position);
 }
 
 std::vector<DirLight> Lighting::getDirLights()

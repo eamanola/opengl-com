@@ -1,13 +1,12 @@
 #include <glad/gl.h>
-#include <GLFW/glfw3.h>
 #include <iostream>
-#include "util.h"
+#include "main-utils.h"
 
 Scene* scene;
 
 void error_callback(int error, const char* description)
 {
-  fprintf(stderr, "Error: %d, %s", error, description);
+  std::cerr << "GLFW Error: " << error << ", " << description << "\n";
 }
 
 GLFWwindow* setup()
@@ -15,14 +14,14 @@ GLFWwindow* setup()
   GLFWwindow* window = createWindow();
   if(window == nullptr)
   {
-    std::cout << "Failed to create GLFW window" << std::endl;
+    std::cout << "Failed to create GLFW window\n";
     return nullptr;
   }
   glfwMakeContextCurrent(window);
 
   if(!initGlad())
   {
-    std::cout << "Failed to initialize GLAD" << std::endl;
+    std::cout << "Failed to initialize GLAD\n";
     return nullptr;
   }
 

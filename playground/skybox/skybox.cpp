@@ -1,12 +1,13 @@
 #include "skybox.h"
-#include "../../shader-utils/shader-utils.h"
-#include "../../shapes.h"
+#include "gl-utils/gl-utils.h"
+#include "shapes.h"
+#include "utils/utils.h"
 Skybox::Skybox(/* args */)
 :
 mMesh(Shapes::CUBE_ONLY_P),
 mTexture(
   Texture {
-    .id = ShaderUtils::loadCubemap({
+    .id = GLUtils::loadCubemap({
       "assets/skybox/right.jpg",
       "assets/skybox/left.jpg",
       "assets/skybox/bottom.jpg",
@@ -15,7 +16,7 @@ mTexture(
       "assets/skybox/back.jpg"
     }),
     .type = TEXTURE_TYPE_DIFFUSE,
-    .path = "assets/skybox/*.jpg"
+    .key = "assets/skybox/*.jpg"
   }
 )
 {
@@ -35,5 +36,5 @@ void Skybox::draw(Shader &shader)
 void Skybox::free()
 {
   mMesh.free();
-  ShaderUtils::deleteTextures({ mTexture });
+  Utils::deleteTextures({ mTexture });
 }

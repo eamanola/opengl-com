@@ -1,11 +1,9 @@
 #ifndef UB_LIGHTS_BUFFER_H
 #define UB_LIGHTS_BUFFER_H
 
-#include "../shader-utils/uniform-block.h"
-#include "../shader-utils/uniform-block-buffer.h"
-#include "../color.h"
-#include "../shader.h"
-#include <unordered_map>
+#include "uniform-block-buffer.h"
+#include "color.h"
+#include "shader.h"
 
 struct PhongColor {
   Color ambient;
@@ -54,45 +52,44 @@ struct UBLights
   std::vector<SpotLight> spotLights;
 };
 
-class UBLightsBuffer
+class UBLightsBuffer : public UniformBlockBuffer
 {
 public:
   UBLightsBuffer(
-    const std::vector<Shader>& shaders,
     const unsigned int bindingId,
+    const std::vector<Shader>& shaders,
     const unsigned int numDirLights,
     const unsigned int numPointLights,
     const unsigned int numSpotLights
   );
   ~UBLightsBuffer() {};
 
-  void free() const { glDeleteBuffers(1, &mBufferId); }
-
-  bool set(const UBLights& lights);
-  bool setVec3(const char* key, const glm::vec3& value);
-  bool setColor(const char* key, const Color& value);
-  bool setBool(const char* key, const bool& value);
+  bool set(const UBLights& lights) const;
+  bool setVec3(const char* uniformName, const glm::vec3& value) const;
+  bool setColor(const char* uniformName, const Color& value) const;
+  bool setBool(const char* uniformName, const bool& value) const;
 
 private:
-  void getLightUniformNames(const std::string& prefix, std::vector<std::string>& uniformNames);
-  void getAttenuationUniformNames(const std::string& prefix, std::vector<std::string>& uniformNames);
-  void getDirLightUniformNames(const unsigned int numDirLights, std::vector<std::string>& uniformNames);
-  void getPointLightUniformNames(const unsigned int numPointLights, std::vector<std::string>& uniformNames);
-  void getSpotLightUniformNames(const unsigned int numSpotLights, std::vector<std::string>& uniformNames);
+  std::vector<std::string> getUniformNames(
+    unsigned int numDirLights, unsigned int numPointLights, unsigned int numSpotLights
+  ) const;
+  void getLightUniformNames(const std::string& prefix, std::vector<std::string>& uniformNames) const;
+  void getAttenuationUniformNames(const std::string& prefix, std::vector<std::string>& uniformNames) const;
+  void getDirLightUniformNames(const unsigned int numDirLights, std::vector<std::string>& uniformNames) const;
+  void getPointLightUniformNames(const unsigned int numPointLights, std::vector<std::string>& uniformNames) const;
+  void getSpotLightUniformNames(const unsigned int numSpotLights, std::vector<std::string>& uniformNames) const;
 
-  void copyDirLights(const UBLights& lights, char* padded);
-  void copyPointLights(const UBLights& lights, char* padded);
-  void copySpotLights(const UBLights& lights, char* padded);
+  void copyDirLights(const UBLights& lights, char* padded) const;
+  void copyPointLights(const UBLights& lights, char* padded) const;
+  void copySpotLights(const UBLights& lights, char* padded) const;
 
-  void copyLight(const std::string& prefix, Light light, char* padded);
-  void copyAttenuation(const std::string& prefix, Attenuation attenuation, char* padded);
-  void copyDirLight(const unsigned int index, const DirLight& light, char* padded);
-  void copyPointLight(const unsigned int index, const PointLight& light, char* padded);
-  void copySpotLight(const unsigned int index, const SpotLight& light, char* padded);
+  void copyLight(const std::string& prefix, Light light, char* padded) const;
+  void copyAttenuation(const std::string& prefix, Attenuation attenuation, char* padded) const;
+  void copyDirLight(const unsigned int index, const DirLight& light, char* padded) const;
+  void copyPointLight(const unsigned int index, const PointLight& light, char* padded) const;
+  void copySpotLight(const unsigned int index, const SpotLight& light, char* padded) const;
 
-  std::unordered_map<std::string, unsigned int> mOffsets;
-  unsigned int mBufferId;
-  int mBlockDataSize;
+
 };
 
 #endif
