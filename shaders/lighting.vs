@@ -32,11 +32,12 @@ out vsout
 
 // uniform mat4 u_proj_x_view;
 uniform mat4 u_model;
+uniform mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
 
 void main()
 {
   #ifdef NORMAL
-  vs_out.normal = mat3(transpose(inverse(u_model))) * in_normal;
+  vs_out.normal = u_trans_inver_model * in_normal;
   #endif
 
   #ifdef FRAG_POS

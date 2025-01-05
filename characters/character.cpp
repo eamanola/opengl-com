@@ -21,6 +21,7 @@ void Character::update(const float& time)
 void Character::draw(const Shader& shader) const
 {
   shader.setMat4fv("u_model", model());
+  shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model()))));
 
   const Array<glm::mat4> transforms = mAnimation.pose();
 

@@ -77,6 +77,12 @@ void Playground::setup()
   modelWhipper = glm::scale(modelWhipper, glm::vec3(0.15f));
   whipper.setModel(modelWhipper);
 
+  // glm::vec3 n = glm::vec3(1.0, 0.765, 0.123);
+  // glm::vec3 a = glm::normalize(glm::mat3(transpose(inverse(modelDae))) * glm::mat3(modelWhipper) * n);
+  // glm::vec3 b = glm::normalize(glm::mat3(transpose(inverse(modelDae * modelWhipper))) * n);
+
+  // std::cout << a.r << b.r;
+
   glm::mat4 mirrorModel = glm::mat4(1.0);
   mirrorModel = glm::translate(mirrorModel, glm::vec3(2.5f, 0.5f, 0.f));
   mirrorModel = glm::rotate(mirrorModel, glm::radians(-45.f), glm::vec3(0.f, 1.f, 0.f));
@@ -166,6 +172,7 @@ void Playground::render()
   model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
   model2b = glm::translate(model2b, glm::vec3(0.f, 1.5f, -0.75f));
   mpLighting.setMat4fv("u_model", model2b);
+  mpLighting.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model2b))));
   simpleModel.draw(mpLighting);
 
   // mpLighting.setFloat("u_time", glfwGetTime());

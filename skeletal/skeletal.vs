@@ -21,6 +21,7 @@ const uint MAX_BONE_INFLUECE = 4;
 const uint MAX_BONES = 100;
 
 uniform mat4 u_model;
+uniform mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
 uniform mat4 u_bone_transforms[MAX_BONES];
 
 void main()
@@ -31,7 +32,8 @@ void main()
 
   mat4 model = u_model * boneTransform;
 
-  vs_out.normal = mat3(transpose(inverse(model))) * in_normal;
+  vs_out.normal = u_trans_inver_model * mat3(boneTransform) * in_normal;
+  // vs_out.normal = mat3(transpose(inverse(model))) * in_normal;
   vs_out.frag_pos = vec3(model * vec4(in_position, 1.0));
   vs_out.tex_coords = in_tex_coords;
 

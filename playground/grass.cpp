@@ -30,6 +30,7 @@ void Grass::draw(const Shader& shader) const
   {
     glm::mat4 model = glm::translate(Drawable::model(), mPositions[i]);
     shader.setMat4fv("u_model", model);
+    shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model))));
     mMesh.draw(shader, &mTexture);
   }
   glEnable(GL_CULL_FACE);

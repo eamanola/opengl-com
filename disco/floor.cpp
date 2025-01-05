@@ -75,7 +75,9 @@ void Floor::draw(const Shader& shader) const
 
   for (unsigned int i = 0; i < mRows * mColumns; i++)
   {
-    shader.setMat4fv("u_model", glm::translate(model, mPositions[i]));
+    glm::mat4 m = glm::translate(model, mPositions[i]);
+    shader.setMat4fv("u_model", m);
+    shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(m))));
     shader.setVec4fv("u_material.diffuse_color", mColors[i]);
     shader.setVec4fv("u_material.specular_color", mColors[i]);
     mTileMesh.draw(shader, &mTileTextures);
