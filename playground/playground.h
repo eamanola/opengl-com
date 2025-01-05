@@ -65,6 +65,11 @@ private:
   Shader mpPlain;
   #endif
 
+  #define NORMALS_DEBUG
+  #ifdef NORMALS_DEBUG
+  Shader mpNormals;
+  #endif
+
   Lighting lightingSettings;
   bool mSpotlightOn;
 

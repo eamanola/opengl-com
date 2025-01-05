@@ -10,7 +10,7 @@ std::vector<int> GLUtils::checkErrors()
   while ((error = glGetError()) != GL_NO_ERROR)
   {
     errors.push_back(error);
-    std::cerr << "GLError:" << error << "\n";
+    std::cerr << "GLError: " << error << "\n";
   }
 
   return errors;

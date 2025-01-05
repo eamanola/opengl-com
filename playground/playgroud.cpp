@@ -8,7 +8,7 @@
 
 Playground::Playground()
 :
-mpSkeletal("./skeletal/skeletal.vs", "./shaders/lighting.fs",
+mpSkeletal("./skeletal/skeletal.vs", nullptr, "./shaders/lighting.fs",
   {
     "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
     "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
@@ -16,7 +16,7 @@ mpSkeletal("./skeletal/skeletal.vs", "./shaders/lighting.fs",
   },
   { "shaders/lighted-shader-defines" }
 ),
-mpLighting("./shaders/lighting.vs", "./shaders/lighting.fs",
+mpLighting("./shaders/lighting.vs", nullptr, "./shaders/lighting.fs",
   {
     "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
     "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
@@ -25,11 +25,14 @@ mpLighting("./shaders/lighting.vs", "./shaders/lighting.fs",
   { "shaders/lighted-shader-defines" }
 ),
 simpleModel("assets/2b-jumps2/scene.gltf"),
-mpSkybox("./playground/skybox/cube.vs", "./playground/skybox/cube.fs"),
-mpReflectSkybox("./playground/skybox/reflect-skybox.vs", "./playground/skybox/reflect-skybox.fs"),
+mpSkybox("./playground/skybox/cube.vs", nullptr, "./playground/skybox/cube.fs"),
+mpReflectSkybox("./playground/skybox/reflect-skybox.vs", nullptr, "./playground/skybox/reflect-skybox.fs"),
 #ifdef POINTLIGHT_DEBUG
-mpPlain("./shaders/plain.vs", "./shaders/single-color.fs"),
+mpPlain("./shaders/plain.vs", nullptr, "./shaders/single-color.fs"),
 #endif
+mpNormals("./shaders/lighting.vs", "./shaders/draw-normals.gs", "./shaders/single-color.fs",
+  { "#define NORMAL\n" }
+),
 lightingSettings(1, { mpSkeletal, mpLighting }, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS),
 mSpotlightOn(false),
 u_proj_x_view(0, {
@@ -37,14 +40,11 @@ u_proj_x_view(0, {
   #ifdef POINTLIGHT_DEBUG
   ,mpPlain
   #endif
+  #ifdef NORMALS_DEBUG
+  ,mpNormals
+  #endif
 })
 {
-  mpSkeletal.use();
-  mpSkeletal.setFloat("u_material.shininess", 32.f);
-
-  mpLighting.use();
-  mpLighting.setFloat("u_material.shininess", 32.f);
-
   mLastFrame = 0.f;
   mLastX = 400;
   mLastY = 300;
@@ -95,6 +95,17 @@ void Playground::setup()
   const bool animate = false;
   camera().setPosition(cameraPos, animate);
   camera().pointTo(pointTo, animate);
+
+  mpSkeletal.use();
+  mpSkeletal.setFloat("u_material.shininess", 32.f);
+
+  mpLighting.use();
+  mpLighting.setFloat("u_material.shininess", 32.f);
+  // mpLighting.setFloat("u_time", -M_PI_2);
+  #ifdef NORMALS_DEBUG
+  mpNormals.use();
+  mpNormals.setVec4fv("u_color", glm::vec4(1.f, 0.f, 1.f, 1.f));
+  #endif
 }
 
 void Playground::update(const float &time)
@@ -157,7 +168,9 @@ void Playground::render()
   mpLighting.setMat4fv("u_model", model2b);
   simpleModel.draw(mpLighting);
 
+  // mpLighting.setFloat("u_time", glfwGetTime());
   box.draw(mpLighting);
+  // mpLighting.setFloat("u_time", -M_PI_2);
   window.draw(mpLighting);
   mirror.draw(mpLighting);
   grass.draw(mpLighting);
@@ -172,9 +185,14 @@ void Playground::render()
 
     mpPlain.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
     mpPlain.setMat4fv("u_model", lightModel);
-    pointLightDebug.draw(mpLighting);
+    pointLightDebug.draw(mpPlain);
   }
-  mpLighting.setVec4fv("u_color", glm::vec4(0));
+  mpPlain.setVec4fv("u_color", glm::vec4(0));
+  #endif
+
+  #ifdef NORMALS_DEBUG
+  mpNormals.use();
+  box.draw(mpNormals);
   #endif
 
   mpSkybox.use();
@@ -198,6 +216,10 @@ void Playground::teardown()
   #ifdef POINTLIGHT_DEBUG
   pointLightDebug.free();
   mpPlain.free();
+  #endif
+
+  #ifdef NORMALS_DEBUG
+  mpNormals.free();
   #endif
 
   simpleModel.free();

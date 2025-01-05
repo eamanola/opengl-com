@@ -12,7 +12,7 @@
 class Shader
 {
 public:
-  Shader(const char* vertexPath, const char* fragmentPath,
+  Shader(const char* vertexPath, const char* geometryPath, const char* fragmentPath,
          const std::vector<std::string>& prependTexts = {},
          const std::vector<std::string>& prependFiles = {});
 

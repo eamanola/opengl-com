@@ -8,7 +8,7 @@
 #include "utils/utils.h"
 
 Shader::Shader(
-  const char* vPath, const char* fPath,
+  const char* vPath, const char* gPath, const char* fPath,
   const std::vector<std::string>& prependTexts,
   const std::vector<std::string>& prependFiles
 )
@@ -30,13 +30,27 @@ Shader::Shader(
     return;
   }
 
+  unsigned int gShader = 0;
+  if(gPath != nullptr)
+  {
+    if(!GLUtils::compileShader(
+      GL_GEOMETRY_SHADER, Utils::shaderSource(gPath, prependTexts, prependFiles).c_str(), gShader
+    ))
+    {
+      std::cout << "Failed to compile fragment shader\n";
+      return;
+    }
+  }
+
   ID = glCreateProgram();
   glAttachShader(ID, vShader);
   glAttachShader(ID, fShader);
+  if(gShader != 0) glAttachShader(ID, gShader);
   glLinkProgram(ID);
 
   glDeleteShader(vShader);
   glDeleteShader(fShader);
+  if(gShader != 0) glDeleteShader(gShader);
 
   int success;
   glGetProgramiv(ID, GL_LINK_STATUS, &success);
