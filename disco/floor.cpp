@@ -1,5 +1,6 @@
 #include "floor.h"
 
+#include "shaders/attrib-locations.h"
 #include "shaders/u-material.h"
 #include "shapes.h"
 #include "utils/utils.h"
@@ -20,23 +21,56 @@ Floor::Floor(unsigned int rows, unsigned columns) :
   model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
   setModel(model);
 
-  setPositions();
   updateColors();
+  setupOffsets();
 }
 
-void Floor::setPositions()
+std::vector<glm::vec3> Floor::getOffsets(unsigned int rows, unsigned int cols) const
 {
+  std::vector<glm::vec3> positions;
   const float offset = 0.005f;
   const float width = 1.f + 2.f * offset;
   const float height = width;
-  const float x0 = -(mRows * width) / 2.f + width / 2.f;
-  const float y0 = -(mColumns * height) / 2.f + height / 2.f;
+  const float x0 = -(rows * width) / 2.f + width / 2.f;
+  const float y0 = -(cols * height) / 2.f + height / 2.f;
 
-  for (unsigned int i = 0; i < mRows; i++) {
-    for (unsigned int j = 0; j < mColumns; j++) {
-      mPositions.push_back(glm::vec3(x0 + (i * width), y0 + (j * height), 0.f));
+  for (unsigned int i = 0; i < rows; i++) {
+    for (unsigned int j = 0; j < cols; j++) {
+      positions.push_back(glm::vec3(x0 + (i * width), y0 + (j * height), 0.f));
     }
   }
+
+  return positions;
+}
+
+void Floor::setupOffsets()
+{
+  glGenBuffers(1, &mOffsetVBO);
+  glGenBuffers(1, &mColorsVBO);
+
+  glBindVertexArray(mTileMesh.vao());
+
+  glBindBuffer(GL_ARRAY_BUFFER, mOffsetVBO);
+  std::vector<glm::vec3> positions = getOffsets(mRows, mColumns);
+  glBufferData(
+    GL_ARRAY_BUFFER, sizeof(glm::vec3) * positions.size(), &positions[0], GL_STATIC_DRAW
+  );
+  glVertexAttribPointer(
+    ATTRIB_LOCATIONS::FLOOR_OFFSETS, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0
+  );
+  glEnableVertexAttribArray(ATTRIB_LOCATIONS::FLOOR_OFFSETS);
+  glVertexAttribDivisor(ATTRIB_LOCATIONS::FLOOR_OFFSETS, 1);
+
+  glBindBuffer(GL_ARRAY_BUFFER, mColorsVBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * mColors.size(), &mColors[0], GL_DYNAMIC_DRAW);
+  glVertexAttribPointer(
+    ATTRIB_LOCATIONS::FLOOR_COLORS, 4, GL_FLOAT, GL_FALSE, sizeof(Color), (void*)0
+  );
+  glEnableVertexAttribArray(ATTRIB_LOCATIONS::FLOOR_COLORS);
+  glVertexAttribDivisor(ATTRIB_LOCATIONS::FLOOR_COLORS, 1);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
 }
 
 void Floor::updateColors()
@@ -66,21 +100,19 @@ void Floor::render(const Shader& shader) const
   glDisable(GL_CULL_FACE);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  const glm::mat4& model = this->model();
 
   Lighting::u_material::bindTextures(shader, &mTileTexture);
 
-  for (unsigned int i = 0; i < mRows * mColumns; i++) {
-    glm::mat4 m = glm::translate(model, mPositions[i]);
-    shader.setMat4fv("u_model", m);
-    shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(m))));
-    shader.setVec4fv("u_material.diffuse_color", mColors[i]);
-    shader.setVec4fv("u_material.specular_color", mColors[i]);
-    mTileMesh.draw();
-  }
+  const glm::mat4& model = this->model();
+  shader.setMat4fv("u_model", model);
+  shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model))));
 
-  shader.setVec4fv("u_material.diffuse_color", Color(0.f));
-  shader.setVec4fv("u_material.specular_color", Color(0.f));
+  glBindBuffer(GL_ARRAY_BUFFER, mColorsVBO);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * mColors.size(), &mColors[0], GL_DYNAMIC_DRAW);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  mTileMesh.drawInstanced(mRows * mColumns);
+
   Lighting::u_material::unbindTextures(shader, &mTileTexture);
 
   glDisable(GL_BLEND);
@@ -89,6 +121,8 @@ void Floor::render(const Shader& shader) const
 
 void Floor::free() const
 {
-  mTileMesh.free();
   Utils::deleteTextures({ mTileTexture });
+  glDeleteBuffers(1, &mOffsetVBO);
+  glDeleteBuffers(1, &mColorsVBO);
+  mTileMesh.free();
 }

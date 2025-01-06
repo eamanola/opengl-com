@@ -30,6 +30,19 @@ Playground::Playground() :
     { "shaders/lighted-shader-defines" }
   ),
   simpleModel("assets/2b-jumps2/scene.gltf"),
+  mpFloor(
+    "./disco/floor.vs",
+    nullptr,
+    "./shaders/lighting.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define IN_V_COLOR",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
+  floor(100, 100),
   mpSkybox("./playground/skybox/cube.vs", nullptr, "./playground/skybox/cube.fs"),
   mpReflectSkybox(
     "./playground/skybox/reflect-skybox.vs", nullptr, "./playground/skybox/reflect-skybox.fs"
@@ -46,13 +59,14 @@ Playground::Playground() :
   ),
 #endif
   lightingSettings(
-    1, { mpSkeletal, mpLighting }, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS
+    1, { mpSkeletal, mpLighting, mpFloor }, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS
   ),
   mSpotlightOn(false),
   proj_x_view_ub(
     0,
     { mpSkeletal,
-      mpLighting
+      mpLighting,
+      mpFloor
 #ifdef POINTLIGHT_DEBUG
       ,
       mpPlain
@@ -122,6 +136,9 @@ void Playground::setup()
 
   mpLighting.use();
   mpLighting.setFloat("u_material.shininess", 32.f);
+
+  mpFloor.use();
+  mpFloor.setFloat("u_material.shininess", 32.f);
 // mpLighting.setFloat("u_time", -M_PI_2);
 #ifdef NORMALS_DEBUG
   mpNormals.use();
@@ -194,7 +211,10 @@ void Playground::render()
   window.render(mpLighting);
   mirror.render(mpLighting);
   grass.render(mpLighting);
-  floor.render(mpLighting);
+
+  mpFloor.use();
+  mpFloor.setVec3fv("u_view_pos", view_pos);
+  floor.render(mpFloor);
 
 #ifdef POINTLIGHT_DEBUG
   mpPlain.use();
@@ -250,6 +270,9 @@ void Playground::teardown()
 
   mpSkybox.free();
   skybox.free();
+
+  floor.free();
+  mpFloor.free();
 
   mpReflectSkybox.free();
   skyboxReflector.free();

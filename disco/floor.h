@@ -18,19 +18,18 @@ public:
   void render(const Shader& shader) const override;
   void free() const override;
 
-  const Array<glm::vec3> positions() const { return Array(mPositions); }
-  const Array<Color> colors() const { return Array(mColors); }
-
 private:
   void updateColors();
-  void setPositions();
+  std::vector<glm::vec3> getOffsets(unsigned int rows, unsigned int cols) const;
+  void setupOffsets();
   Mesh mTileMesh;
   Texture mTileTexture;
   const unsigned int mRows;
   const unsigned int mColumns;
   std::vector<Color> mColors;
-  std::vector<glm::vec3> mPositions;
   float mPreviousUpdate;
+  unsigned int mOffsetVBO;
+  unsigned int mColorsVBO;
 };
 
 #endif

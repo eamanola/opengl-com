@@ -90,6 +90,10 @@ in vsout
 #ifdef MATERIAL
   vec2 tex_coords;
 #endif
+
+#ifdef IN_V_COLOR
+  vec4 color;
+#endif
 } fs_in;
 
 out vec4 f_color;
@@ -207,6 +211,15 @@ mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
   {
     specularColor += u_material.specular_color;
   }
+
+  #ifdef IN_V_COLOR
+
+  if(fs_in.color != vec4(0.0))
+  {
+    diffuseColor += fs_in.color;
+  }
+
+  #endif
 
   Light light = dirLight.light;
   vec4 ambient = light.color.ambient * diffuseColor;

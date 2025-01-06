@@ -13,6 +13,7 @@ public:
   virtual ~Mesh();
 
   void draw() const;
+  void drawInstanced(const unsigned int instanceCount) const;
 
   void free() const;
 

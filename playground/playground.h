@@ -52,6 +52,8 @@ private:
   Grass grass;
   Window window;
   Mirror mirror;
+
+  Shader mpFloor;
   Floor floor;
 
   Shader mpSkybox;
