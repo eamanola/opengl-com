@@ -315,7 +315,10 @@ void Playground::onMouse(const GLFWwindow* window, const double x, const double 
   mLastX = x;
   mLastY = y;
 
-  camera().changeDirection(xoffset, yoffset);
+  if(glfwGetMouseButton((GLFWwindow*)window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+  {
+    camera().changeDirection(xoffset, yoffset);
+  }
 }
 
 void Playground::onScroll(const GLFWwindow* window, const double x, const double y)

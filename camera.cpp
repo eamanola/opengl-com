@@ -85,7 +85,7 @@ void Camera::updateVectors(const glm::vec3 &direction)
 
 void Camera::changeDirection(const float xoffset, const float yoffset)
 {
-  const float sensitivity = 0.1f;
+  const float sensitivity = 0.2f;
   yaw += (xoffset * sensitivity);
   pitch += (yoffset * sensitivity);
 

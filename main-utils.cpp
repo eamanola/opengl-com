@@ -27,7 +27,7 @@ GLFWwindow* setup()
 
   glfwSetErrorCallback(error_callback);
   setupViewport(window);
-  // setupMouse(window);
+  setupMouse(window);
   setupKeyboard(window);
   initGL();
 
@@ -101,8 +101,7 @@ void scroll_callback(GLFWwindow* window, double x, double y)
 
 void setupMouse(GLFWwindow* window)
 {
-  const bool DEBUG = false;
-  glfwSetInputMode(window, GLFW_CURSOR, DEBUG ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_DISABLED);
+  // glfwSetInputMode(window, GLFW_CURSOR, DEBUG ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window, mouse_callback);
   glfwSetScrollCallback(window, scroll_callback);
 }
