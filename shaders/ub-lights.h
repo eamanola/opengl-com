@@ -6,6 +6,9 @@
 #include "color.h"
 #include "shader.h"
 
+namespace Lighting
+{
+
 struct PhongColor {
   Color ambient;
   Color diffuse;
@@ -46,25 +49,25 @@ struct SpotLight {
   Light light;
 };
 
-struct ub_lights {
-  std::vector<DirLight> dirLights;
-  std::vector<PointLight> pointLights;
-  std::vector<SpotLight> spotLights;
-};
-
-class UBLights : public UniformBlockBuffer
+class ub_lights : public UniformBlockBuffer
 {
 public:
-  UBLights(
+  struct Lights {
+    std::vector<DirLight> dirLights;
+    std::vector<PointLight> pointLights;
+    std::vector<SpotLight> spotLights;
+  };
+
+  ub_lights(
     const unsigned int bindingId,
     const std::vector<Shader>& shaders,
     const unsigned int numDirLights,
     const unsigned int numPointLights,
     const unsigned int numSpotLights
   );
-  ~UBLights() {};
+  ~ub_lights() { }
 
-  bool set(const ub_lights& lights) const;
+  bool set(const Lights& lights) const;
   bool setVec3(const char* uniformName, const glm::vec3& value) const;
   bool setColor(const char* uniformName, const Color& value) const;
   bool setBool(const char* uniformName, const bool& value) const;
@@ -87,9 +90,9 @@ private:
     const unsigned int numSpotLights, std::vector<std::string>& uniformNames
   ) const;
 
-  void copyDirLights(const ub_lights& lights, char* padded) const;
-  void copyPointLights(const ub_lights& lights, char* padded) const;
-  void copySpotLights(const ub_lights& lights, char* padded) const;
+  void copyDirLights(const Lights& lights, char* padded) const;
+  void copyPointLights(const Lights& lights, char* padded) const;
+  void copySpotLights(const Lights& lights, char* padded) const;
 
   void copyLight(const std::string& prefix, Light light, char* padded) const;
   void copyAttenuation(const std::string& prefix, Attenuation attenuation, char* padded) const;
@@ -98,4 +101,5 @@ private:
   void copySpotLight(const unsigned int index, const SpotLight& light, char* padded) const;
 };
 
+} // namespace Lighting
 #endif

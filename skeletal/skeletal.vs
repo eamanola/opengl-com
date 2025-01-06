@@ -5,7 +5,7 @@ layout (location = 2) in vec2 in_tex_coords;
 layout (location = 3) in vec4 in_bone_ids;
 layout (location = 4) in vec4 in_bone_weights;
 
-layout(packed) uniform u_proj_x_view
+layout(packed) uniform ub_proj_x_view
 {
   mat4 proj_x_view;
 };

@@ -1,7 +1,7 @@
 #version 330 core
 layout (location = 0) in vec3 in_position;
 
-layout(packed) uniform u_proj_x_view
+layout(packed) uniform ub_proj_x_view
 {
   mat4 proj_x_view;
 };

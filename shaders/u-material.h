@@ -4,14 +4,14 @@
 #include "shader.h"
 #include "texture.h"
 
-class UMaterial
+namespace Lighting
 {
-public:
-  UMaterial() { }
-  ~UMaterial() { }
 
-  // also binds
-  static void setTextures(const Shader& shader, const Texture* textures, const unsigned int len)
+class u_material
+{
+
+public:
+  static void bindTextures(const Shader& shader, const Texture* textures, const unsigned int len)
   {
     assert(len <= 2);
     unsigned int diffuseNr = 1;
@@ -34,13 +34,13 @@ public:
       glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
   }
-  static void setTextures(const Shader& shader, const Texture* textures)
+
+  static void bindTextures(const Shader& shader, const Texture* textures)
   {
-    return setTextures(shader, textures, 1);
+    return bindTextures(shader, textures, 1);
   }
 
-  // also unbinds
-  static void clearTextures(const Shader& shader, const Texture* textures, const unsigned int len)
+  static void unbindTextures(const Shader& shader, const Texture* textures, const unsigned int len)
   {
     if (len > 0) {
       for (unsigned int i = 0; i < len; i++) {
@@ -55,10 +55,12 @@ public:
     }
   }
 
-  static void clearTextures(const Shader& shader, const Texture* textures)
+  static void unbindTextures(const Shader& shader, const Texture* textures)
   {
-    return clearTextures(shader, textures, 1);
+    return unbindTextures(shader, textures, 1);
   }
 };
+
+} // namespace Lighting
 
 #endif

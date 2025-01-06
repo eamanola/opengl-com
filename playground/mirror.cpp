@@ -43,9 +43,9 @@ void Mirror::render(const Shader& shader) const
   shader.setMat4fv("u_model", model());
   shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model()))));
 
-  UMaterial::setTextures(shader, &mTexture);
+  Lighting::u_material::bindTextures(shader, &mTexture);
   mMesh.draw();
-  UMaterial::clearTextures(shader, &mTexture);
+  Lighting::u_material::unbindTextures(shader, &mTexture);
 }
 
 void Mirror::free() const

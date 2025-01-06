@@ -26,7 +26,7 @@ void Grass::render(const Shader& shader) const
 {
   glDisable(GL_CULL_FACE);
 
-  UMaterial::setTextures(shader, &mTexture);
+  Lighting::u_material::bindTextures(shader, &mTexture);
 
   for (unsigned int i = 0; i < mPositions.size(); i++) {
     glm::mat4 model = glm::translate(Renderable::model(), mPositions[i]);
@@ -36,7 +36,7 @@ void Grass::render(const Shader& shader) const
     mMesh.draw();
   }
 
-  UMaterial::clearTextures(shader, &mTexture);
+  Lighting::u_material::unbindTextures(shader, &mTexture);
 
   glEnable(GL_CULL_FACE);
 }

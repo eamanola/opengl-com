@@ -7,7 +7,7 @@
 #include "characters/dae.h"
 #include "characters/tifa.h"
 #include "characters/whipper.h"
-#include "lighting.h"
+#include "light-settings.h"
 #include "scene.h"
 #ifdef POINTLIGHT_DEBUG
 #include "light-debug.h"
@@ -70,7 +70,8 @@ private:
   Shader mpNormals;
 #endif
 
-  Lighting lightingSettings;
+  LightSettings lightingSettings;
+
   bool mSpotlightOn;
 
   float mLastFrame;
@@ -78,7 +79,7 @@ private:
   float mLastY;
   bool mFirstMouse;
 
-  UBProjXView ub_proj_x_view;
+  ub_proj_x_view proj_x_view_ub;
 };
 
 #endif

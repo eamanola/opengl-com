@@ -18,7 +18,7 @@ void Window::render(const Shader& shader) const
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  UMaterial::setTextures(shader, &mTexture, 1);
+  Lighting::u_material::bindTextures(shader, &mTexture, 1);
 
   glm::mat4 model = this->model();
 
@@ -40,7 +40,7 @@ void Window::render(const Shader& shader) const
   shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model))));
   mMesh.draw();
 
-  UMaterial::clearTextures(shader, &mTexture, 1);
+  Lighting::u_material::unbindTextures(shader, &mTexture, 1);
 
   glDisable(GL_BLEND);
 

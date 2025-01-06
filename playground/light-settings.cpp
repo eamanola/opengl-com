@@ -1,31 +1,28 @@
-#include "lighting.h"
+#include "light-settings.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
-#define DIRECTIONAL_LIGHT
-#define SPOT_LIGHT
-#define POINT_LIGHT
+using Lighting::DirLight;
+using Lighting::PointLight;
+using Lighting::SpotLight;
 
-Lighting::Lighting(
+LightSettings::LightSettings(
   unsigned int bindingId,
   const std::vector<Shader>& shaders,
   unsigned int numDirLights,
   unsigned numPointLights,
   unsigned numSpotLights
 ) :
-  ubLights(bindingId, shaders, numDirLights, numPointLights, numSpotLights)
+  ub_lights(bindingId, shaders, numDirLights, numPointLights, numSpotLights)
 {
-  ub_lights initValue {
+  ub_lights.set({
     .dirLights = getDirLights(),
     .pointLights = getPointLights(),
     .spotLights = getSpotLights(),
-  };
-  ubLights.set(initValue);
+  });
 }
 
-void Lighting::setup(Shader& shader) { }
-
-std::vector<DirLight> Lighting::getDirLights()
+std::vector<DirLight> LightSettings::getDirLights()
 {
   const glm::vec4 AMBIENT(0.2f);
   const glm::vec4 DIFFUSE(0.5f);
@@ -53,7 +50,7 @@ std::vector<DirLight> Lighting::getDirLights()
   return { light };
 }
 
-std::vector<PointLight> Lighting::getPointLights()
+std::vector<PointLight> LightSettings::getPointLights()
 {
   const glm::vec4 AMBIENT(0.2f);
   const glm::vec4 DIFFUSE(0.5f);
@@ -90,12 +87,12 @@ std::vector<PointLight> Lighting::getPointLights()
   return pointLights;
 }
 
-void Lighting::updatePointLight0Position()
+void LightSettings::updatePointLight0Position()
 {
-  ubLights.setVec3("u_point_lights[0].position", mLights.positions[0]);
+  ub_lights.setVec3("u_point_lights[0].position", mLights.positions[0]);
 }
 
-std::vector<SpotLight> Lighting::getSpotLights()
+std::vector<SpotLight> LightSettings::getSpotLights()
 {
   const glm::vec4 AMBIENT(0.2f);
   const glm::vec4 DIFFUSE(0.5f);
@@ -130,9 +127,9 @@ std::vector<SpotLight> Lighting::getSpotLights()
   return { spotLight };
 }
 
-void Lighting::updateSpotLight(const glm::vec3& position, const glm::vec3& direction, bool off)
+void LightSettings::updateSpotLight(const glm::vec3& position, const glm::vec3& direction, bool off)
 {
-  ubLights.setVec3("u_spot_lights[0].position", position);
-  ubLights.setVec3("u_spot_lights[0].direction", direction);
-  ubLights.setBool("u_spot_lights[0].light.off", off);
+  ub_lights.setVec3("u_spot_lights[0].position", position);
+  ub_lights.setVec3("u_spot_lights[0].direction", direction);
+  ub_lights.setBool("u_spot_lights[0].light.off", off);
 }

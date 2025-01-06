@@ -6,12 +6,12 @@
 #include "shader.h"
 #include <glm/gtc/type_ptr.hpp>
 
-class UBProjXView
+class ub_proj_x_view
 {
 public:
-  UBProjXView(unsigned int bindingId, const std::vector<Shader>& shaders)
+  ub_proj_x_view(unsigned int bindingId, const std::vector<Shader>& shaders)
   {
-    const char* blockName = "u_proj_x_view";
+    const char* blockName = "ub_proj_x_view";
 
     for (Shader shader : shaders) {
       const unsigned int shaderId = shader.id();
@@ -41,9 +41,9 @@ public:
       return;
     }
   }
-  ~UBProjXView() { }
+  ~ub_proj_x_view() { }
 
-  void free() const { glDeleteBuffers(1, &mBufferId); };
+  void free() const { glDeleteBuffers(1, &mBufferId); }
 
   void set(const glm::mat4& proj_x_view)
   {

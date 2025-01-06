@@ -68,7 +68,7 @@ void Floor::render(const Shader& shader) const
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   const glm::mat4& model = this->model();
 
-  UMaterial::setTextures(shader, &mTileTexture);
+  Lighting::u_material::bindTextures(shader, &mTileTexture);
 
   for (unsigned int i = 0; i < mRows * mColumns; i++) {
     glm::mat4 m = glm::translate(model, mPositions[i]);
@@ -81,7 +81,7 @@ void Floor::render(const Shader& shader) const
 
   shader.setVec4fv("u_material.diffuse_color", Color(0.f));
   shader.setVec4fv("u_material.specular_color", Color(0.f));
-  UMaterial::clearTextures(shader, &mTileTexture);
+  Lighting::u_material::unbindTextures(shader, &mTileTexture);
 
   glDisable(GL_BLEND);
   glEnable(GL_CULL_FACE);

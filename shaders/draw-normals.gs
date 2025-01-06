@@ -17,7 +17,7 @@ in vsout
 #endif
 } gs_in[];
 
-layout(packed) uniform u_proj_x_view
+layout(packed) uniform ub_proj_x_view
 {
   mat4 proj_x_view;
 };

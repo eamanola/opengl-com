@@ -6,19 +6,23 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-class Lighting
+using Lighting::DirLight;
+using Lighting::PointLight;
+using Lighting::SpotLight;
+
+class LightSettings
 {
 public:
-  Lighting(
+  LightSettings(
     unsigned int bindingId,
     const std::vector<Shader>& shaders,
     unsigned int numDirLights,
     unsigned numPointLights,
     unsigned numSpotLights
   );
-  ~Lighting() { }
+  ~LightSettings() { }
 
-  struct Lights {
+  struct {
     std::vector<glm::vec3> positions = {
       glm::vec3(0.7f, 0.2f, 2.0f),
       glm::vec3(2.3f, -3.3f, -4.0f),
@@ -35,16 +39,16 @@ public:
 
   // const unsigned int NR_POINT_LIGHTS = mLights.positions.size();
 
-  void setup(Shader& shader);
+  void setup(const Shader& shader) { }
   void updatePointLight0Position();
   void updateSpotLight(const glm::vec3& position, const glm::vec3& direction, bool off);
-  void free() { ubLights.free(); }
+  void free() { ub_lights.free(); }
 
 private:
   std::vector<DirLight> getDirLights();
   std::vector<PointLight> getPointLights();
   std::vector<SpotLight> getSpotLights();
-  UBLights ubLights;
+  Lighting::ub_lights ub_lights;
 };
 
 #endif

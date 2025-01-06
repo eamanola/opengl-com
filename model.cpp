@@ -137,9 +137,9 @@ void Model::draw(const Shader& shader) const
       textures.push_back(mTextures[j]);
     }
 
-    UMaterial::setTextures(shader, &textures[0], textures.size());
+    Lighting::u_material::bindTextures(shader, &textures[0], textures.size());
     mMeshes[i].draw();
-    UMaterial::clearTextures(shader, &textures[0], textures.size());
+    Lighting::u_material::unbindTextures(shader, &textures[0], textures.size());
   }
 }
 

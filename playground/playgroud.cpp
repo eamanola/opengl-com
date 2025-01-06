@@ -37,17 +37,19 @@ Playground::Playground() :
 #ifdef POINTLIGHT_DEBUG
   mpPlain("./shaders/plain.vs", nullptr, "./shaders/single-color.fs"),
 #endif
+#ifdef NORMALS_DEBUG
   mpNormals(
     "./shaders/lighting.vs",
     "./shaders/draw-normals.gs",
     "./shaders/single-color.fs",
     { "#define NORMAL\n" }
   ),
+#endif
   lightingSettings(
     1, { mpSkeletal, mpLighting }, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS
   ),
   mSpotlightOn(false),
-  ub_proj_x_view(
+  proj_x_view_ub(
     0,
     { mpSkeletal,
       mpLighting
@@ -162,7 +164,7 @@ void Playground::render()
 
   lightingSettings.updatePointLight0Position();
   lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
-  ub_proj_x_view.set(proj_x_view);
+  proj_x_view_ub.set(proj_x_view);
 
   mpSkeletal.use();
   mpSkeletal.setVec3fv("u_view_pos", view_pos);
@@ -252,6 +254,7 @@ void Playground::teardown()
   mpReflectSkybox.free();
   skyboxReflector.free();
   lightingSettings.free();
+  proj_x_view_ub.free();
 }
 
 void Playground::highlight(Box& box, glm::mat4 model)

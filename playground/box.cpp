@@ -29,7 +29,8 @@ Box::Box() :
 
 void Box::render(const Shader& shader) const
 {
-  UMaterial::setTextures(shader, &mTextures[0], mTextures.size());
+  Lighting::u_material::bindTextures(shader, &mTextures[0], mTextures.size());
+
   for (unsigned int i = 0; i < mPositions.size(); i++) {
     glm::mat4 model = glm::translate(Renderable::model(), mPositions[i]);
     model = glm::rotate(model, glm::radians(20.f * i), glm::vec3(1.0f, 0.3f, 0.5f));
@@ -46,7 +47,8 @@ void Box::render(const Shader& shader) const
     //   box.draw(lightingProgram);
     // }
   }
-  UMaterial::clearTextures(shader, &mTextures[0], mTextures.size());
+
+  Lighting::u_material::unbindTextures(shader, &mTextures[0], mTextures.size());
 }
 
 void Box::free() const

@@ -10,7 +10,7 @@ layout (location = 1) in vec3 in_normal;
 layout (location = 2) in vec2 in_tex_coords;
 #endif
 
-layout(packed) uniform u_proj_x_view
+layout(packed) uniform ub_proj_x_view
 {
   mat4 proj_x_view;
 };
