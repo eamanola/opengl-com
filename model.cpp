@@ -1,5 +1,6 @@
 #include "model.h"
 
+#include "shaders/u-material.h"
 #include "utils/utils.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -136,7 +137,9 @@ void Model::draw(const Shader& shader) const
       textures.push_back(mTextures[j]);
     }
 
-    mMeshes[i].draw(shader, &textures[0], textures.size());
+    UMaterial::setTextures(shader, &textures[0], textures.size());
+    mMeshes[i].draw();
+    UMaterial::clearTextures(shader, &textures[0], textures.size());
   }
 }
 

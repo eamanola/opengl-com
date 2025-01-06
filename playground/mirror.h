@@ -5,6 +5,7 @@
 
 #include "mesh.h"
 #include "scene.h"
+#include "texture.h"
 #include <glm/glm.hpp>
 
 class Mirror : public Renderable

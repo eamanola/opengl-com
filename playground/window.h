@@ -4,6 +4,7 @@
 #include "renderable.h"
 
 #include "mesh.h"
+#include "texture.h"
 #include <glm/glm.hpp>
 #include <vector>
 

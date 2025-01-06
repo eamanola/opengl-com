@@ -3,14 +3,15 @@
 
 #include "mesh.h"
 #include "shader.h"
+#include "texture.h"
 
 class SkyboxReflector
 {
 public:
-  SkyboxReflector(/* args */);
-  ~SkyboxReflector() { };
+  SkyboxReflector();
+  ~SkyboxReflector() { }
 
-  void draw(Shader &shader);
+  void draw(const Shader& shader);
   void free();
 
 private:

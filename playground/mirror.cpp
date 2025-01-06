@@ -1,10 +1,10 @@
 #include "mirror.h"
 
 #include "gl-utils/gl-utils.h"
+#include "shaders/u-material.h"
 #include "utils/utils.h"
 #include <glad/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
 
 Mirror::Mirror(const float vWidth, const float vHeight) :
   mNormal(glm::normalize(glm::vec3(0.f, 0.f, 1.f))),
@@ -15,7 +15,7 @@ Mirror::Mirror(const float vWidth, const float vHeight) :
       { .position = { -2.5f, -2.5f * vHeight / vWidth, 0.f }, .normal = mNormal, .texCoords = { 1.f, 0.f } },
       { .position = {  2.5f, -2.5f * vHeight / vWidth, 0.f }, .normal = mNormal, .texCoords = { 0.f, 0.f } },
       { .position = {  2.5f,  2.5f * vHeight / vWidth, 0.f }, .normal = mNormal, .texCoords = { 0.f, 1.f } },
-      { .position = { -2.5f,  2.5f * vHeight / vWidth, 0.f }, .normal = mNormal, .texCoords = { 1.f, 1.f } }
+      { .position = { -2.5f,  2.5f * vHeight / vWidth, 0.f }, .normal = mNormal, .texCoords = { 1.f, 1.f } },
     }),
     std::vector<unsigned int> ({
       0, 1, 2,
@@ -43,7 +43,9 @@ void Mirror::render(const Shader& shader) const
   shader.setMat4fv("u_model", model());
   shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model()))));
 
-  mMesh.draw(shader, &mTexture);
+  UMaterial::setTextures(shader, &mTexture);
+  mMesh.draw();
+  UMaterial::clearTextures(shader, &mTexture);
 }
 
 void Mirror::free() const

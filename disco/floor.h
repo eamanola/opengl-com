@@ -25,7 +25,7 @@ private:
   void updateColors();
   void setPositions();
   Mesh mTileMesh;
-  Texture mTileTextures;
+  Texture mTileTexture;
   const unsigned int mRows;
   const unsigned int mColumns;
   std::vector<Color> mColors;

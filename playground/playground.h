@@ -3,23 +3,23 @@
 
 #define POINTLIGHT_DEBUG
 
-#include "scene.h"
 #include "camera.h"
-#include "characters/tifa.h"
 #include "characters/dae.h"
+#include "characters/tifa.h"
 #include "characters/whipper.h"
 #include "lighting.h"
+#include "scene.h"
 #ifdef POINTLIGHT_DEBUG
 #include "light-debug.h"
 #endif
 #include "box.h"
-#include "grass.h"
-#include "window.h"
-#include "mirror.h"
-#include "skybox/skybox.h"
-#include "skybox/skybox-reflector.h"
 #include "disco/floor.h"
-#include "shaders/u-proj-x-view.h"
+#include "grass.h"
+#include "mirror.h"
+#include "shaders/ub-proj-x-view.h"
+#include "skybox/skybox-reflector.h"
+#include "skybox/skybox.h"
+#include "window.h"
 
 class Playground : public Scene
 {
@@ -28,7 +28,7 @@ public:
   ~Playground();
 
   void setup() override;
-  void update(const float &time) override;
+  void update(const float& time) override;
   void render() override;
   void teardown() override;
 
@@ -39,7 +39,7 @@ public:
 
 private:
   void toggleSpotLight() { mSpotlightOn = !mSpotlightOn; };
-  void highlight(Box &box, glm::mat4 model);
+  void highlight(Box& box, glm::mat4 model);
 
   Shader mpSkeletal;
   Tifa tifa;
@@ -60,15 +60,15 @@ private:
   Shader mpReflectSkybox;
   SkyboxReflector skyboxReflector;
 
-  #ifdef POINTLIGHT_DEBUG
+#ifdef POINTLIGHT_DEBUG
   LightDebug pointLightDebug;
   Shader mpPlain;
-  #endif
+#endif
 
-  #define NORMALS_DEBUG
-  #ifdef NORMALS_DEBUG
+#define NORMALS_DEBUG
+#ifdef NORMALS_DEBUG
   Shader mpNormals;
-  #endif
+#endif
 
   Lighting lightingSettings;
   bool mSpotlightOn;
@@ -78,7 +78,7 @@ private:
   float mLastY;
   bool mFirstMouse;
 
-  UProjXViewBuffer u_proj_x_view;
+  UBProjXView ub_proj_x_view;
 };
 
 #endif

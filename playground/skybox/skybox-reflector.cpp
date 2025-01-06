@@ -1,69 +1,68 @@
 #include "skybox-reflector.h"
+
 #include "gl-utils/gl-utils.h"
-#include <glm/gtc/matrix_transform.hpp>
 #include "utils/utils.h"
+#include <glm/gtc/matrix_transform.hpp>
 
-SkyboxReflector::SkyboxReflector(/* args */)
-:
-mMesh(
-  std::vector<Vertex> {
-    { .position { -0.5f, -0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, },
-    { .position {  0.5f, -0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, },
-    { .position {  0.5f,  0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, },
-    { .position { -0.5f,  0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, },
+SkyboxReflector::SkyboxReflector(/* args */) :
+  mMesh(
+    // clang-format off
+    std::vector<Vertex> {
+      { .position { -0.5f, -0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, },
+      { .position {  0.5f, -0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, },
+      { .position {  0.5f,  0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, },
+      { .position { -0.5f,  0.5f, -0.5f }, .normal {  0.0f,  0.0f, -1.0f }, },
 
-    { .position { -0.5f, -0.5f,  0.5f }, .normal {  0.0f,  0.0f,  1.0f }, },
-    { .position {  0.5f, -0.5f,  0.5f }, .normal {  0.0f,  0.0f,  1.0f }, },
-    { .position {  0.5f,  0.5f,  0.5f }, .normal {  0.0f,  0.0f,  1.0f }, },
-    { .position { -0.5f,  0.5f,  0.5f }, .normal {  0.0f,  0.0f,  1.0f }, },
+      { .position { -0.5f, -0.5f,  0.5f }, .normal {  0.0f,  0.0f,  1.0f }, },
+      { .position {  0.5f, -0.5f,  0.5f }, .normal {  0.0f,  0.0f,  1.0f }, },
+      { .position {  0.5f,  0.5f,  0.5f }, .normal {  0.0f,  0.0f,  1.0f }, },
+      { .position { -0.5f,  0.5f,  0.5f }, .normal {  0.0f,  0.0f,  1.0f }, },
 
-    { .position { -0.5f, -0.5f, -0.5f }, .normal { -1.0f,  0.0f,  0.0f }, },
-    { .position { -0.5f,  0.5f, -0.5f }, .normal { -1.0f,  0.0f,  0.0f }, },
-    { .position { -0.5f,  0.5f,  0.5f }, .normal { -1.0f,  0.0f,  0.0f }, },
-    { .position { -0.5f, -0.5f,  0.5f }, .normal { -1.0f,  0.0f,  0.0f }, },
+      { .position { -0.5f, -0.5f, -0.5f }, .normal { -1.0f,  0.0f,  0.0f }, },
+      { .position { -0.5f,  0.5f, -0.5f }, .normal { -1.0f,  0.0f,  0.0f }, },
+      { .position { -0.5f,  0.5f,  0.5f }, .normal { -1.0f,  0.0f,  0.0f }, },
+      { .position { -0.5f, -0.5f,  0.5f }, .normal { -1.0f,  0.0f,  0.0f }, },
 
-    { .position {  0.5f, -0.5f, -0.5f }, .normal {  1.0f,  0.0f,  0.0f }, },
-    { .position {  0.5f,  0.5f, -0.5f }, .normal {  1.0f,  0.0f,  0.0f }, },
-    { .position {  0.5f,  0.5f,  0.5f }, .normal {  1.0f,  0.0f,  0.0f }, },
-    { .position {  0.5f, -0.5f,  0.5f }, .normal {  1.0f,  0.0f,  0.0f }, },
+      { .position {  0.5f, -0.5f, -0.5f }, .normal {  1.0f,  0.0f,  0.0f }, },
+      { .position {  0.5f,  0.5f, -0.5f }, .normal {  1.0f,  0.0f,  0.0f }, },
+      { .position {  0.5f,  0.5f,  0.5f }, .normal {  1.0f,  0.0f,  0.0f }, },
+      { .position {  0.5f, -0.5f,  0.5f }, .normal {  1.0f,  0.0f,  0.0f }, },
 
-    { .position { -0.5f, -0.5f, -0.5f }, .normal {  0.0f, -1.0f,  0.0f }, },
-    { .position {  0.5f, -0.5f, -0.5f }, .normal {  0.0f, -1.0f,  0.0f }, },
-    { .position {  0.5f, -0.5f,  0.5f }, .normal {  0.0f, -1.0f,  0.0f }, },
-    { .position { -0.5f, -0.5f,  0.5f }, .normal {  0.0f, -1.0f,  0.0f }, },
+      { .position { -0.5f, -0.5f, -0.5f }, .normal {  0.0f, -1.0f,  0.0f }, },
+      { .position {  0.5f, -0.5f, -0.5f }, .normal {  0.0f, -1.0f,  0.0f }, },
+      { .position {  0.5f, -0.5f,  0.5f }, .normal {  0.0f, -1.0f,  0.0f }, },
+      { .position { -0.5f, -0.5f,  0.5f }, .normal {  0.0f, -1.0f,  0.0f }, },
 
-    { .position { -0.5f,  0.5f, -0.5f }, .normal {  0.0f,  1.0f,  0.0f }, },
-    { .position {  0.5f,  0.5f, -0.5f }, .normal {  0.0f,  1.0f,  0.0f }, },
-    { .position {  0.5f,  0.5f,  0.5f }, .normal {  0.0f,  1.0f,  0.0f }, },
-    { .position { -0.5f,  0.5f,  0.5f }, .normal {  0.0f,  1.0f,  0.0f }, }
-  },
-  std::vector<unsigned int> {
-     0,  2,  1,  0,  3,  2,
-     4,  5,  6,  4,  6,  7,
-     8, 10,  9,  8, 11, 10,
-    12, 13, 14, 12, 14, 15,
-    16, 17, 18, 16, 18, 19,
-    20, 22, 21, 20, 23, 22
-  }
-),
-mTexture(
-  Texture {
+      { .position { -0.5f,  0.5f, -0.5f }, .normal {  0.0f,  1.0f,  0.0f }, },
+      { .position {  0.5f,  0.5f, -0.5f }, .normal {  0.0f,  1.0f,  0.0f }, },
+      { .position {  0.5f,  0.5f,  0.5f }, .normal {  0.0f,  1.0f,  0.0f }, },
+      { .position { -0.5f,  0.5f,  0.5f }, .normal {  0.0f,  1.0f,  0.0f }, },
+    },
+    std::vector<unsigned int> {
+      0,  2,  1,  0,  3,  2,
+      4,  5,  6,  4,  6,  7,
+      8, 10,  9,  8, 11, 10,
+      12, 13, 14, 12, 14, 15,
+      16, 17, 18, 16, 18, 19,
+      20, 22, 21, 20, 23, 22,
+    } // clang-format on
+  ),
+  mTexture(Texture {
     .id = GLUtils::loadCubemap({
       "assets/skybox/right.jpg",
       "assets/skybox/left.jpg",
       "assets/skybox/bottom.jpg",
       "assets/skybox/top.jpg",
       "assets/skybox/front.jpg",
-      "assets/skybox/back.jpg"
+      "assets/skybox/back.jpg",
     }),
     .type = TEXTURE_TYPE_DIFFUSE,
-    .key = "assets/skybox/*.jpg"
-  }
-)
+    .key = "assets/skybox/*.jpg",
+  })
 {
 }
 
-void SkyboxReflector::draw(Shader& shader)
+void SkyboxReflector::draw(const Shader& shader)
 {
   shader.setMat4fv("u_model", glm::translate(glm::mat4(1.0), glm::vec3(-1.f, 0.f, -1.f)));
   // reflect ratio
@@ -74,7 +73,7 @@ void SkyboxReflector::draw(Shader& shader)
   // Diamond 	2.42
   shader.setFloat("u_ratio", 1.f / 1.52f);
   glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture.id);
-  mMesh.draw(shader);
+  mMesh.draw();
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 

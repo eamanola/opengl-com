@@ -4,7 +4,7 @@ Language:        Cpp
 BasedOnStyle:  LLVM
 # AccessModifierOffset: -2
 AlignAfterOpenBracket: BlockIndent #Align
-# AlignArrayOfStructures: None
+AlignArrayOfStructures: Right #None
 # AlignConsecutiveAssignments:
 #  Enabled:         false
 #  AcrossEmptyLines: false

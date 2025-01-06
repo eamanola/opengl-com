@@ -13,7 +13,7 @@ public:
   ~LightDebug() { }
 
   void update(const float& time) override { }
-  void render(const Shader& shader) const override { mMesh.draw(shader); }
+  void render(const Shader& shader) const override { mMesh.draw(); }
   virtual void free() const override { mMesh.free(); }
 
 private:

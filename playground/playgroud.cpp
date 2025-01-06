@@ -46,20 +46,21 @@ Playground::Playground() :
   lightingSettings(
     1, { mpSkeletal, mpLighting }, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS
   ),
-  mSpotlightOn(false), u_proj_x_view(
-                         0,
-                         { mpSkeletal,
-                           mpLighting
+  mSpotlightOn(false),
+  ub_proj_x_view(
+    0,
+    { mpSkeletal,
+      mpLighting
 #ifdef POINTLIGHT_DEBUG
-                           ,
-                           mpPlain
+      ,
+      mpPlain
 #endif
 #ifdef NORMALS_DEBUG
-                           ,
-                           mpNormals
+      ,
+      mpNormals
 #endif
-                         }
-                       )
+    }
+  )
 {
   mLastFrame = 0.f;
   mLastX = 400;
@@ -161,7 +162,7 @@ void Playground::render()
 
   lightingSettings.updatePointLight0Position();
   lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
-  u_proj_x_view.set(proj_x_view);
+  ub_proj_x_view.set(proj_x_view);
 
   mpSkeletal.use();
   mpSkeletal.setVec3fv("u_view_pos", view_pos);

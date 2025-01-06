@@ -1,13 +1,14 @@
 #include "floor.h"
 
+#include "shaders/u-material.h"
 #include "shapes.h"
 #include "utils/utils.h"
-#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 Floor::Floor(unsigned int rows, unsigned columns) :
   mTileMesh(Shapes::QUAD),
-  mTileTextures(Utils::loadTexture2D("./assets/floor-tile.png", TEXTURE_TYPE_DIFFUSE)), mRows(rows),
+  mTileTexture(Utils::loadTexture2D("./assets/floor-tile.png", TEXTURE_TYPE_DIFFUSE)),
+  mRows(rows),
   mColumns(columns)
 {
   mColors.resize(mRows * mColumns);
@@ -67,16 +68,20 @@ void Floor::render(const Shader& shader) const
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   const glm::mat4& model = this->model();
 
+  UMaterial::setTextures(shader, &mTileTexture);
+
   for (unsigned int i = 0; i < mRows * mColumns; i++) {
     glm::mat4 m = glm::translate(model, mPositions[i]);
     shader.setMat4fv("u_model", m);
     shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(m))));
     shader.setVec4fv("u_material.diffuse_color", mColors[i]);
     shader.setVec4fv("u_material.specular_color", mColors[i]);
-    mTileMesh.draw(shader, &mTileTextures);
-    shader.setVec4fv("u_material.diffuse_color", Color(0.f));
-    shader.setVec4fv("u_material.specular_color", Color(0.f));
+    mTileMesh.draw();
   }
+
+  shader.setVec4fv("u_material.diffuse_color", Color(0.f));
+  shader.setVec4fv("u_material.specular_color", Color(0.f));
+  UMaterial::clearTextures(shader, &mTileTexture);
 
   glDisable(GL_BLEND);
   glEnable(GL_CULL_FACE);
@@ -85,5 +90,5 @@ void Floor::render(const Shader& shader) const
 void Floor::free() const
 {
   mTileMesh.free();
-  Utils::deleteTextures({ mTileTextures });
+  Utils::deleteTextures({ mTileTexture });
 }
