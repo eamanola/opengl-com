@@ -1,18 +1,19 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include "drawable.h"
-#include <vector>
-#include <glm/glm.hpp>
-#include "mesh.h"
+#include "renderable.h"
 
-class Window : public Drawable
+#include "mesh.h"
+#include <glm/glm.hpp>
+#include <vector>
+
+class Window : public Renderable
 {
 public:
-  Window(/* args */);
-  ~Window() {};
-  void update(const float& time) override {};
-  void draw(const Shader& shader) const override;
+  Window();
+  ~Window() { }
+  void update(const float& time) override { }
+  void render(const Shader& shader) const override;
   void free() const override;
 
 private:

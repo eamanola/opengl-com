@@ -1,26 +1,25 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "drawable.h"
-#include "shader.h"
-#include <vector>
 #include "mesh.h"
+#include "shader.h"
 #include <assimp/scene.h>
+#include <vector>
 
 class Model
 {
 public:
   Model() {};
   Model(const char* path) : Model() { loadModel(path); }
-  virtual ~Model() {};
+  virtual ~Model() { }
 
-  void draw(const Shader &shader) const;
+  void draw(const Shader& shader) const;
   virtual void free() const;
 
 protected:
   void loadModel(const std::string path);
   virtual void processScene(const aiScene* scene);
-  const Mesh* meshes() { return &mMeshes[0]; };
+  const Mesh* meshes() { return &mMeshes[0]; }
 
 private:
   std::vector<Mesh> mMeshes;
@@ -33,6 +32,5 @@ private:
     const aiScene* scene, const aiMesh* mesh, const aiTextureType aiType, const TEXTURE_TYPE type
   );
 };
-
 
 #endif

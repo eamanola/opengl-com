@@ -6,44 +6,60 @@
 #define NUM_POINT_LIGHTS 4
 #define NUM_SPOT_LIGHTS 1
 
-Playground::Playground()
-:
-mpSkeletal("./skeletal/skeletal.vs", nullptr, "./shaders/lighting.fs",
-  {
-    "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
-    "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
-    "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
-  },
-  { "shaders/lighted-shader-defines" }
-),
-mpLighting("./shaders/lighting.vs", nullptr, "./shaders/lighting.fs",
-  {
-    "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
-    "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
-    "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
-  },
-  { "shaders/lighted-shader-defines" }
-),
-simpleModel("assets/2b-jumps2/scene.gltf"),
-mpSkybox("./playground/skybox/cube.vs", nullptr, "./playground/skybox/cube.fs"),
-mpReflectSkybox("./playground/skybox/reflect-skybox.vs", nullptr, "./playground/skybox/reflect-skybox.fs"),
+Playground::Playground() :
+  mpSkeletal(
+    "./skeletal/skeletal.vs",
+    nullptr,
+    "./shaders/lighting.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
+  mpLighting(
+    "./shaders/lighting.vs",
+    nullptr,
+    "./shaders/lighting.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
+  simpleModel("assets/2b-jumps2/scene.gltf"),
+  mpSkybox("./playground/skybox/cube.vs", nullptr, "./playground/skybox/cube.fs"),
+  mpReflectSkybox(
+    "./playground/skybox/reflect-skybox.vs", nullptr, "./playground/skybox/reflect-skybox.fs"
+  ),
 #ifdef POINTLIGHT_DEBUG
-mpPlain("./shaders/plain.vs", nullptr, "./shaders/single-color.fs"),
+  mpPlain("./shaders/plain.vs", nullptr, "./shaders/single-color.fs"),
 #endif
-mpNormals("./shaders/lighting.vs", "./shaders/draw-normals.gs", "./shaders/single-color.fs",
-  { "#define NORMAL\n" }
-),
-lightingSettings(1, { mpSkeletal, mpLighting }, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS),
-mSpotlightOn(false),
-u_proj_x_view(0, {
-  mpSkeletal, mpLighting
-  #ifdef POINTLIGHT_DEBUG
-  ,mpPlain
-  #endif
-  #ifdef NORMALS_DEBUG
-  ,mpNormals
-  #endif
-})
+  mpNormals(
+    "./shaders/lighting.vs",
+    "./shaders/draw-normals.gs",
+    "./shaders/single-color.fs",
+    { "#define NORMAL\n" }
+  ),
+  lightingSettings(
+    1, { mpSkeletal, mpLighting }, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS
+  ),
+  mSpotlightOn(false), u_proj_x_view(
+                         0,
+                         { mpSkeletal,
+                           mpLighting
+#ifdef POINTLIGHT_DEBUG
+                           ,
+                           mpPlain
+#endif
+#ifdef NORMALS_DEBUG
+                           ,
+                           mpNormals
+#endif
+                         }
+                       )
 {
   mLastFrame = 0.f;
   mLastX = 400;
@@ -51,11 +67,7 @@ u_proj_x_view(0, {
   mFirstMouse = true;
 }
 
-Playground::~Playground()
-{
-}
-
-
+Playground::~Playground() { }
 
 void Playground::setup()
 {
@@ -78,8 +90,8 @@ void Playground::setup()
   whipper.setModel(modelWhipper);
 
   // glm::vec3 n = glm::vec3(1.0, 0.765, 0.123);
-  // glm::vec3 a = glm::normalize(glm::mat3(transpose(inverse(modelDae))) * glm::mat3(modelWhipper) * n);
-  // glm::vec3 b = glm::normalize(glm::mat3(transpose(inverse(modelDae * modelWhipper))) * n);
+  // glm::vec3 a = glm::normalize(glm::mat3(transpose(inverse(modelDae))) * glm::mat3(modelWhipper)
+  // * n); glm::vec3 b = glm::normalize(glm::mat3(transpose(inverse(modelDae * modelWhipper))) * n);
 
   // std::cout << a.r << b.r;
 
@@ -107,14 +119,14 @@ void Playground::setup()
 
   mpLighting.use();
   mpLighting.setFloat("u_material.shininess", 32.f);
-  // mpLighting.setFloat("u_time", -M_PI_2);
-  #ifdef NORMALS_DEBUG
+// mpLighting.setFloat("u_time", -M_PI_2);
+#ifdef NORMALS_DEBUG
   mpNormals.use();
   mpNormals.setVec4fv("u_color", glm::vec4(1.f, 0.f, 1.f, 1.f));
-  #endif
+#endif
 }
 
-void Playground::update(const float &time)
+void Playground::update(const float& time)
 {
   lightingSettings.mLights.positions[0].x = 1.0f + sin(time) * 2.0f;
   lightingSettings.mLights.positions[0].y = sin(time / 2.0f) * 1.0f;
@@ -127,8 +139,7 @@ void Playground::update(const float &time)
   whipper.update(time);
   floor.update(time);
 
-  if(animatingPos || animatingDir)
-  {
+  if (animatingPos || animatingDir) {
     return;
   }
 #ifdef FOLLOW_WHIPPER
@@ -148,7 +159,6 @@ void Playground::render()
   const glm::vec3& view_pos = camera().position();
   const glm::vec3& view_dir = camera().front();
 
-
   lightingSettings.updatePointLight0Position();
   lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
   u_proj_x_view.set(proj_x_view);
@@ -157,13 +167,13 @@ void Playground::render()
   mpSkeletal.setVec3fv("u_view_pos", view_pos);
 
   // tifa
-  tifa.draw(mpSkeletal);
+  tifa.render(mpSkeletal);
 
   // dae
-  dae.draw(mpSkeletal);
+  dae.render(mpSkeletal);
 
   // whipper
-  whipper.draw(mpSkeletal);
+  whipper.render(mpSkeletal);
 
   mpLighting.use();
   mpLighting.setVec3fv("u_view_pos", view_pos);
@@ -176,31 +186,30 @@ void Playground::render()
   simpleModel.draw(mpLighting);
 
   // mpLighting.setFloat("u_time", glfwGetTime());
-  box.draw(mpLighting);
+  box.render(mpLighting);
   // mpLighting.setFloat("u_time", -M_PI_2);
-  window.draw(mpLighting);
-  mirror.draw(mpLighting);
-  grass.draw(mpLighting);
-  floor.draw(mpLighting);
+  window.render(mpLighting);
+  mirror.render(mpLighting);
+  grass.render(mpLighting);
+  floor.render(mpLighting);
 
-  #ifdef POINTLIGHT_DEBUG
+#ifdef POINTLIGHT_DEBUG
   mpPlain.use();
-  for(unsigned int i = 0; i < lightingSettings.mLights.positions.size(); i++)
-  {
+  for (unsigned int i = 0; i < lightingSettings.mLights.positions.size(); i++) {
     glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightingSettings.mLights.positions[i]);
     lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
     mpPlain.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
     mpPlain.setMat4fv("u_model", lightModel);
-    pointLightDebug.draw(mpPlain);
+    pointLightDebug.render(mpPlain);
   }
   mpPlain.setVec4fv("u_color", glm::vec4(0));
-  #endif
+#endif
 
-  #ifdef NORMALS_DEBUG
+#ifdef NORMALS_DEBUG
   mpNormals.use();
-  box.draw(mpNormals);
-  #endif
+  box.render(mpNormals);
+#endif
 
   mpSkybox.use();
   const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
@@ -220,14 +229,14 @@ void Playground::teardown()
   whipper.free();
   mpSkeletal.free();
 
-  #ifdef POINTLIGHT_DEBUG
+#ifdef POINTLIGHT_DEBUG
   pointLightDebug.free();
   mpPlain.free();
-  #endif
+#endif
 
-  #ifdef NORMALS_DEBUG
+#ifdef NORMALS_DEBUG
   mpNormals.free();
-  #endif
+#endif
 
   simpleModel.free();
   box.free();
@@ -244,7 +253,7 @@ void Playground::teardown()
   lightingSettings.free();
 }
 
-void Playground::highlight(Box &box, glm::mat4 model)
+void Playground::highlight(Box& box, glm::mat4 model)
 {
   // glEnable(GL_STENCIL_TEST);
   // glClear(GL_STENCIL_BUFFER_BIT);
@@ -276,35 +285,36 @@ void Playground::highlight(Box &box, glm::mat4 model)
 void Playground::handleInput(const GLFWwindow* window)
 {
 #ifdef FOLLOW_WHIPPER
-  Scene scene = (Scene)*this;
+  Scene scene = (Scene) * this;
   whipper.handleInput(window, scene);
 #else
   const float time = glfwGetTime();
   const float deltaTime = time - mLastFrame;
   mLastFrame = time;
 
-  if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_W) == GLFW_PRESS) camera().moveForward(2.5f * deltaTime);
-  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_S) == GLFW_PRESS) camera().moveBackward(2.5f * deltaTime);
-  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_A) == GLFW_PRESS) camera().moveLeft(2.5f * deltaTime);
-  else if(glfwGetKey((GLFWwindow*)window, GLFW_KEY_D) == GLFW_PRESS) camera().moveRight(2.5f * deltaTime);
+  if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_W) == GLFW_PRESS)
+    camera().moveForward(2.5f * deltaTime);
+  else if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_S) == GLFW_PRESS)
+    camera().moveBackward(2.5f * deltaTime);
+  else if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_A) == GLFW_PRESS)
+    camera().moveLeft(2.5f * deltaTime);
+  else if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_D) == GLFW_PRESS)
+    camera().moveRight(2.5f * deltaTime);
 #endif
 }
 
 void Playground::onChar(const char c)
 {
-  if(c == 'f') {
+  if (c == 'f') {
     toggleSpotLight();
-  }
-  else if(c == ' ')
-  {
+  } else if (c == ' ') {
     std::cout << " ";
   }
 }
 
 void Playground::onMouse(const GLFWwindow* window, const double x, const double y)
 {
-  if(mFirstMouse)
-  {
+  if (mFirstMouse) {
     mLastX = x;
     mLastY = y;
     mFirstMouse = false;
@@ -315,8 +325,7 @@ void Playground::onMouse(const GLFWwindow* window, const double x, const double 
   mLastX = x;
   mLastY = y;
 
-  if(glfwGetMouseButton((GLFWwindow*)window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-  {
+  if (glfwGetMouseButton((GLFWwindow*)window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
     camera().changeDirection(xoffset, yoffset);
   }
 }

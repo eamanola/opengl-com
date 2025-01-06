@@ -1,17 +1,18 @@
 #ifndef BOX_H
 #define BOX_H
 
-#include "drawable.h"
+#include "renderable.h"
+
 #include "mesh.h"
 
-class Box : public Drawable
+class Box : public Renderable
 {
 public:
   Box();
-  ~Box() {};
+  ~Box() { }
 
-  virtual void update(const float& time) override {};
-  void draw(const Shader &shader) const override;
+  void update(const float& time) override { }
+  void render(const Shader& shader) const override;
   void free() const override;
 
 private:
@@ -19,6 +20,5 @@ private:
   std::vector<Texture> mTextures;
   std::vector<glm::vec3> mPositions;
 };
-
 
 #endif

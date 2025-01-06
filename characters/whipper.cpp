@@ -1,7 +1,7 @@
 #include "whipper.h"
+#include "color.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
-#include "color.h"
 
 Whipper::Whipper() : Character("assets/whipper/scene.gltf")
 {
@@ -9,40 +9,39 @@ Whipper::Whipper() : Character("assets/whipper/scene.gltf")
   setState(WHIPPER_STATES::DANCE);
 }
 
-const glm::vec3 Whipper::position() const { return glm::vec3(model()[3]); };
+const glm::vec3 Whipper::position() const { return glm::vec3(model()[3]); }
 
 void Whipper::update(const float& time)
 {
   bool loop = !isJumping(mState);
   float frac;
 
-  if (loop)
-  {
+  if (loop) {
     Character::update(time);
-  }
-  else {
+  } else {
     Character::update(time - mStartTime);
     frac = (time - mStartTime) * mCurrentAnimation->ticksPerSecond / mCurrentAnimation->duration;
   }
 
-  if(isJumping(mState))
-  {
+  if (isJumping(mState)) {
     updateJumping(frac);
   }
 }
 
-void Whipper::draw(const Shader &shader) const
+void Whipper::render(const Shader& shader) const
 {
-  shader.setVec4fv("u_material.diffuse_color", Color(255.f/255.f, 192.f/255.f, 203.f/255.f, 1.0));
+  shader.setVec4fv(
+    "u_material.diffuse_color", Color(255.f / 255.f, 192.f / 255.f, 203.f / 255.f, 1.0)
+  );
   shader.setVec4fv("u_material.specular_color", Color(0.4f, 0.4f, 0.4f, 1.0));
 
-  Character::draw(shader);
+  Character::render(shader);
 
   shader.setVec4fv("u_material.diffuse_color", Color(0.f));
   shader.setVec4fv("u_material.specular_color", Color(0.f));
 }
 
-void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
+void Whipper::handleInput(const GLFWwindow* window, const Scene& scene)
 {
   const float time = glfwGetTime();
   const float deltaTime = time - lastFrame;
@@ -56,42 +55,39 @@ void Whipper::handleInput(const GLFWwindow* window, const Scene &scene)
 
   float angle = getAngle(W, D, S, A);
 
-  if (angle >= 0 && mState != WHIPPER_STATES::LANDING)
-  {
+  if (angle >= 0 && mState != WHIPPER_STATES::LANDING) {
     glm::vec3 front = scene.cameraDir();
     float x = front.x * cos(glm::radians(angle)) - front.z * sin(glm::radians(angle));
     float z = front.x * sin(glm::radians(angle)) + front.z * cos(glm::radians(angle));
     glm::vec3 direction = glm::vec3(x, 0.f, -z);
     move(direction * (2.5f * deltaTime));
 
-    if(mRotation != angle)
-    {
+    if (mRotation != angle) {
       rotate(angle - mRotation);
       mRotation = angle;
     }
   }
 
   WHIPPER_STATES newState;
-  if(isJumping(mState)) newState = mState;
-  else if(SPACE) {
+  if (isJumping(mState))
+    newState = mState;
+  else if (SPACE) {
     mJumpStartY = position().y;
     newState = WHIPPER_STATES::JUMP_UP;
-  }
-  else if (angle >= 0) newState = WHIPPER_STATES::RUNNING;
-  else newState = WHIPPER_STATES::IDLE;
+  } else if (angle >= 0)
+    newState = WHIPPER_STATES::RUNNING;
+  else
+    newState = WHIPPER_STATES::IDLE;
 
   setState(newState);
 
   Character::handleInput(window, scene);
 }
 
-
 bool Whipper::setState(WHIPPER_STATES state)
 {
-  if(mState != state)
-  {
-    if(setAnimation((unsigned int)state))
-    {
+  if (mState != state) {
+    if (setAnimation((unsigned int)state)) {
       mState = state;
       return true;
     }
@@ -102,53 +98,52 @@ bool Whipper::setState(WHIPPER_STATES state)
 
 void Whipper::updateJumping(float frac)
 {
-  if(mState == WHIPPER_STATES::JUMP_UP)
-  {
+  if (mState == WHIPPER_STATES::JUMP_UP) {
     move(glm::vec3(0.f, 0.03f, 0.f));
-    if(frac >= 0.95f)
-    {
+    if (frac >= 0.95f) {
       setState(WHIPPER_STATES::JUMP_DOWN);
     }
-  }
-  else if(mState == WHIPPER_STATES::JUMP_DOWN)
-  {
+  } else if (mState == WHIPPER_STATES::JUMP_DOWN) {
     move(glm::vec3(0.f, -0.03f, 0.f));
-    if(frac >= 0.95f)
-    {
+    if (frac >= 0.95f) {
       setState(WHIPPER_STATES::LANDING);
     }
-  }
-  else if(mState == WHIPPER_STATES::LANDING)
-  {
+  } else if (mState == WHIPPER_STATES::LANDING) {
     glm::vec3 p = position();
 
     move(glm::vec3(0.f, mJumpStartY - p.y, 0.f));
-    if(frac >= 0.99f)
-    {
+    if (frac >= 0.99f) {
       setState(WHIPPER_STATES::IDLE);
     }
   }
 }
 
-bool Whipper::isJumping(const WHIPPER_STATES &state)
+bool Whipper::isJumping(const WHIPPER_STATES& state)
 {
-  return state == WHIPPER_STATES::JUMP_UP
-    || state == WHIPPER_STATES::JUMP_DOWN
-    || state == WHIPPER_STATES::LANDING;
+  return state == WHIPPER_STATES::JUMP_UP || state == WHIPPER_STATES::JUMP_DOWN ||
+         state == WHIPPER_STATES::LANDING;
 }
 
 float Whipper::getAngle(bool W, bool D, bool S, bool A)
 {
   float angle = -1.f;
 
-  if (S & D) angle = 45.f;
-  else if (D & W) angle = 135.f;
-  else if (W & A) angle = 225.f;
-  else if (A & S) angle = 315.f;
-  else if (S) angle = 0.f;
-  else if(D) angle = 90.f;
-  else if (W) angle = 180.f;
-  else if (A) angle = 270.f;
+  if (S & D)
+    angle = 45.f;
+  else if (D & W)
+    angle = 135.f;
+  else if (W & A)
+    angle = 225.f;
+  else if (A & S)
+    angle = 315.f;
+  else if (S)
+    angle = 0.f;
+  else if (D)
+    angle = 90.f;
+  else if (W)
+    angle = 180.f;
+  else if (A)
+    angle = 270.f;
 
   return angle;
 }

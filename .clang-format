@@ -2,63 +2,63 @@
 ---
 Language:        Cpp
 BasedOnStyle:  LLVM
-#AccessModifierOffset: -2
+# AccessModifierOffset: -2
 AlignAfterOpenBracket: BlockIndent #Align
-#AlignArrayOfStructures: None
-#AlignConsecutiveAssignments:
+# AlignArrayOfStructures: None
+# AlignConsecutiveAssignments:
 #  Enabled:         false
 #  AcrossEmptyLines: false
 #  AcrossComments:  false
 #  AlignCompound:   false
 #  AlignFunctionPointers: false
 #  PadOperators:    true
-#AlignConsecutiveBitFields:
+# AlignConsecutiveBitFields:
 #  Enabled:         false
 #  AcrossEmptyLines: false
 #  AcrossComments:  false
 #  AlignCompound:   false
 #  AlignFunctionPointers: false
 #  PadOperators:    false
-#AlignConsecutiveDeclarations:
+# AlignConsecutiveDeclarations:
 #  Enabled:         false
 #  AcrossEmptyLines: false
 #  AcrossComments:  false
 #  AlignCompound:   false
 #  AlignFunctionPointers: false
 #  PadOperators:    false
-#AlignConsecutiveMacros:
+# AlignConsecutiveMacros:
 #  Enabled:         false
 #  AcrossEmptyLines: false
 #  AcrossComments:  false
 #  AlignCompound:   false
 #  AlignFunctionPointers: false
 #  PadOperators:    false
-#AlignConsecutiveShortCaseStatements:
+# AlignConsecutiveShortCaseStatements:
 #  Enabled:         false
 #  AcrossEmptyLines: false
 #  AcrossComments:  false
 #  AlignCaseColons: false
-#AlignEscapedNewlines: Right
-#AlignOperands:   Align
-#AlignTrailingComments:
+# AlignEscapedNewlines: Right
+# AlignOperands:   Align
+# AlignTrailingComments:
 #  Kind:            Always
 #  OverEmptyLines:  0
-#AllowAllArgumentsOnNextLine: true
-#AllowAllParametersOfDeclarationOnNextLine: true
-#AllowBreakBeforeNoexceptSpecifier: Never
-#AllowShortBlocksOnASingleLine: Never
-#AllowShortCaseLabelsOnASingleLine: false
-#AllowShortCompoundRequirementOnASingleLine: true
-#AllowShortEnumsOnASingleLine: true
-#AllowShortFunctionsOnASingleLine: All
-#AllowShortIfStatementsOnASingleLine: Never
-#AllowShortLambdasOnASingleLine: All
-#AllowShortLoopsOnASingleLine: false
-#AlwaysBreakAfterDefinitionReturnType: None
-#AlwaysBreakAfterReturnType: None
-#AlwaysBreakBeforeMultilineStrings: false
-#AlwaysBreakTemplateDeclarations: MultiLine
-#AttributeMacros:
+# AllowAllArgumentsOnNextLine: true
+# AllowAllParametersOfDeclarationOnNextLine: true
+# AllowBreakBeforeNoexceptSpecifier: Never
+# AllowShortBlocksOnASingleLine: Never
+# AllowShortCaseLabelsOnASingleLine: false
+# AllowShortCompoundRequirementOnASingleLine: true
+# AllowShortEnumsOnASingleLine: true
+# AllowShortFunctionsOnASingleLine: All
+# AllowShortIfStatementsOnASingleLine: Never
+# AllowShortLambdasOnASingleLine: All
+# AllowShortLoopsOnASingleLine: false
+# AlwaysBreakAfterDefinitionReturnType: None
+# AlwaysBreakAfterReturnType: None
+# AlwaysBreakBeforeMultilineStrings: false
+# AlwaysBreakTemplateDeclarations: MultiLine
+# AttributeMacros:
 #  - __capability
 BinPackArguments: false # true
 BinPackParameters: false # true
@@ -82,12 +82,12 @@ BinPackParameters: false # true
 #  SplitEmptyFunction: true
 #  SplitEmptyRecord: true
 #  SplitEmptyNamespace: true
-#BreakAdjacentStringLiterals: true
-#BreakAfterAttributes: Leave
-#BreakAfterJavaFieldAnnotations: false
-#BreakArrays:     true
-#BreakBeforeBinaryOperators: None
-#BreakBeforeConceptDeclarations: Always
+# BreakAdjacentStringLiterals: true
+# BreakAfterAttributes: Leave
+# BreakAfterJavaFieldAnnotations: false
+# BreakArrays:     true
+# BreakBeforeBinaryOperators: None
+# BreakBeforeConceptDeclarations: Always
 BreakBeforeBraces: Linux #Attach
 #BreakBeforeInlineASMColon: OnlyMultiline
 # BreakBeforeTernaryOperators: true
@@ -162,7 +162,7 @@ Cpp11BracedListStyle: false # true
 # ObjCBreakBeforeNestedBlockParam: true
 # ObjCSpaceAfterProperty: false
 # ObjCSpaceBeforeProtocolList: true
-# PackConstructorInitializers: BinPack
+PackConstructorInitializers: NextLine # BinPack
 # PenaltyBreakAssignment: 2
 # PenaltyBreakBeforeFirstCallParameter: 19
 # PenaltyBreakComment: 300
