@@ -1,36 +1,47 @@
 #include "mesh.h"
 
+#include "gl-utils/gl-utils.h"
 #include "shaders/attrib-locations.h"
 #include <glad/gl.h>
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) :
   M_INDICES_SIZE(indices.size())
 {
-  setupMesh(vertices, indices);
+  setupBuffers(vertices, indices);
 }
 
 Mesh::~Mesh() { }
 
-void Mesh::setupMesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
+void Mesh::setupBuffers(
+  const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices
+)
 {
   glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
 
-  glBindVertexArray(VAO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  std::vector<VertexAttribPointer> attribPointers;
 
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+  VertexAttribPointer positions = {
+    .location = ATTRIB_LOCATIONS::POSITION,
+    .size = 3,
+    .stride = sizeof(Vertex),
+    .offset = (void*)offsetof(Vertex, position),
+  };
+  attribPointers.push_back(positions);
 
-  glVertexAttribPointer(
-    ATTRIB_LOCATIONS::POSITION,
-    3,
-    GL_FLOAT,
-    GL_FALSE,
-    sizeof(Vertex),
-    (void*)offsetof(Vertex, position)
-  );
-  glEnableVertexAttribArray(ATTRIB_LOCATIONS::POSITION);
+  // glGenBuffers(1, &VBO);
+  // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+  // glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+
+  // glVertexAttribPointer(
+  //   ATTRIB_LOCATIONS::POSITION,
+  //   3,
+  //   GL_FLOAT,
+  //   GL_FALSE,
+  //   sizeof(Vertex),
+  //   (void*)offsetof(Vertex, position)
+  // );
+  // glEnableVertexAttribArray(ATTRIB_LOCATIONS::POSITION);
 
   bool enableNormals = false;
   for (Vertex vertex : vertices) {
@@ -41,15 +52,13 @@ void Mesh::setupMesh(const std::vector<Vertex>& vertices, const std::vector<unsi
   }
 
   if (enableNormals) {
-    glVertexAttribPointer(
-      ATTRIB_LOCATIONS::NORMAL,
-      3,
-      GL_FLOAT,
-      GL_FALSE,
-      sizeof(Vertex),
-      (void*)(offsetof(Vertex, normal))
-    );
-    glEnableVertexAttribArray(ATTRIB_LOCATIONS::NORMAL);
+    VertexAttribPointer normals = {
+      .location = ATTRIB_LOCATIONS::NORMAL,
+      .size = 3,
+      .stride = sizeof(Vertex),
+      .offset = (void*)offsetof(Vertex, normal),
+    };
+    attribPointers.push_back(normals);
   }
 
   bool enableTexCoords = false;
@@ -61,25 +70,65 @@ void Mesh::setupMesh(const std::vector<Vertex>& vertices, const std::vector<unsi
   }
 
   if (enableTexCoords) {
-    glVertexAttribPointer(
-      ATTRIB_LOCATIONS::TEX_COORDS,
-      2,
-      GL_FLOAT,
-      GL_FALSE,
-      sizeof(Vertex),
-      (void*)(offsetof(Vertex, texCoords))
-    );
-    glEnableVertexAttribArray(ATTRIB_LOCATIONS::TEX_COORDS);
+    VertexAttribPointer texCoords = {
+      .location = ATTRIB_LOCATIONS::TEX_COORDS,
+      .size = 2,
+      .stride = sizeof(Vertex),
+      .offset = (void*)offsetof(Vertex, texCoords),
+    };
+    attribPointers.push_back(texCoords);
   }
 
+  unsigned int VBO;
+  addBuffer(VBO, &vertices[0], sizeof(Vertex) * vertices.size(), attribPointers);
+  glBindVertexArray(VAO);
+
+  unsigned int EBO;
+  glGenBuffers(1, &EBO);
+  mBuffers.push_back(EBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   glBufferData(
     GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW
   );
-
   // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // keep bound
+  glBindVertexArray(0);
+}
+
+bool Mesh::addBuffer(
+  unsigned int& bufferId,
+  const void* data,
+  const std::size_t size,
+  const std::vector<VertexAttribPointer>& attibPointers,
+  const BufferUsage usage
+)
+{
+  glBindVertexArray(VAO);
+  glGenBuffers(1, &bufferId);
+  glBindBuffer(GL_ARRAY_BUFFER, bufferId);
+
+  glBufferData(GL_ARRAY_BUFFER, size, data, usage);
+
+  for (VertexAttribPointer v : attibPointers) {
+    glVertexAttribPointer(v.location, v.size, v.type, v.normalized, v.stride, v.offset);
+
+    if (v.divisor > 0) {
+      glVertexAttribDivisor(v.location, v.divisor);
+    }
+
+    glEnableVertexAttribArray(v.location);
+  }
+
   glBindBuffer(GL_ARRAY_BUFFER, 0); // Saved to VAO with glVertexAttribPointer
   glBindVertexArray(0);
+
+  if (GLUtils::noErrors()) {
+    mBuffers.push_back(bufferId);
+    return true;
+  } else {
+    glDeleteBuffers(1, &bufferId);
+    bufferId = 0;
+    return false;
+  }
 }
 
 void Mesh::draw() const
@@ -99,6 +148,5 @@ void Mesh::drawInstanced(const unsigned int instanceCount) const
 void Mesh::free() const
 {
   glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &EBO);
+  glDeleteBuffers(mBuffers.size(), &mBuffers[0]);
 }

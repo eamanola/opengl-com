@@ -22,7 +22,7 @@ Floor::Floor(unsigned int rows, unsigned columns) :
   setModel(model);
 
   updateColors();
-  setupOffsets();
+  setupBuffers();
 }
 
 std::vector<glm::vec3> Floor::getOffsets(unsigned int rows, unsigned int cols) const
@@ -43,36 +43,6 @@ std::vector<glm::vec3> Floor::getOffsets(unsigned int rows, unsigned int cols) c
   return positions;
 }
 
-void Floor::setupOffsets()
-{
-  glGenBuffers(1, &mOffsetVBO);
-  glGenBuffers(1, &mColorsVBO);
-
-  glBindVertexArray(mTileMesh.vao());
-
-  glBindBuffer(GL_ARRAY_BUFFER, mOffsetVBO);
-  std::vector<glm::vec3> positions = getOffsets(mRows, mColumns);
-  glBufferData(
-    GL_ARRAY_BUFFER, sizeof(glm::vec3) * positions.size(), &positions[0], GL_STATIC_DRAW
-  );
-  glVertexAttribPointer(
-    ATTRIB_LOCATIONS::FLOOR_OFFSETS, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0
-  );
-  glEnableVertexAttribArray(ATTRIB_LOCATIONS::FLOOR_OFFSETS);
-  glVertexAttribDivisor(ATTRIB_LOCATIONS::FLOOR_OFFSETS, 1);
-
-  glBindBuffer(GL_ARRAY_BUFFER, mColorsVBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * mColors.size(), &mColors[0], GL_DYNAMIC_DRAW);
-  glVertexAttribPointer(
-    ATTRIB_LOCATIONS::FLOOR_COLORS, 4, GL_FLOAT, GL_FALSE, sizeof(Color), (void*)0
-  );
-  glEnableVertexAttribArray(ATTRIB_LOCATIONS::FLOOR_COLORS);
-  glVertexAttribDivisor(ATTRIB_LOCATIONS::FLOOR_COLORS, 1);
-
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
-}
-
 void Floor::updateColors()
 {
   for (unsigned int i = 0; i < mRows * mColumns; i++) {
@@ -85,6 +55,37 @@ void Floor::updateColors()
       );
     }
   }
+}
+
+void Floor::setupBuffers()
+{
+  std::vector<glm::vec3> offsets = getOffsets(mRows, mColumns);
+  Mesh::VertexAttribPointer offset = {
+    .location = ATTRIB_LOCATIONS::FLOOR_OFFSETS,
+    .size = 3,
+    .stride = sizeof(glm::vec3),
+    .offset = (void*)0,
+    .divisor = 1,
+  };
+
+  unsigned int offsetVBO;
+  mTileMesh.addBuffer(offsetVBO, &offsets[0], sizeof(glm::vec3) * offsets.size(), { offset });
+
+  Mesh::VertexAttribPointer color = {
+    .location = ATTRIB_LOCATIONS::FLOOR_COLORS,
+    .size = 4,
+    .stride = sizeof(Color),
+    .offset = (void*)0,
+    .divisor = 1,
+  };
+
+  mTileMesh.addBuffer(
+    mColorsVBO,
+    &mColors[0],
+    sizeof(glm::vec3) * mColors.size(),
+    { color },
+    Mesh::BufferUsage::DYNAMIC
+  );
 }
 
 void Floor::update(const float& time)
@@ -122,7 +123,5 @@ void Floor::render(const Shader& shader) const
 void Floor::free() const
 {
   Utils::deleteTextures({ mTileTexture });
-  glDeleteBuffers(1, &mOffsetVBO);
-  glDeleteBuffers(1, &mColorsVBO);
   mTileMesh.free();
 }

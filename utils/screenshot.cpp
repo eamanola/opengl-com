@@ -2,7 +2,7 @@
 #include <glad/gl.h>
 
 void Utils::screenshot(
-  Scene &scene, const unsigned& FBO, const glm::vec3& position, const glm::vec3& normal
+  Scene& scene, const unsigned& FBO, const glm::vec3& position, const glm::vec3& normal
 )
 {
   Camera& camera = scene.camera();

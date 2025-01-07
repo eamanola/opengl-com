@@ -21,14 +21,13 @@ public:
 private:
   void updateColors();
   std::vector<glm::vec3> getOffsets(unsigned int rows, unsigned int cols) const;
-  void setupOffsets();
+  void setupBuffers();
   Mesh mTileMesh;
   Texture mTileTexture;
   const unsigned int mRows;
   const unsigned int mColumns;
   std::vector<Color> mColors;
   float mPreviousUpdate;
-  unsigned int mOffsetVBO;
   unsigned int mColorsVBO;
 };
 

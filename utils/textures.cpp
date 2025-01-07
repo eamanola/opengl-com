@@ -1,8 +1,8 @@
 #include "utils.h"
 
-#include <stb_image.h>
 #include "gl-utils/gl-utils.h"
 #include <iostream>
+#include <stb_image.h>
 
 unsigned int Utils::loadTexture2D(const char* path, const int wrap)
 {
@@ -17,7 +17,8 @@ unsigned int Utils::loadTexture2D(const char* path, const int wrap)
   return textureId;
 }
 
-unsigned int Utils::loadTexture2D(const unsigned char* buffer, const unsigned int len, const int wrap)
+unsigned int
+Utils::loadTexture2D(const unsigned char* buffer, const unsigned int len, const int wrap)
 {
   stbi_set_flip_vertically_on_load(true);
   int width, height, nrChannel;
@@ -30,19 +31,18 @@ unsigned int Utils::loadTexture2D(const unsigned char* buffer, const unsigned in
   return textureId;
 }
 
-unsigned int Utils::createTexture2D(const int width, const int height, const int nrChannel, const unsigned char* data, const int wrap)
+unsigned int Utils::createTexture2D(
+  const int width, const int height, const int nrChannel, const unsigned char* data, const int wrap
+)
 {
   unsigned int textureId;
   if (data) {
-    if(!GLUtils::createTexture2D(width, height, nrChannel, data, textureId, wrap))
-    {
+    if (!GLUtils::createTexture2D(width, height, nrChannel, data, textureId, wrap)) {
       std::cout << "Failed to create texture\n";
       deleteTextures({ Texture { .id = textureId } });
       textureId = 0;
     }
-  }
-  else
-  {
+  } else {
     std::cout << "Failed to load texture\n";
     textureId = 0;
   }
@@ -53,15 +53,12 @@ unsigned int Utils::createTexture2D(const int width, const int height, const int
 void Utils::deleteTextures(const std::vector<Texture>& textures)
 {
   std::vector<unsigned int> textureIds;
-  for(const Texture& t: textures)
-  {
+  for (const Texture& t : textures) {
     textureIds.push_back(t.id);
   }
 
-  if(textureIds.size())
-  {
-    if (!GLUtils::deleteTextures(textureIds.size(), &textureIds[0]))
-    {
+  if (textureIds.size()) {
+    if (!GLUtils::deleteTextures(textureIds.size(), &textureIds[0])) {
       std::cout << "Failed to delete textures\n";
       // for(Texture t : textures)
       // {
@@ -73,8 +70,5 @@ void Utils::deleteTextures(const std::vector<Texture>& textures)
 
 Texture Utils::loadTexture2D(const char* path, TEXTURE_TYPE type)
 {
-  return Texture {
-    .id = loadTexture2D(path),
-    .type = type
-  };
+  return Texture { .id = loadTexture2D(path), .type = type };
 }

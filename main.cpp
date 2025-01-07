@@ -1,33 +1,22 @@
-// #define SHOW_DISCO
-
 #include "main-utils.h"
 #include "playground/playground.h"
-#ifdef SHOW_DISCO
-#include "disco/disco.h"
-#endif
 
-int main( int argc, char* args[] )
+int main(int argc, char* args[])
 {
   GLFWwindow* window = setup();
-  if(window == nullptr)
-  {
+  if (window == nullptr) {
     glfwTerminate();
     return -1;
   }
 
-#ifndef SHOW_DISCO
   Playground playground;
+
   setScene(&playground);
+
   playground.setup();
-#else
-  Disco disco;
-  setScene(&disco);
-  disco.setup();
-#endif
 
   float lastFrame = 0;
-  while (!glfwWindowShouldClose(window))
-  {
+  while (!glfwWindowShouldClose(window)) {
     const float time = glfwGetTime();
     float fps = 1 / (time - lastFrame);
     lastFrame = time;
@@ -36,33 +25,18 @@ int main( int argc, char* args[] )
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     handleInput(window);
-#ifndef SHOW_DISCO
+
     playground.handleInput(window);
-#else
-    disco.handleInput(window);
-#endif
 
-#ifndef SHOW_DISCO
     playground.update(time);
-#else
-    disco.update(time);
-#endif
 
-#ifndef SHOW_DISCO
     playground.render();
-#else
-    disco.render();
-#endif
 
     glfwSwapBuffers(window);
     glfwPollEvents();
   }
 
-#ifndef SHOW_DISCO
   playground.teardown();
-#else
-  disco.teardown();
-#endif
   glfwTerminate();
   return 0;
 }

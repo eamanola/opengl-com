@@ -1,16 +1,16 @@
 #ifndef SKELETAL_MODEL_H
 #define SKELETAL_MODEL_H
 
+#include "animation.h"
+#include "array.h"
+#include "bone-info.h"
+#include "bone.h"
 #include "model.h"
-#include <vector>
-#include <glm/glm.hpp>
-#include <assimp/scene.h>
 #include "skeletal-mesh.h"
 #include "skeletal-vertex.h"
-#include "bone.h"
-#include "animation.h"
-#include "bone-info.h"
-#include "array.h"
+#include <assimp/scene.h>
+#include <glm/glm.hpp>
+#include <vector>
 
 class SkeletalModel : public Model
 {
@@ -21,8 +21,6 @@ public:
     loadModel(path);
   };
   ~SkeletalModel() { }
-
-  void free() const override;
 
   unsigned int addAnimation(Animation animation);
 
@@ -36,7 +34,6 @@ private:
   Bone mRootBone;
 
   void processScene(const aiScene* scene) override;
-  std::vector<SkeletalMesh> mMeshes;
   Animation readAnimation(const aiAnimation* scene) const;
   std::vector<SkeletalVertex> readBoneData(const aiMesh* mesh, BoneInfos& outBoneInfos) const;
   unsigned int replaceIndex(const float* weights, const float& weight) const;

@@ -217,6 +217,7 @@ mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
   if(fs_in.color != vec4(0.0))
   {
     diffuseColor += fs_in.color;
+    specularColor += fs_in.color;
   }
 
   #endif

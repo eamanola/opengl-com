@@ -42,7 +42,7 @@ Playground::Playground() :
     },
     { "shaders/lighted-shader-defines" }
   ),
-  floor(100, 100),
+  floor(10, 10),
   mpSkybox("./playground/skybox/cube.vs", nullptr, "./playground/skybox/cube.fs"),
   mpReflectSkybox(
     "./playground/skybox/reflect-skybox.vs", nullptr, "./playground/skybox/reflect-skybox.fs"

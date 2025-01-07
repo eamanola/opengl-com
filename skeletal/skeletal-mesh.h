@@ -1,21 +1,15 @@
 #ifndef SKELETAL_MESH
 #define SKELETAL_MESH
 
+#include "mesh.h"
 #include "skeletal-vertex.h"
 #include <vector>
 
-class SkeletalMesh
+namespace SkeletalMesh
 {
-public:
-  SkeletalMesh(unsigned int VAO, const std::vector<SkeletalVertex> &vertices);
-  ~SkeletalMesh();
 
-  void free() const;
+unsigned int setupBones(Mesh& mesh, const std::vector<SkeletalVertex>& vertices);
 
-private:
-  void setupBones(unsigned int VAO, const std::vector<SkeletalVertex> &vertices);
-  unsigned int VBO;
-};
-
+} // namespace SkeletalMesh
 
 #endif
