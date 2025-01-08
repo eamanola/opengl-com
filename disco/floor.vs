@@ -3,8 +3,8 @@
 layout (location = 0) in vec3 in_position;
 layout (location = 1) in vec3 in_normal;
 layout (location = 2) in vec2 in_tex_coords;
-layout (location = 3) in vec3 in_tile_offset;
-layout (location = 4) in vec4 in_tile_color;
+layout (location = 3) in vec4 in_color;
+layout (location = 4) in vec3 in_offset;
 
 layout(packed) uniform ub_proj_x_view
 {
@@ -24,7 +24,7 @@ uniform mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
 
 void main()
 {
-  vec4 position = u_model * vec4(in_position + in_tile_offset, 1.0);
+  vec4 position = u_model * vec4(in_position + in_offset, 1.0);
 
   vs_out.normal = u_trans_inver_model * in_normal;
 
@@ -32,7 +32,7 @@ void main()
 
   vs_out.tex_coords = in_tex_coords;
 
-  vs_out.color = in_tile_color;
+  vs_out.color = in_color;
 
   gl_Position = proj_x_view * position;
 }

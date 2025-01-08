@@ -43,6 +43,17 @@ Playground::Playground() :
     { "shaders/lighted-shader-defines" }
   ),
   floor(10, 10),
+  mpInstanced(
+    "./shaders/lighting-instanced.vs",
+    nullptr,
+    "./shaders/lighting.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
   mpSkybox("./playground/skybox/cube.vs", nullptr, "./playground/skybox/cube.fs"),
   mpReflectSkybox(
     "./playground/skybox/reflect-skybox.vs", nullptr, "./playground/skybox/reflect-skybox.fs"
@@ -52,21 +63,26 @@ Playground::Playground() :
 #endif
 #ifdef NORMALS_DEBUG
   mpNormals(
-    "./shaders/lighting.vs",
+    "./shaders/lighting-instanced.vs",
     "./shaders/draw-normals.gs",
     "./shaders/single-color.fs",
     { "#define NORMAL\n" }
   ),
 #endif
   lightingSettings(
-    1, { mpSkeletal, mpLighting, mpFloor }, NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS
+    1,
+    { mpSkeletal, mpLighting, mpFloor, mpInstanced },
+    NUM_DIR_LIGHTS,
+    NUM_POINT_LIGHTS,
+    NUM_SPOT_LIGHTS
   ),
   mSpotlightOn(false),
   proj_x_view_ub(
     0,
     { mpSkeletal,
       mpLighting,
-      mpFloor
+      mpFloor,
+      mpInstanced
 #ifdef POINTLIGHT_DEBUG
       ,
       mpPlain
@@ -139,6 +155,9 @@ void Playground::setup()
 
   mpFloor.use();
   mpFloor.setFloat("u_material.shininess", 32.f);
+
+  mpInstanced.use();
+  mpInstanced.setFloat("u_material.shininess", 32.f);
 // mpLighting.setFloat("u_time", -M_PI_2);
 #ifdef NORMALS_DEBUG
   mpNormals.use();
@@ -206,15 +225,19 @@ void Playground::render()
   simpleModel.draw(mpLighting);
 
   // mpLighting.setFloat("u_time", glfwGetTime());
-  box.render(mpLighting);
+  // box.render(mpLighting);
   // mpLighting.setFloat("u_time", -M_PI_2);
   window.render(mpLighting);
   mirror.render(mpLighting);
-  grass.render(mpLighting);
 
   mpFloor.use();
   mpFloor.setVec3fv("u_view_pos", view_pos);
   floor.render(mpFloor);
+
+  mpInstanced.use();
+  mpInstanced.setVec3fv("u_view_pos", view_pos);
+  box.render(mpInstanced);
+  grass.render(mpInstanced);
 
 #ifdef POINTLIGHT_DEBUG
   mpPlain.use();
@@ -262,7 +285,6 @@ void Playground::teardown()
 #endif
 
   simpleModel.free();
-  box.free();
   grass.free();
   window.free();
   mpLighting.free();
@@ -273,6 +295,9 @@ void Playground::teardown()
 
   floor.free();
   mpFloor.free();
+
+  box.free();
+  mpInstanced.free();
 
   mpReflectSkybox.free();
   skyboxReflector.free();

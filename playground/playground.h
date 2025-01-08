@@ -48,13 +48,15 @@ private:
 
   Shader mpLighting;
   Model simpleModel;
-  Box box;
   Grass grass;
   Window window;
   Mirror mirror;
 
   Shader mpFloor;
   Floor floor;
+
+  Shader mpInstanced;
+  Box box;
 
   Shader mpSkybox;
   Skybox skybox;

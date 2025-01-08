@@ -12,7 +12,7 @@ public:
   enum AttribType { FLOAT = GL_FLOAT, UNSIGNED_INT = GL_UNSIGNED_INT };
   enum BufferUsage { STATIC = GL_STATIC_DRAW, DYNAMIC = GL_DYNAMIC_DRAW };
   struct VertexAttribPointer {
-    int location;
+    unsigned int location;
     std::size_t size;
     AttribType type = AttribType::FLOAT;
     GLboolean normalized = GL_FALSE;

@@ -19,6 +19,8 @@ public:
   void free() const override;
 
 private:
+  std::vector<glm::mat4> models() const;
+  void setupBuffers();
   std::vector<glm::vec3> mPositions;
   Mesh mMesh;
   Texture mTexture;

@@ -30,12 +30,13 @@ void main()
   for(uint i = 0; i < MAX_BONE_INFLUECE; i++)
     boneTransform += u_bone_transforms[uint(in_bone_ids[i])] * in_bone_weights[i];
 
-  mat4 model = u_model * boneTransform;
+  vec4 position = u_model * boneTransform * vec4(in_position, 1.0);
 
   vs_out.normal = u_trans_inver_model * mat3(boneTransform) * in_normal;
-  // vs_out.normal = mat3(transpose(inverse(model))) * in_normal;
-  vs_out.frag_pos = vec3(model * vec4(in_position, 1.0));
+
+  vs_out.frag_pos = vec3(position);
+
   vs_out.tex_coords = in_tex_coords;
 
-  gl_Position = proj_x_view * model * vec4(in_position, 1.0);
+  gl_Position = proj_x_view * position;
 }

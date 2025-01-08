@@ -1,6 +1,8 @@
 #include "box.h"
 
+#include "shaders/attrib-locations.h"
 #include "shaders/u-material.h"
+#include "shaders/u-model.h"
 #include "shapes.h"
 #include "utils/utils.h"
 #include <glm/gtc/matrix_transform.hpp>
@@ -25,28 +27,29 @@ Box::Box() :
   })
 {
   setModel(glm::mat4(1.f));
+  setupBuffers();
 }
+
+const std::vector<glm::mat4> Box::models() const
+{
+  std::vector<glm::mat4> models;
+
+  for (unsigned int i = 0; i < mPositions.size(); i++) {
+    glm::mat4 model = glm::translate(this->model(), mPositions[i]);
+    model = glm::rotate(model, glm::radians(20.f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+    models.push_back(model);
+  }
+
+  return models;
+}
+
+void Box::setupBuffers() { u_model::setupInstancedModels(mMesh, models()); }
 
 void Box::render(const Shader& shader) const
 {
   Lighting::u_material::bindTextures(shader, &mTextures[0], mTextures.size());
 
-  for (unsigned int i = 0; i < mPositions.size(); i++) {
-    glm::mat4 model = glm::translate(Renderable::model(), mPositions[i]);
-    model = glm::rotate(model, glm::radians(20.f * i), glm::vec3(1.0f, 0.3f, 0.5f));
-    shader.setMat4fv("u_model", model);
-    shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model))));
-    mMesh.draw();
-
-    // if(i == boxPositions.size() - 1)
-    // {
-    //   highlight(box, boxModel);
-    //   lightingProgram.use();
-    // } else {
-    //
-    //   box.draw(lightingProgram);
-    // }
-  }
+  mMesh.drawInstanced(mPositions.size());
 
   Lighting::u_material::unbindTextures(shader, &mTextures[0], mTextures.size());
 }

@@ -2,6 +2,7 @@
 
 #include "gl-utils/gl-utils.h"
 #include "shaders/u-material.h"
+#include "shaders/u-model.h"
 #include "utils/utils.h"
 #include <glad/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -40,8 +41,7 @@ void Mirror::screenshot(Scene& scene) { screenshot(scene, glm::vec3(0.f)); }
 
 void Mirror::render(const Shader& shader) const
 {
-  shader.setMat4fv("u_model", model());
-  shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model()))));
+  u_model::setUModel(shader, model());
 
   Lighting::u_material::bindTextures(shader, &mTexture);
   mMesh.draw();

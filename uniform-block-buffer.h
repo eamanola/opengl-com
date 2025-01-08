@@ -1,9 +1,9 @@
 #ifndef UNIFORM_BLOCK_BUFFER_H
 #define UNIFORM_BLOCK_BUFFER_H
 
-#include <vector>
 #include "shader.h"
 #include <unordered_map>
+#include <vector>
 
 class UniformBlockBuffer
 {
@@ -14,7 +14,7 @@ public:
     const char* blockName,
     std::vector<std::string> uniformNames
   );
-  ~UniformBlockBuffer() {};
+  ~UniformBlockBuffer() { }
 
   void free() const { glDeleteBuffers(1, &mBufferId); }
   bool update(const char* uniformName, const std::size_t size, const void* value) const;

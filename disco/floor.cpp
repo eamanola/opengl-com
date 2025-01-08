@@ -2,6 +2,7 @@
 
 #include "shaders/attrib-locations.h"
 #include "shaders/u-material.h"
+#include "shaders/u-model.h"
 #include "shapes.h"
 #include "utils/utils.h"
 #include <glm/gtc/matrix_transform.hpp>
@@ -45,13 +46,14 @@ std::vector<glm::vec3> Floor::getOffsets(unsigned int rows, unsigned int cols) c
 
 void Floor::updateColors()
 {
+  const float OPACITY = 0.1f;
   for (unsigned int i = 0; i < mRows * mColumns; i++) {
     if (((float)rand() / (RAND_MAX)) > 0.5f) {
       mColors[i] = Color(
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
         ((float)rand() / (RAND_MAX)),
-        0.1f
+        OPACITY
       );
     }
   }
@@ -102,15 +104,13 @@ void Floor::render(const Shader& shader) const
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  Lighting::u_material::bindTextures(shader, &mTileTexture);
-
-  const glm::mat4& model = this->model();
-  shader.setMat4fv("u_model", model);
-  shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model))));
+  u_model::setUModel(shader, model());
 
   glBindBuffer(GL_ARRAY_BUFFER, mColorsVBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * mColors.size(), &mColors[0], GL_DYNAMIC_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  Lighting::u_material::bindTextures(shader, &mTileTexture);
 
   mTileMesh.drawInstanced(mRows * mColumns);
 

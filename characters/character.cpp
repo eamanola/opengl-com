@@ -1,5 +1,7 @@
 #include "character.h"
 
+#include "shaders/u-model.h"
+
 bool Character::setAnimation(unsigned int animationIndex)
 {
   const Animation* animation = mAnimation.setAnimation(animationIndex);
@@ -16,8 +18,7 @@ void Character::update(const float& time) { mAnimation.updatePose(time); }
 
 void Character::render(const Shader& shader) const
 {
-  shader.setMat4fv("u_model", model());
-  shader.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model()))));
+  u_model::setUModel(shader, model());
 
   const Array<glm::mat4> transforms = mAnimation.pose();
 
