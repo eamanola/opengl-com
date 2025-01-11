@@ -8,7 +8,7 @@
 namespace u_model
 {
 
-unsigned int setupInstancedModels(Mesh& mesh, const std::vector<glm::mat4>& models);
+unsigned int setInstancedModels(const unsigned int vao, const std::vector<glm::mat4>& models);
 void setUModel(const Shader& shader, const glm::mat4& model, bool setTransInv = true);
 
 } // namespace u_model

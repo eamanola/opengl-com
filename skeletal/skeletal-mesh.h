@@ -5,11 +5,20 @@
 #include "skeletal-vertex.h"
 #include <vector>
 
-namespace SkeletalMesh
+class SkeletalMesh
 {
+public:
+  SkeletalMesh(const unsigned int vao, const std::vector<SkeletalVertex>& vertices)
+  {
+    setupBones(vao, vertices);
+  }
+  ~SkeletalMesh() { }
 
-unsigned int setupBones(Mesh& mesh, const std::vector<SkeletalVertex>& vertices);
+  void setupBones(const unsigned int vao, const std::vector<SkeletalVertex>& vertices);
+  void free();
 
-} // namespace SkeletalMesh
+private:
+  unsigned int mBufferId;
+};
 
 #endif

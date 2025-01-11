@@ -105,18 +105,15 @@ Playground::~Playground() { }
 void Playground::setup()
 {
   glm::mat4 modelDae = glm::mat4(1.f);
-  modelDae = glm::translate(modelDae, glm::vec3(0.f, -1.f, 1.f));
   modelDae = glm::rotate(modelDae, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
   modelDae = glm::scale(modelDae, glm::vec3(0.25f));
   dae.setModel(modelDae);
 
   glm::mat4 modelTifa = glm::mat4(1.f);
-  modelTifa = glm::translate(modelTifa, glm::vec3(0.f, -1.f, 1.f));
   modelTifa = glm::translate(modelTifa, glm::vec3(-1.5f, 0.f, 0.f));
   tifa.setModel(modelTifa);
 
   glm::mat4 modelWhipper = glm::mat4(1.f);
-  modelWhipper = glm::translate(modelWhipper, glm::vec3(0.f, -1.f, 1.f));
   modelWhipper = glm::translate(modelWhipper, glm::vec3(1.5f, 0.f, 0.f));
   modelWhipper = glm::rotate(modelWhipper, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
   modelWhipper = glm::scale(modelWhipper, glm::vec3(0.15f));
@@ -129,13 +126,17 @@ void Playground::setup()
   // std::cout << a.r << b.r;
 
   glm::mat4 mirrorModel = glm::mat4(1.0);
-  mirrorModel = glm::translate(mirrorModel, glm::vec3(2.5f, 0.5f, 0.f));
+  mirrorModel = glm::translate(mirrorModel, glm::vec3(2.5f, 1.5f, -1.f));
   mirrorModel = glm::rotate(mirrorModel, glm::radians(-45.f), glm::vec3(0.f, 1.f, 0.f));
   mirrorModel = glm::scale(mirrorModel, glm::vec3(0.3f));
   mirror.setModel(mirrorModel);
 
-  glm::vec3 cameraPos = glm::vec3(0.f, 0.f, 8.f);
-  glm::vec3 pointTo = glm::vec3(0.f);
+  floor.setModel(glm::rotate(glm::mat4(1.f), glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f)));
+
+  window.setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, -1.f)));
+
+  glm::vec3 cameraPos = glm::vec3(0.f, 1.f, 8.f);
+  glm::vec3 pointTo = glm::vec3(0.f, 1.f, 0.f);
 
 #ifdef FOLLOW_WHIPPER
   const glm::vec3& whipperPos = whipper.position();
@@ -218,8 +219,8 @@ void Playground::render()
   mpLighting.setVec3fv("u_view_pos", view_pos);
 
   glm::mat4 model2b = glm::mat4(1.f);
+  model2b = glm::translate(model2b, glm::vec3(0.f, 1.5f, 0.f));
   model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
-  model2b = glm::translate(model2b, glm::vec3(0.f, 1.5f, -0.75f));
   mpLighting.setMat4fv("u_model", model2b);
   mpLighting.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model2b))));
   simpleModel.draw(mpLighting);

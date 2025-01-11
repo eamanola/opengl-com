@@ -1,5 +1,6 @@
 #include "floor.h"
 
+#include "gl-utils/gl-utils.h"
 #include "shaders/attrib-locations.h"
 #include "shaders/u-material.h"
 #include "shaders/u-model.h"
@@ -16,11 +17,6 @@ Floor::Floor(unsigned int rows, unsigned columns) :
   mColors.resize(mRows * mColumns);
 
   mPreviousUpdate = 0;
-
-  glm::mat4 model = glm::mat4(1.f);
-  model = glm::translate(model, glm::vec3(0.f, -1.f, 1.f));
-  model = glm::rotate(model, glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f));
-  setModel(model);
 
   updateColors();
   setupBuffers();
@@ -62,7 +58,7 @@ void Floor::updateColors()
 void Floor::setupBuffers()
 {
   std::vector<glm::vec3> offsets = getOffsets(mRows, mColumns);
-  Mesh::VertexAttribPointer offset = {
+  GLUtils::VertexAttribPointer offset = {
     .location = ATTRIB_LOCATIONS::FLOOR_OFFSETS,
     .size = 3,
     .stride = sizeof(glm::vec3),
@@ -70,10 +66,11 @@ void Floor::setupBuffers()
     .divisor = 1,
   };
 
-  unsigned int offsetVBO;
-  mTileMesh.addBuffer(offsetVBO, &offsets[0], sizeof(glm::vec3) * offsets.size(), { offset });
+  GLUtils::addVertexBuffer(
+    mOffsetVBO, mTileMesh.vao(), &offsets[0], sizeof(glm::vec3) * offsets.size(), { offset }
+  );
 
-  Mesh::VertexAttribPointer color = {
+  GLUtils::VertexAttribPointer color = {
     .location = ATTRIB_LOCATIONS::FLOOR_COLORS,
     .size = 4,
     .stride = sizeof(Color),
@@ -81,12 +78,13 @@ void Floor::setupBuffers()
     .divisor = 1,
   };
 
-  mTileMesh.addBuffer(
+  GLUtils::addVertexBuffer(
     mColorsVBO,
+    mTileMesh.vao(),
     &mColors[0],
     sizeof(glm::vec3) * mColors.size(),
     { color },
-    Mesh::BufferUsage::DYNAMIC
+    GLUtils::BufferUsage::DYNAMIC
   );
 }
 
@@ -124,4 +122,6 @@ void Floor::free() const
 {
   Utils::deleteTextures({ mTileTexture });
   mTileMesh.free();
+  const unsigned int buffers[] = { mOffsetVBO, mColorsVBO };
+  glDeleteBuffers(2, buffers);
 }

@@ -24,6 +24,7 @@ private:
   std::vector<glm::vec3> mPositions;
   Mesh mMesh;
   Texture mTexture;
+  unsigned int mModelsVBO;
 };
 
 #endif

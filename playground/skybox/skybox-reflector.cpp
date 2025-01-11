@@ -64,7 +64,7 @@ SkyboxReflector::SkyboxReflector(/* args */) :
 
 void SkyboxReflector::draw(const Shader& shader)
 {
-  shader.setMat4fv("u_model", glm::translate(glm::mat4(1.0), glm::vec3(-1.f, 0.f, -1.f)));
+  shader.setMat4fv("u_model", glm::translate(glm::mat4(1.0), glm::vec3(-1.f, 0.5f, -1.f)));
   // reflect ratio
   // Air 	    1.00
   // Water 	  1.33

@@ -22,6 +22,7 @@ private:
   const std::vector<glm::mat4> models() const;
   std::vector<Texture> mTextures;
   std::vector<glm::vec3> mPositions;
+  unsigned int mModelsVBO;
 };
 
 #endif

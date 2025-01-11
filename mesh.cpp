@@ -18,30 +18,15 @@ void Mesh::setupBuffers(
 {
   glGenVertexArrays(1, &VAO);
 
-  std::vector<VertexAttribPointer> attribPointers;
+  std::vector<GLUtils::VertexAttribPointer> attribPointers;
 
-  VertexAttribPointer positions = {
+  GLUtils::VertexAttribPointer positions = {
     .location = ATTRIB_LOCATIONS::POSITION,
     .size = 3,
     .stride = sizeof(Vertex),
     .offset = (void*)offsetof(Vertex, position),
   };
   attribPointers.push_back(positions);
-
-  // glGenBuffers(1, &VBO);
-  // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-  // glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-
-  // glVertexAttribPointer(
-  //   ATTRIB_LOCATIONS::POSITION,
-  //   3,
-  //   GL_FLOAT,
-  //   GL_FALSE,
-  //   sizeof(Vertex),
-  //   (void*)offsetof(Vertex, position)
-  // );
-  // glEnableVertexAttribArray(ATTRIB_LOCATIONS::POSITION);
 
   bool enableNormals = false;
   for (Vertex vertex : vertices) {
@@ -52,7 +37,7 @@ void Mesh::setupBuffers(
   }
 
   if (enableNormals) {
-    VertexAttribPointer normals = {
+    GLUtils::VertexAttribPointer normals = {
       .location = ATTRIB_LOCATIONS::NORMAL,
       .size = 3,
       .stride = sizeof(Vertex),
@@ -70,7 +55,7 @@ void Mesh::setupBuffers(
   }
 
   if (enableTexCoords) {
-    VertexAttribPointer texCoords = {
+    GLUtils::VertexAttribPointer texCoords = {
       .location = ATTRIB_LOCATIONS::TEX_COORDS,
       .size = 2,
       .stride = sizeof(Vertex),
@@ -80,7 +65,12 @@ void Mesh::setupBuffers(
   }
 
   unsigned int VBO;
-  addBuffer(VBO, &vertices[0], sizeof(Vertex) * vertices.size(), attribPointers);
+  if (GLUtils::addVertexBuffer(
+        VBO, VAO, &vertices[0], sizeof(Vertex) * vertices.size(), attribPointers
+      )) {
+    mBuffers.push_back(VBO);
+  }
+
   glBindVertexArray(VAO);
 
   unsigned int EBO;
@@ -92,43 +82,6 @@ void Mesh::setupBuffers(
   );
   // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // keep bound
   glBindVertexArray(0);
-}
-
-bool Mesh::addBuffer(
-  unsigned int& bufferId,
-  const void* data,
-  const std::size_t size,
-  const std::vector<VertexAttribPointer>& attibPointers,
-  const BufferUsage usage
-)
-{
-  glBindVertexArray(VAO);
-  glGenBuffers(1, &bufferId);
-  glBindBuffer(GL_ARRAY_BUFFER, bufferId);
-
-  glBufferData(GL_ARRAY_BUFFER, size, data, usage);
-
-  for (VertexAttribPointer v : attibPointers) {
-    glVertexAttribPointer(v.location, v.size, v.type, v.normalized, v.stride, v.offset);
-
-    if (v.divisor > 0) {
-      glVertexAttribDivisor(v.location, v.divisor);
-    }
-
-    glEnableVertexAttribArray(v.location);
-  }
-
-  glBindBuffer(GL_ARRAY_BUFFER, 0); // Saved to VAO with glVertexAttribPointer
-  glBindVertexArray(0);
-
-  if (GLUtils::noErrors()) {
-    mBuffers.push_back(bufferId);
-    return true;
-  } else {
-    glDeleteBuffers(1, &bufferId);
-    bufferId = 0;
-    return false;
-  }
 }
 
 void Mesh::draw() const

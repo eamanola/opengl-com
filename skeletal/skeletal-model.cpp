@@ -23,12 +23,10 @@ void SkeletalModel::processScene(const aiScene* scene)
   const Mesh* meshes = this->meshes();
   for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
     aiMesh* aiMesh = scene->mMeshes[i];
-    Mesh mesh = meshes[i];
     // std::cout << aiMesh->mName.C_Str() << std::endl;
 
     std::vector<SkeletalVertex> boneData = readBoneData(aiMesh, boneInfos);
-
-    SkeletalMesh::setupBones(mesh, boneData);
+    SkeletalMesh sMesh(meshes[i].vao(), boneData);
   }
 
   readSkeleton(scene->mRootNode, boneInfos, mRootBone);

@@ -1,20 +1,22 @@
 #include "skeletal-mesh.h"
+
+#include "gl-utils/gl-utils.h"
 #include "shaders/attrib-locations.h"
 
-unsigned int SkeletalMesh::setupBones(Mesh& mesh, const std::vector<SkeletalVertex>& vertices)
+void SkeletalMesh::setupBones(const unsigned int vao, const std::vector<SkeletalVertex>& vertices)
 {
-  std::vector<Mesh::VertexAttribPointer> attribPointers;
+  std::vector<GLUtils::VertexAttribPointer> attribPointers;
 
-  Mesh::VertexAttribPointer boneIds = {
+  GLUtils::VertexAttribPointer boneIds = {
     .location = ATTRIB_LOCATIONS::BONE_IDS,
     .size = MAX_BONE_INFLUENCE,
-    .type = Mesh::AttribType::UNSIGNED_INT,
+    .type = GLUtils::AttribType::UNSIGNED_INT,
     .stride = sizeof(SkeletalVertex),
     .offset = (void*)(offsetof(SkeletalVertex, boneIds)),
   };
   attribPointers.push_back(boneIds);
 
-  Mesh::VertexAttribPointer boneWeights = {
+  GLUtils::VertexAttribPointer boneWeights = {
     .location = ATTRIB_LOCATIONS::BONE_WEIGHTS,
     .size = MAX_BONE_INFLUENCE,
     .stride = sizeof(SkeletalVertex),
@@ -22,8 +24,9 @@ unsigned int SkeletalMesh::setupBones(Mesh& mesh, const std::vector<SkeletalVert
   };
   attribPointers.push_back(boneWeights);
 
-  unsigned int VBO;
-  mesh.addBuffer(VBO, &vertices[0], sizeof(SkeletalVertex) * vertices.size(), attribPointers);
-
-  return VBO;
+  GLUtils::addVertexBuffer(
+    mBufferId, vao, &vertices[0], sizeof(SkeletalVertex) * vertices.size(), attribPointers
+  );
 }
+
+void SkeletalMesh::free() { glDeleteBuffers(1, &mBufferId); }

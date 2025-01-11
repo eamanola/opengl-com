@@ -1,5 +1,6 @@
 #include "grass.h"
 
+#include "gl-utils/gl-utils.h"
 #include "shaders/u-material.h"
 #include "shaders/u-model.h"
 #include "utils/utils.h"
@@ -20,7 +21,7 @@ Grass::Grass() :
     .key = "assets/grass.png",
   })
 {
-  setModel(glm::mat4(1.f));
+  setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.5f, 0.f)));
   setupBuffers();
 }
 
@@ -28,13 +29,13 @@ std::vector<glm::mat4> Grass::models() const
 {
   std::vector<glm::mat4> models;
   for (unsigned int i = 0; i < mPositions.size(); i++) {
-    models.push_back(glm::translate(Renderable::model(), mPositions[i]));
+    models.push_back(glm::translate(model(), mPositions[i]));
   }
 
   return models;
 }
 
-void Grass::setupBuffers() { u_model::setupInstancedModels(mMesh, models()); }
+void Grass::setupBuffers() { mModelsVBO = u_model::setInstancedModels(mMesh.vao(), models()); }
 
 void Grass::render(const Shader& shader) const
 {
@@ -53,4 +54,5 @@ void Grass::free() const
 {
   mMesh.free();
   Utils::deleteTextures({ mTexture });
+  glDeleteBuffers(1, &mModelsVBO);
 }

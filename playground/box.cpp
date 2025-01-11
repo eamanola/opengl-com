@@ -26,7 +26,7 @@ Box::Box() :
     glm::vec3(-1.3f, 1.0f, -1.5f),
   })
 {
-  setModel(glm::mat4(1.f));
+  setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, -1.f)));
   setupBuffers();
 }
 
@@ -43,7 +43,7 @@ const std::vector<glm::mat4> Box::models() const
   return models;
 }
 
-void Box::setupBuffers() { u_model::setupInstancedModels(mMesh, models()); }
+void Box::setupBuffers() { mModelsVBO = u_model::setInstancedModels(mMesh.vao(), models()); }
 
 void Box::render(const Shader& shader) const
 {
@@ -59,4 +59,6 @@ void Box::free() const
   mMesh.free();
 
   Utils::deleteTextures(mTextures);
+
+  glDeleteBuffers(1, &mModelsVBO);
 }

@@ -29,6 +29,7 @@ private:
   std::vector<Color> mColors;
   float mPreviousUpdate;
   unsigned int mColorsVBO;
+  unsigned int mOffsetVBO;
 };
 
 #endif

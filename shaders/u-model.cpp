@@ -1,18 +1,20 @@
 #include "u-model.h"
 
+#include "gl-utils/gl-utils.h"
 #include "shaders/attrib-locations.h"
 #include <iostream>
 
-unsigned int u_model::setupInstancedModels(Mesh& mesh, const std::vector<glm::mat4>& models)
+unsigned int
+u_model::setInstancedModels(const unsigned int vao, const std::vector<glm::mat4>& models)
 {
   const std::size_t stride = sizeof(std::pair<glm::mat4, glm::mat3>);
   const std::size_t sizeOfVec3 = sizeof(glm::vec3);
   const std::size_t sizeOfVec4 = sizeof(glm::vec4);
   const std::size_t sizeOfMat4 = sizeof(glm::mat4);
 
-  std::vector<Mesh::VertexAttribPointer> modelAttribs;
+  std::vector<GLUtils::VertexAttribPointer> modelAttribs;
   for (unsigned int i = 0; i < 4; i++) {
-    modelAttribs.push_back(Mesh::VertexAttribPointer {
+    modelAttribs.push_back(GLUtils::VertexAttribPointer {
       .location = ATTRIB_LOCATIONS::INSTANCED_MODELS + i,
       .size = 4,
       .stride = stride,
@@ -21,7 +23,7 @@ unsigned int u_model::setupInstancedModels(Mesh& mesh, const std::vector<glm::ma
     });
   }
   for (unsigned int i = 0; i < 3; i++) {
-    modelAttribs.push_back(Mesh::VertexAttribPointer {
+    modelAttribs.push_back(GLUtils::VertexAttribPointer {
       .location = ATTRIB_LOCATIONS::INSTANCED_TRA_INV_MODELS + i,
       .size = 3,
       .stride = stride,
@@ -36,7 +38,8 @@ unsigned int u_model::setupInstancedModels(Mesh& mesh, const std::vector<glm::ma
   }
 
   unsigned int vbo;
-  if (!mesh.addBuffer(vbo, &data[0], stride * data.size(), modelAttribs)) {
+
+  if (!GLUtils::addVertexBuffer(vbo, vao, &data[0], stride * data.size(), modelAttribs)) {
     std::cout << "failed to create models buffer\n";
     vbo = 0;
   }
