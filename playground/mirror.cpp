@@ -7,6 +7,8 @@
 #include <glad/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define SAMPLES 4
+
 Mirror::Mirror(const float vWidth, const float vHeight) :
   mNormal(glm::normalize(glm::vec3(0.f, 0.f, 1.f))),
   mMesh(
@@ -24,17 +26,39 @@ Mirror::Mirror(const float vWidth, const float vHeight) :
     })
     // clang-format on
   ),
-  mTexture(Texture { .type = TEXTURE_TYPE_DIFFUSE, .key = "" })
+  mTexture(Texture { .type = TEXTURE_TYPE_DIFFUSE, .key = "" }),
+  mWidth(vWidth),
+  mHeight(vHeight)
 {
-  GLUtils::createFramebufferTexture2D(vWidth, vHeight, mFBO, mTexture.id, mRBO);
+  if (SAMPLES > 1) {
+    // multisampled framebuffer
+    GLUtils::Framebuffer::createFramebufferTexture2D(vWidth, vHeight, SAMPLES, mFBO, mTexI, &mRBO);
+
+    // framebuffer to downscale/relove to, for drawing
+    GLUtils::Framebuffer::createFramebufferTexture2D(
+      vWidth, vHeight, 1, mFBOI, mTexture.id, nullptr
+    );
+  } else {
+    GLUtils::Framebuffer::createFramebufferTexture2D(vWidth, vHeight, 1, mFBO, mTexture.id, &mRBO);
+  }
 }
 
 void Mirror::screenshot(Scene& scene, const glm::vec3& positionOffset)
 {
   const glm::mat4 m = model();
-  const glm::vec3 position = glm::vec3(m[3]) + positionOffset;
+  const glm::vec3 position = this->position() + positionOffset;
   const glm::vec3 normal = glm::mat3(glm::transpose(glm::inverse(m))) * mNormal;
   Utils::screenshot(scene, mFBO, position, normal);
+
+  // resolve framebuffer
+  if (SAMPLES > 1) {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, mFBO);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFBOI);
+    glBlitFramebuffer(
+      0, 0, mWidth, mHeight, 0, 0, mWidth, mHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST
+    );
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  }
 }
 
 void Mirror::screenshot(Scene& scene) { screenshot(scene, glm::vec3(0.f)); }
@@ -53,4 +77,9 @@ void Mirror::free() const
   glDeleteFramebuffers(1, &mFBO);
   Utils::deleteTextures({ mTexture });
   glDeleteRenderbuffers(1, &mRBO);
+
+  if (SAMPLES > 1) {
+    glDeleteFramebuffers(1, &mFBOI);
+    glDeleteTextures(1, &mTexI);
+  }
 }

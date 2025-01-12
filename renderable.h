@@ -9,8 +9,9 @@ public:
   Renderable() { setModel(glm::mat4(1.f)); }
   virtual ~Renderable() { }
 
-  virtual void setModel(const glm::mat4 model) { mModel = model; };
-  virtual const glm::mat4& model() const { return mModel; };
+  virtual void setModel(const glm::mat4 model) { mModel = model; }
+  virtual const glm::mat4& model() const { return mModel; }
+  virtual const glm::vec3 position() { return glm::vec3(mModel[3]); }
   virtual void update(const float& time) = 0;
   virtual void render(const Shader& shader) const = 0;
   virtual void free() const = 0;

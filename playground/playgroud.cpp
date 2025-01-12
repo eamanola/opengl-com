@@ -1,6 +1,6 @@
 #include "playground.h"
 
-// #define FOLLOW_WHIPPER
+#define FOLLOW_WHIPPER
 
 #define NUM_DIR_LIGHTS 1
 #define NUM_POINT_LIGHTS 4
@@ -140,8 +140,8 @@ void Playground::setup()
 
 #ifdef FOLLOW_WHIPPER
   const glm::vec3& whipperPos = whipper.position();
-  cameraPos = whipperPos + cameraPos + glm::vec3(0.f, 2.f, 0.f);
-  pointTo = whipperPos;
+  cameraPos = whipperPos + glm::vec3(0.f, 1.f, 8.f);
+  pointTo = whipperPos + glm::vec3(0.f, 1.f, 0.f);
 #endif
 
   const bool animate = false;
@@ -184,8 +184,8 @@ void Playground::update(const float& time)
   }
 #ifdef FOLLOW_WHIPPER
   const glm::vec3& whipperPos = whipper.position();
-  camera().setPosition(whipperPos + glm::vec3(0.f, 2.f, 8.f));
-  camera().pointTo(whipperPos);
+  camera().setPosition(whipperPos + glm::vec3(0.f, 1.f, 8.f));
+  camera().pointTo(whipperPos + glm::vec3(0.f, 1.f, 0.f));
 #endif
 
   mirror.screenshot(*this);

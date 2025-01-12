@@ -27,6 +27,11 @@ private:
   unsigned int mRBO;
   Mesh mMesh;
   Texture mTexture;
+  const float mWidth;
+  const float mHeight;
+
+  unsigned int mFBOI;
+  unsigned int mTexI;
 };
 
 #endif

@@ -8,13 +8,26 @@
 namespace GLUtils
 {
 
+namespace Framebuffer
+{
+
 bool createFramebufferTexture2D(
   const float width,
   const float height,
+  const unsigned int samples,
   unsigned int& outFBO,
   unsigned int& outTextureId,
-  unsigned int& outRBO
+  unsigned int* outRBO
 );
+
+bool addTexture(
+  const float width, const float height, const unsigned int samples, unsigned int& textureId
+);
+bool addRenderBuffer(
+  const float width, const float height, const unsigned int samples, unsigned int& outRBO
+);
+
+} // namespace Framebuffer
 // paths order:
 // GL_TEXTURE_CUBE_MAP_POSITIVE_X 	Right
 // GL_TEXTURE_CUBE_MAP_NEGATIVE_X 	Left

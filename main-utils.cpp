@@ -1,6 +1,9 @@
+#include "main-utils.h"
+
 #include <glad/gl.h>
 #include <iostream>
-#include "main-utils.h"
+
+#define MULTISAMPLE
 
 Scene* scene;
 
@@ -12,15 +15,13 @@ void error_callback(int error, const char* description)
 GLFWwindow* setup()
 {
   GLFWwindow* window = createWindow();
-  if(window == nullptr)
-  {
+  if (window == nullptr) {
     std::cout << "Failed to create GLFW window\n";
     return nullptr;
   }
   glfwMakeContextCurrent(window);
 
-  if(!initGlad())
-  {
+  if (!initGlad()) {
     std::cout << "Failed to initialize GLAD\n";
     return nullptr;
   }
@@ -34,14 +35,11 @@ GLFWwindow* setup()
   return window;
 }
 
-void setScene(Scene* s)
-{
-  scene = s;
-}
+void setScene(Scene* s) { scene = s; }
 
 void handleInput(GLFWwindow* window)
 {
-  if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
 }
 
@@ -51,18 +49,17 @@ GLFWwindow* createWindow()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#ifdef MULTISAMPLE
+  glfwWindowHint(GLFW_SAMPLES, 4);
+#endif
 
-  GLFWwindow* window = glfwCreateWindow(
-    INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, "OpenGL", NULL, NULL
-  );
+  GLFWwindow* window =
+    glfwCreateWindow(INITIAL_WINDOW_WIDTH, INITIAL_WINDOW_HEIGHT, "OpenGL", NULL, NULL);
 
   return window;
 }
 
-bool initGlad()
-{
-  return gladLoadGL(glfwGetProcAddress);
-}
+bool initGlad() { return gladLoadGL(glfwGetProcAddress); }
 
 void initGL()
 {
@@ -70,8 +67,11 @@ void initGL()
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS); // default
   glEnable(GL_CULL_FACE);
-  glCullFace(GL_BACK); //default
-  glFrontFace(GL_CCW); //default
+  glCullFace(GL_BACK); // default
+  glFrontFace(GL_CCW); // default
+#ifdef MULTISAMPLE
+  glEnable(GL_MULTISAMPLE); // default on most drivers
+#endif
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -89,15 +89,9 @@ void setupViewport(GLFWwindow* window)
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 }
 
-void mouse_callback(GLFWwindow* window, double x, double y)
-{
-  scene->onMouse(window, x, y);
-}
+void mouse_callback(GLFWwindow* window, double x, double y) { scene->onMouse(window, x, y); }
 
-void scroll_callback(GLFWwindow* window, double x, double y)
-{
-  scene->onScroll(window, x, y);
-}
+void scroll_callback(GLFWwindow* window, double x, double y) { scene->onScroll(window, x, y); }
 
 void setupMouse(GLFWwindow* window)
 {
@@ -111,7 +105,4 @@ void character_callback(GLFWwindow* window, unsigned int codepoint)
   scene->onChar((char)codepoint);
 }
 
-void setupKeyboard(GLFWwindow* window)
-{
-  glfwSetCharCallback(window, character_callback);
-}
+void setupKeyboard(GLFWwindow* window) { glfwSetCharCallback(window, character_callback); }

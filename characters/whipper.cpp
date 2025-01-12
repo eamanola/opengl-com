@@ -9,8 +9,6 @@ Whipper::Whipper() : Character("assets/whipper/scene.gltf")
   setState(WHIPPER_STATES::DANCE);
 }
 
-const glm::vec3 Whipper::position() const { return glm::vec3(model()[3]); }
-
 void Whipper::update(const float& time)
 {
   bool loop = !isJumping(mState);

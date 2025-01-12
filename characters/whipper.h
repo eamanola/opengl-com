@@ -22,8 +22,6 @@ public:
   void update(const float& time) override;
   void render(const Shader& shader) const override;
 
-  const glm::vec3 position() const;
-
 private:
   WHIPPER_STATES mState;
 
