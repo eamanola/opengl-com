@@ -16,14 +16,16 @@ LightSettings::LightSettings(
   ub_lights(bindingId, shaders, numDirLights, numPointLights, numSpotLights)
 {
   ub_lights.set({
-    .dirLights = getDirLights(),
-    .pointLights = getPointLights(),
-    .spotLights = getSpotLights(),
+    .dirLights = getDirLights(numDirLights),
+    .pointLights = getPointLights(numPointLights),
+    .spotLights = getSpotLights(numSpotLights),
   });
 }
 
-std::vector<DirLight> LightSettings::getDirLights()
+std::vector<DirLight> LightSettings::getDirLights(unsigned int count)
 {
+  if (count == 0)
+    return {};
   const glm::vec4 AMBIENT(0.2f);
   const glm::vec4 DIFFUSE(0.5f);
   const glm::vec4 SPECULAR(1.0f);
@@ -50,8 +52,10 @@ std::vector<DirLight> LightSettings::getDirLights()
   return { light };
 }
 
-std::vector<PointLight> LightSettings::getPointLights()
+std::vector<PointLight> LightSettings::getPointLights(unsigned int count)
 {
+  if (count == 0)
+    return {};
   const glm::vec4 AMBIENT(0.2f);
   const glm::vec4 DIFFUSE(0.5f);
   const glm::vec4 SPECULAR(1.0f);
@@ -92,8 +96,10 @@ void LightSettings::updatePointLight0Position()
   ub_lights.setVec3("u_point_lights[0].position", mLights.positions[0]);
 }
 
-std::vector<SpotLight> LightSettings::getSpotLights()
+std::vector<SpotLight> LightSettings::getSpotLights(unsigned int count)
 {
+  if (count == 0)
+    return {};
   const glm::vec4 AMBIENT(0.2f);
   const glm::vec4 DIFFUSE(0.5f);
   const glm::vec4 SPECULAR(1.0f);

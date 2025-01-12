@@ -1,6 +1,6 @@
 #include "playground.h"
 
-#define FOLLOW_WHIPPER
+// #define FOLLOW_WHIPPER
 
 #define NUM_DIR_LIGHTS 1
 #define NUM_POINT_LIGHTS 4
@@ -147,18 +147,18 @@ void Playground::setup()
   const bool animate = false;
   camera().setPosition(cameraPos, animate);
   camera().pointTo(pointTo, animate);
-
+#define SHININESS 32.f
   mpSkeletal.use();
-  mpSkeletal.setFloat("u_material.shininess", 32.f);
+  mpSkeletal.setFloat("u_material.shininess", SHININESS);
 
   mpLighting.use();
-  mpLighting.setFloat("u_material.shininess", 32.f);
+  mpLighting.setFloat("u_material.shininess", SHININESS);
 
   mpFloor.use();
-  mpFloor.setFloat("u_material.shininess", 32.f);
+  mpFloor.setFloat("u_material.shininess", SHININESS);
 
   mpInstanced.use();
-  mpInstanced.setFloat("u_material.shininess", 32.f);
+  mpInstanced.setFloat("u_material.shininess", SHININESS);
 // mpLighting.setFloat("u_time", -M_PI_2);
 #ifdef NORMALS_DEBUG
   mpNormals.use();

@@ -45,9 +45,9 @@ public:
   void free() { ub_lights.free(); }
 
 private:
-  std::vector<DirLight> getDirLights();
-  std::vector<PointLight> getPointLights();
-  std::vector<SpotLight> getSpotLights();
+  std::vector<DirLight> getDirLights(unsigned int count);
+  std::vector<PointLight> getPointLights(unsigned int count);
+  std::vector<SpotLight> getSpotLights(unsigned int count);
   Lighting::ub_lights ub_lights;
 };
 
