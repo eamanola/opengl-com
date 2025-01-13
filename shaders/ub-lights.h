@@ -9,12 +9,6 @@
 namespace Lighting
 {
 
-struct PhongColor {
-  Color ambient;
-  Color diffuse;
-  Color specular;
-};
-
 struct Light {
   PhongColor color;
   bool off;

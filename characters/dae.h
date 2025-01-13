@@ -6,8 +6,8 @@
 class Dae : public Character
 {
 public:
-  Dae() : Character("assets/dae-runner/model.dae") {};
-  ~Dae() { };
+  Dae() : Character("assets/dae-runner/model.dae") { }
+  ~Dae() { }
 };
 
 #endif

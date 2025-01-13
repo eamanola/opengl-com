@@ -5,4 +5,10 @@
 
 typedef glm::vec4 Color;
 
+struct PhongColor {
+  Color ambient;
+  Color diffuse;
+  Color specular;
+};
+
 #endif

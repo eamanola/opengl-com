@@ -1,9 +1,15 @@
 #include "whipper.h"
-#include "color.h"
+
+#include "shaders/u-material.h"
 #include <glm/glm.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
-Whipper::Whipper() : Character("assets/whipper/scene.gltf")
+Whipper::Whipper() :
+  Character("assets/whipper/scene.gltf"),
+  mColor(PhongColor {
+    .diffuse = Color(170.f / 255.f, 59.f / 255.f, 159.f / 255.f, 1.0),
+    .specular = Color(0.4f, 0.4f, 0.4f, 1.0),
+  })
 {
   mRotation = 0.f;
   setState(WHIPPER_STATES::DANCE);
@@ -28,15 +34,11 @@ void Whipper::update(const float& time)
 
 void Whipper::render(const Shader& shader) const
 {
-  shader.setVec4fv(
-    "u_material.diffuse_color", Color(170.f / 255.f, 59.f / 255.f, 159.f / 255.f, 1.0)
-  );
-  shader.setVec4fv("u_material.specular_color", Color(0.4f, 0.4f, 0.4f, 1.0));
+  Lighting::u_material::setColor(shader, mColor);
 
   Character::render(shader);
 
-  shader.setVec4fv("u_material.diffuse_color", Color(0.f));
-  shader.setVec4fv("u_material.specular_color", Color(0.f));
+  Lighting::u_material::setColor(shader, PhongColor {});
 }
 
 void Whipper::handleInput(const GLFWwindow* window, const Scene& scene)

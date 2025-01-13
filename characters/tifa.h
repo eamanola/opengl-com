@@ -6,8 +6,8 @@
 class Tifa : public Character
 {
 public:
-  Tifa() : Character("assets/tifa/dancing/source/Bellydancing.fbx") { };
-  ~Tifa() { };
+  Tifa() : Character("assets/tifa/dancing/source/Bellydancing.fbx") { }
+  ~Tifa() { }
 };
 
 #endif

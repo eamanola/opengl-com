@@ -2,6 +2,7 @@
 #define WHIPPER_H
 
 #include "character.h"
+#include "color.h"
 
 enum WHIPPER_STATES {
   RUNNING = 0,
@@ -36,6 +37,7 @@ private:
   float lastFrame = 0.f;
   void move(const glm::vec3& translation);
   void rotate(const float& rotation);
+  PhongColor mColor;
 };
 
 #endif

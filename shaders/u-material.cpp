@@ -52,3 +52,9 @@ void u_material::unbindTextures(const Shader& shader, const Texture* textures)
 {
   return u_material::unbindTextures(shader, textures, 1);
 }
+
+void u_material::setColor(const Shader& shader, const PhongColor& color)
+{
+  shader.setVec4fv("u_material.diffuse_color", color.diffuse);
+  shader.setVec4fv("u_material.specular_color", color.specular);
+}
