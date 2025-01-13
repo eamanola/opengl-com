@@ -219,7 +219,7 @@ void Playground::render()
   mpLighting.setVec3fv("u_view_pos", view_pos);
 
   glm::mat4 model2b = glm::mat4(1.f);
-  model2b = glm::translate(model2b, glm::vec3(0.f, 1.5f, 0.f));
+  model2b = glm::translate(model2b, glm::vec3(0.f, 1.75f, 0.f));
   model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
   mpLighting.setMat4fv("u_model", model2b);
   mpLighting.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model2b))));

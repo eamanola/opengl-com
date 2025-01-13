@@ -7,7 +7,7 @@
 Skybox::Skybox() :
   mMesh(Shapes::CUBE_ONLY_P),
   mTexture(Texture {
-    .id = GLUtils::loadCubemap({
+    .id = GLUtils::Textures::loadCubemap({
       "assets/skybox/right.jpg",
       "assets/skybox/left.jpg",
       "assets/skybox/bottom.jpg",
@@ -16,7 +16,6 @@ Skybox::Skybox() :
       "assets/skybox/back.jpg",
     }),
     .type = TEXTURE_TYPE_DIFFUSE,
-    .key = "assets/skybox/*.jpg",
   })
 {
 }
@@ -35,5 +34,5 @@ void Skybox::draw(const Shader& shader)
 void Skybox::free()
 {
   mMesh.free();
-  Utils::deleteTextures({ mTexture });
+  Utils::Textures::deleteTextures({ mTexture });
 }

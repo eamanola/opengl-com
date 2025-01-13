@@ -33,18 +33,16 @@ void Model::processScene(const aiScene* scene)
 
   if (scene->HasMaterials()) {
     for (unsigned int i = 0; i < scene->mNumMeshes; i++) {
-      std::vector<unsigned int> texIndices;
+      std::vector<std::string> textures;
       aiMesh* mesh = scene->mMeshes[i];
 
-      std::vector<unsigned int> dMaps =
-        loadMaterialTextures(scene, mesh, aiTextureType_DIFFUSE, TEXTURE_TYPE_DIFFUSE);
-      texIndices.insert(texIndices.end(), dMaps.begin(), dMaps.end());
+      std::vector<std::string> dMaps = loadMaterialTextures(scene, mesh, aiTextureType_DIFFUSE);
+      textures.insert(textures.end(), dMaps.begin(), dMaps.end());
 
-      std::vector<unsigned int> sMaps =
-        loadMaterialTextures(scene, mesh, aiTextureType_SPECULAR, TEXTURE_TYPE_SPECULAR);
-      texIndices.insert(texIndices.end(), sMaps.begin(), sMaps.end());
+      std::vector<std::string> sMaps = loadMaterialTextures(scene, mesh, aiTextureType_SPECULAR);
+      textures.insert(textures.end(), sMaps.begin(), sMaps.end());
 
-      mMeshTextureMap.push_back(texIndices);
+      mMeshTextureMap.push_back(textures);
     }
   }
 }
@@ -75,66 +73,59 @@ Mesh Model::processMesh(const aiScene* scene, const aiMesh* mesh)
   return Mesh(vertices, indices);
 }
 
-std::vector<unsigned int> Model::loadMaterialTextures(
-  const aiScene* const scene,
-  const aiMesh* const mesh,
-  const aiTextureType aiType,
-  const TEXTURE_TYPE type
+std::vector<std::string> Model::loadMaterialTextures(
+  const aiScene* const scene, const aiMesh* const mesh, const aiTextureType& aiType
 )
 {
-  std::vector<unsigned int> textureMapping;
+  std::vector<std::string> textureMapping;
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
   for (unsigned int i = 0; i < material->GetTextureCount(aiType); i++) {
-    aiString str;
-    material->GetTexture(aiType, i, &str);
+    aiString path;
+    material->GetTexture(aiType, i, &path);
 
-    bool skip = false;
-    for (unsigned int j = 0; j < mTextures.size(); j++) {
-      if (std::strcmp(mTextures[j].key.data(), str.C_Str()) == 0) {
-        textureMapping.push_back(j);
-        skip = true;
-        break;
-      }
+    const char* cPath = path.C_Str();
+
+    if (mTextures.find(cPath) == mTextures.end()) {
+      mTextures[cPath] = loadTexture(scene, aiType, cPath);
     }
 
-    if (skip) {
-      continue;
-    }
-    // std::cout << "loading: " << mDirectory << '/' << str.C_Str() << std::endl;
-
-    unsigned int textureId;
-    const aiTexture* embedded = scene->GetEmbeddedTexture(str.C_Str());
-    if (embedded != nullptr) {
-      // Points to an array of mWidth * mHeight aiTexel's.
-      // The format of the texture data is always ARGB8888
-      // If mHeight = 0 this is a pointer to a memory buffer of size mWidth containing the
-      // compressed texture data.
-      unsigned int length = embedded->mWidth;
-      if (embedded->mHeight > 0)
-        length *= embedded->mHeight;
-
-      textureId = Utils::loadTexture2D((unsigned char*)embedded->pcData, length);
-    } else {
-      textureId = Utils::loadTexture2D((mDirectory + '/' + str.C_Str()).c_str());
-    }
-
-    Texture texture { .id = textureId, .type = type, .key = str.C_Str() };
-    mTextures.push_back(texture);
-    textureMapping.push_back(mTextures.size() - 1);
+    textureMapping.push_back(cPath);
   }
 
   return textureMapping;
 }
 
+Texture Model::loadTexture(const aiScene* scene, const aiTextureType& aiType, const char* path)
+{
+  // std::cout << "loading: " << mDirectory << '/' << str.C_Str() << std::endl;
+
+  const TEXTURE_TYPE type =
+    aiType == aiTextureType_DIFFUSE ? TEXTURE_TYPE_DIFFUSE : TEXTURE_TYPE_SPECULAR;
+
+  const aiTexture* embedded = scene->GetEmbeddedTexture(path);
+  if (embedded != nullptr) {
+    // Points to an array of mWidth * mHeight aiTexel's.
+    // The format of the texture data is always ARGB8888
+    // If mHeight = 0 this is a pointer to a memory buffer of size mWidth containing the
+    // compressed texture data.
+    unsigned int length = embedded->mWidth;
+    if (embedded->mHeight > 0)
+      length *= embedded->mHeight;
+
+    return Utils::Textures::loadTexture2D((unsigned char*)embedded->pcData, length, type);
+  }
+
+  return Utils::Textures::loadTexture2D((mDirectory + '/' + path).c_str(), type);
+}
+
 void Model::draw(const Shader& shader) const
 {
   for (unsigned int i = 0; i < mMeshes.size(); i++) {
-    const std::vector<unsigned int>& texIndices = mMeshTextureMap[i];
     std::vector<Texture> textures;
 
-    for (unsigned int j : texIndices) {
-      textures.push_back(mTextures[j]);
+    for (std::string path : mMeshTextureMap[i]) {
+      textures.push_back(mTextures.at(path));
     }
 
     Lighting::u_material::bindTextures(shader, &textures[0], textures.size());
@@ -149,5 +140,10 @@ void Model::free() const
     mMeshes[i].free();
   }
 
-  Utils::deleteTextures(mTextures);
+  std::vector<Texture> textures;
+  for (auto t : mTextures) {
+    textures.push_back(t.second);
+  }
+
+  Utils::Textures::deleteTextures(textures);
 }

@@ -10,7 +10,7 @@
 
 Floor::Floor(unsigned int rows, unsigned columns) :
   mTileMesh(Shapes::QUAD),
-  mTileTexture(Utils::loadTexture2D("./assets/floor-tile.png", TEXTURE_TYPE_DIFFUSE)),
+  mTileTexture(Utils::Textures::loadTexture2D("./assets/floor-tile.png", TEXTURE_TYPE_DIFFUSE)),
   mRows(rows),
   mColumns(columns)
 {
@@ -120,7 +120,7 @@ void Floor::render(const Shader& shader) const
 
 void Floor::free() const
 {
-  Utils::deleteTextures({ mTileTexture });
+  Utils::Textures::deleteTextures({ mTileTexture });
   mTileMesh.free();
   const unsigned int buffers[] = { mOffsetVBO, mColorsVBO };
   glDeleteBuffers(2, buffers);

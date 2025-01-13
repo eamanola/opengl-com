@@ -10,8 +10,8 @@
 Box::Box() :
   mMesh(Shapes::CUBE),
   mTextures({
-    Utils::loadTexture2D("assets/container2.png", TEXTURE_TYPE_DIFFUSE),
-    Utils::loadTexture2D("assets/container2_specular.png", TEXTURE_TYPE_SPECULAR),
+    Utils::Textures::loadTexture2D("assets/container2.png", TEXTURE_TYPE_DIFFUSE),
+    Utils::Textures::loadTexture2D("assets/container2_specular.png", TEXTURE_TYPE_SPECULAR),
   }),
   mPositions({
     glm::vec3(0.0f, 0.0f, 0.0f),
@@ -58,7 +58,7 @@ void Box::free() const
 {
   mMesh.free();
 
-  Utils::deleteTextures(mTextures);
+  Utils::Textures::deleteTextures(mTextures);
 
   glDeleteBuffers(1, &mModelsVBO);
 }

@@ -72,6 +72,7 @@ void initGL()
 #ifdef MULTISAMPLE
   glEnable(GL_MULTISAMPLE); // default on most drivers
 #endif
+  glEnable(GL_FRAMEBUFFER_SRGB);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

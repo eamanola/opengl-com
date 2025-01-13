@@ -29,7 +29,7 @@ void Whipper::update(const float& time)
 void Whipper::render(const Shader& shader) const
 {
   shader.setVec4fv(
-    "u_material.diffuse_color", Color(255.f / 255.f, 192.f / 255.f, 203.f / 255.f, 1.0)
+    "u_material.diffuse_color", Color(170.f / 255.f, 59.f / 255.f, 159.f / 255.f, 1.0)
   );
   shader.setVec4fv("u_material.specular_color", Color(0.4f, 0.4f, 0.4f, 1.0));
 

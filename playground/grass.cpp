@@ -15,11 +15,9 @@ Grass::Grass() :
     {  0.5f, 0.0f, -0.60f },
 }),
   mMesh(Shapes::QUAD),
-  mTexture(Texture {
-    .id = Utils::loadTexture2D("assets/grass.png", GL_CLAMP_TO_EDGE),
-    .type = TEXTURE_TYPE_DIFFUSE,
-    .key = "assets/grass.png",
-  })
+  mTexture(
+    Utils::Textures::loadTexture2D("assets/grass.png", TEXTURE_TYPE_DIFFUSE, GL_CLAMP_TO_EDGE)
+  )
 {
   setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.5f, 0.f)));
   setupBuffers();
@@ -53,6 +51,6 @@ void Grass::render(const Shader& shader) const
 void Grass::free() const
 {
   mMesh.free();
-  Utils::deleteTextures({ mTexture });
+  Utils::Textures::deleteTextures({ mTexture });
   glDeleteBuffers(1, &mModelsVBO);
 }

@@ -26,7 +26,7 @@ Mirror::Mirror(const float vWidth, const float vHeight) :
     })
     // clang-format on
   ),
-  mTexture(Texture { .type = TEXTURE_TYPE_DIFFUSE, .key = "" }),
+  mTexture(Texture { .type = TEXTURE_TYPE_DIFFUSE }),
   mWidth(vWidth),
   mHeight(vHeight)
 {
@@ -75,7 +75,7 @@ void Mirror::render(const Shader& shader) const
 void Mirror::free() const
 {
   glDeleteFramebuffers(1, &mFBO);
-  Utils::deleteTextures({ mTexture });
+  Utils::Textures::deleteTextures({ mTexture });
   glDeleteRenderbuffers(1, &mRBO);
 
   if (SAMPLES > 1) {

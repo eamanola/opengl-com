@@ -5,6 +5,7 @@
 #include "shader.h"
 #include "texture.h"
 #include <assimp/scene.h>
+#include <unordered_map>
 #include <vector>
 
 class Model
@@ -25,13 +26,13 @@ protected:
 private:
   std::vector<Mesh> mMeshes;
   std::string mDirectory;
-  std::vector<Texture> mTextures;
-  std::vector<std::vector<unsigned int>> mMeshTextureMap;
+  std::vector<std::vector<std::string>> mMeshTextureMap;
+  std::unordered_map<std::string, Texture> mTextures;
 
   Mesh processMesh(const aiScene* scene, const aiMesh* mesh);
-  std::vector<unsigned int> loadMaterialTextures(
-    const aiScene* scene, const aiMesh* mesh, const aiTextureType aiType, const TEXTURE_TYPE type
-  );
+  std::vector<std::string>
+  loadMaterialTextures(const aiScene* scene, const aiMesh* mesh, const aiTextureType& aiType);
+  Texture loadTexture(const aiScene* scene, const aiTextureType& aiType, const char* name);
 };
 
 #endif

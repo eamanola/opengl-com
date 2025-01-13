@@ -48,7 +48,7 @@ SkyboxReflector::SkyboxReflector(/* args */) :
     } // clang-format on
   ),
   mTexture(Texture {
-    .id = GLUtils::loadCubemap({
+    .id = GLUtils::Textures::loadCubemap({
       "assets/skybox/right.jpg",
       "assets/skybox/left.jpg",
       "assets/skybox/bottom.jpg",
@@ -57,7 +57,6 @@ SkyboxReflector::SkyboxReflector(/* args */) :
       "assets/skybox/back.jpg",
     }),
     .type = TEXTURE_TYPE_DIFFUSE,
-    .key = "assets/skybox/*.jpg",
   })
 {
 }
@@ -80,5 +79,5 @@ void SkyboxReflector::draw(const Shader& shader)
 void SkyboxReflector::free()
 {
   mMesh.free();
-  Utils::deleteTextures({ mTexture });
+  Utils::Textures::deleteTextures({ mTexture });
 };

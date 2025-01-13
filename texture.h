@@ -3,17 +3,11 @@
 
 #include <string>
 
-enum TEXTURE_TYPE
-{
-  TEXTURE_TYPE_DIFFUSE,
-  TEXTURE_TYPE_SPECULAR
-};
+enum TEXTURE_TYPE { TEXTURE_TYPE_DIFFUSE, TEXTURE_TYPE_SPECULAR };
 
-struct Texture
-{
+struct Texture {
   unsigned int id;
   TEXTURE_TYPE type;
-  std::string key = "";
 };
 
 #endif

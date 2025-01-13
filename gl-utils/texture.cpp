@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stb_image.h>
 
-unsigned int GLUtils::loadCubemap(std::vector<std::string> paths)
+unsigned int GLUtils::Textures::loadCubemap(std::vector<std::string> paths)
 {
   unsigned int textureId;
 
@@ -15,19 +15,23 @@ unsigned int GLUtils::loadCubemap(std::vector<std::string> paths)
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
   int width, height, nrChannels;
-  for(unsigned int i = 0; i < paths.size(); i++) {
+  for (unsigned int i = 0; i < paths.size(); i++) {
     unsigned char* data = stbi_load(paths[i].c_str(), &width, &height, &nrChannels, 0);
-    if(data)
-    {
+    if (data) {
       // no transparency needed, omit format
       glTexImage2D(
         GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-        0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
+        0,
+        GL_SRGB,
+        width,
+        height,
+        0,
+        GL_RGB,
+        GL_UNSIGNED_BYTE,
+        data
       );
       stbi_image_free(data);
-    }
-    else
-    {
+    } else {
       std::cout << "cube tex failed to load: " << paths[i] << std::endl;
       glDeleteTextures(1, &textureId);
       stbi_image_free(data);
@@ -39,19 +43,27 @@ unsigned int GLUtils::loadCubemap(std::vector<std::string> paths)
   return textureId;
 }
 
-bool GLUtils::createTexture2D(
-  const int width, const int height, const int nrChannel, const unsigned char* data, unsigned int& textureId, const GLint wrap
+bool GLUtils::Textures::createTexture2D(
+  const unsigned char* data,
+  const int width,
+  const int height,
+  GLenum internalFormat,
+  const GLenum wrap,
+  unsigned int& textureId
 )
 {
-  GLenum format;
-
-  if(nrChannel == 3) format = GL_RGB;
-  else if (nrChannel == 4) format = GL_RGBA;
-
   glGenTextures(1, &textureId);
   glBindTexture(GL_TEXTURE_2D, textureId);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+  GLenum format;
+  if (internalFormat == GL_SRGB_ALPHA)
+    format = GL_RGBA;
+  else if (internalFormat == GL_SRGB)
+    format = GL_RGB;
+  else
+    format = internalFormat;
+
+  glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
   glGenerateMipmap(GL_TEXTURE_2D);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
@@ -64,7 +76,7 @@ bool GLUtils::createTexture2D(
   return GLUtils::noErrors();
 }
 
-bool GLUtils::deleteTextures(const unsigned int lenght, const unsigned int* textureIds)
+bool GLUtils::Textures::deleteTextures(const unsigned int lenght, const unsigned int* textureIds)
 {
   glDeleteTextures(lenght, textureIds);
 

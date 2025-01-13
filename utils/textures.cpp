@@ -4,42 +4,34 @@
 #include <iostream>
 #include <stb_image.h>
 
-unsigned int Utils::loadTexture2D(const char* path, const int wrap)
+GLenum Utils_Textures_adjustFormat(const GLenum format, const unsigned int nrChannels)
 {
-  stbi_set_flip_vertically_on_load(true);
-  int width, height, nrChannel;
-  unsigned char* data = stbi_load(path, &width, &height, &nrChannel, 0);
+  bool srgb = (format == GL_SRGB) || (format == GL_SRGB_ALPHA);
 
-  const unsigned int textureId = createTexture2D(width, height, nrChannel, data, wrap);
+  if (nrChannels == 3)
+    return srgb ? GL_SRGB : GL_RGB;
 
-  stbi_image_free(data);
+  if (nrChannels == 4)
+    return srgb ? GL_SRGB_ALPHA : GL_RGBA;
 
-  return textureId;
+  assert(false);
+
+  return format;
 }
 
-unsigned int
-Utils::loadTexture2D(const unsigned char* buffer, const unsigned int len, const int wrap)
-{
-  stbi_set_flip_vertically_on_load(true);
-  int width, height, nrChannel;
-  unsigned char* data = stbi_load_from_memory(buffer, len, &width, &height, &nrChannel, 0);
-
-  const unsigned int textureId = createTexture2D(width, height, nrChannel, data, wrap);
-
-  stbi_image_free(data);
-
-  return textureId;
-}
-
-unsigned int Utils::createTexture2D(
-  const int width, const int height, const int nrChannel, const unsigned char* data, const int wrap
+unsigned int Utils_Textures_createTexture2D(
+  const unsigned char* data,
+  const int width,
+  const int height,
+  const GLenum format,
+  const GLenum wrap
 )
 {
   unsigned int textureId;
   if (data) {
-    if (!GLUtils::createTexture2D(width, height, nrChannel, data, textureId, wrap)) {
+    if (!GLUtils::Textures::createTexture2D(data, width, height, format, wrap, textureId)) {
       std::cout << "Failed to create texture\n";
-      deleteTextures({ Texture { .id = textureId } });
+      Utils::Textures::deleteTextures({ Texture { .id = textureId } });
       textureId = 0;
     }
   } else {
@@ -50,7 +42,45 @@ unsigned int Utils::createTexture2D(
   return textureId;
 }
 
-void Utils::deleteTextures(const std::vector<Texture>& textures)
+// TODO: wild guess
+GLenum Utils_Textures_imageFormat(TEXTURE_TYPE type)
+{
+  return type == TEXTURE_TYPE_DIFFUSE ? GL_SRGB_ALPHA : GL_RGBA;
+}
+
+unsigned int Utils_Textures_loadTexture2D(const char* path, const GLenum format, const GLenum wrap)
+{
+  stbi_set_flip_vertically_on_load(true);
+  int width, height, nrChannels;
+  unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+
+  const unsigned int textureId = Utils_Textures_createTexture2D(
+    data, width, height, Utils_Textures_adjustFormat(format, nrChannels), wrap
+  );
+
+  stbi_image_free(data);
+
+  return textureId;
+}
+
+unsigned int Utils_Textures_loadTexture2D(
+  const unsigned char* buffer, const unsigned int len, const GLenum format, const GLenum wrap
+)
+{
+  stbi_set_flip_vertically_on_load(true);
+  int width, height, nrChannels;
+  unsigned char* data = stbi_load_from_memory(buffer, len, &width, &height, &nrChannels, 0);
+
+  const unsigned int textureId = Utils_Textures_createTexture2D(
+    data, width, height, Utils_Textures_adjustFormat(format, nrChannels), wrap
+  );
+
+  stbi_image_free(data);
+
+  return textureId;
+}
+
+void Utils::Textures::deleteTextures(const std::vector<Texture>& textures)
 {
   std::vector<unsigned int> textureIds;
   for (const Texture& t : textures) {
@@ -58,7 +88,7 @@ void Utils::deleteTextures(const std::vector<Texture>& textures)
   }
 
   if (textureIds.size()) {
-    if (!GLUtils::deleteTextures(textureIds.size(), &textureIds[0])) {
+    if (!GLUtils::Textures::deleteTextures(textureIds.size(), &textureIds[0])) {
       std::cout << "Failed to delete textures\n";
       // for(Texture t : textures)
       // {
@@ -68,7 +98,20 @@ void Utils::deleteTextures(const std::vector<Texture>& textures)
   }
 }
 
-Texture Utils::loadTexture2D(const char* path, TEXTURE_TYPE type)
+Texture Utils::Textures::loadTexture2D(const char* path, const TEXTURE_TYPE type, const GLenum wrap)
 {
-  return Texture { .id = loadTexture2D(path), .type = type };
+  return Texture {
+    .id = Utils_Textures_loadTexture2D(path, Utils_Textures_imageFormat(type), wrap),
+    .type = type,
+  };
+}
+
+Texture Utils::Textures::loadTexture2D(
+  const unsigned char* buffer, const unsigned int len, const TEXTURE_TYPE type, const GLenum wrap
+)
+{
+  return Texture {
+    .id = Utils_Textures_loadTexture2D(buffer, len, Utils_Textures_imageFormat(type), wrap),
+    .type = type,
+  };
 }

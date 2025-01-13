@@ -28,6 +28,10 @@ bool addRenderBuffer(
 );
 
 } // namespace Framebuffer
+
+namespace Textures
+{
+
 // paths order:
 // GL_TEXTURE_CUBE_MAP_POSITIVE_X 	Right
 // GL_TEXTURE_CUBE_MAP_NEGATIVE_X 	Left
@@ -36,18 +40,22 @@ bool addRenderBuffer(
 // GL_TEXTURE_CUBE_MAP_POSITIVE_Z 	Back
 // GL_TEXTURE_CUBE_MAP_NEGATIVE_Z 	Front
 unsigned int loadCubemap(std::vector<std::string> paths);
-bool compileShader(const GLenum type, const char* source, unsigned int& shaderId);
 bool createTexture2D(
+  const unsigned char* data,
   const int width,
   const int height,
-  const int nrChannel,
-  const unsigned char* data,
-  unsigned int& textureId,
-  const GLint wrap = GL_REPEAT
+  const GLenum format,
+  const GLenum wrap,
+  unsigned int& textureId
 );
 bool deleteTextures(const unsigned int lenght, const unsigned int* textureId);
-std::vector<int> checkErrors();
+
+} // namespace Textures
+
+std::vector<unsigned int> checkErrors();
 bool noErrors();
+
+bool compileShader(const GLenum type, const char* source, unsigned int& shaderId);
 
 enum AttribType { FLOAT = GL_FLOAT, UNSIGNED_INT = GL_UNSIGNED_INT };
 enum BufferUsage { STATIC = GL_STATIC_DRAW, DYNAMIC = GL_DYNAMIC_DRAW };
@@ -60,7 +68,6 @@ struct VertexAttribPointer {
   void* offset;
   unsigned int divisor = 0;
 };
-
 bool addVertexBuffer(
   unsigned int& bufferId,
   const unsigned int VAO,

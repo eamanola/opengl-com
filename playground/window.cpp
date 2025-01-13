@@ -8,7 +8,9 @@
 
 Window::Window() :
   mMesh(Shapes::QUAD),
-  mTexture(Utils::loadTexture2D("assets/blending_transparent_window.png", TEXTURE_TYPE_DIFFUSE))
+  mTexture(
+    Utils::Textures::loadTexture2D("assets/blending_transparent_window.png", TEXTURE_TYPE_DIFFUSE)
+  )
 {
 }
 
@@ -48,5 +50,5 @@ void Window::render(const Shader& shader) const
 void Window::free() const
 {
   mMesh.free();
-  Utils::deleteTextures({ mTexture });
+  Utils::Textures::deleteTextures({ mTexture });
 }
