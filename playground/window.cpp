@@ -21,7 +21,7 @@ void Window::render(const Shader& shader) const
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  Lighting::u_material::bindTextures(shader, &mTexture, 1);
+  Lighting::u_material::bindTexture(shader, &mTexture);
 
   glm::mat4 model = this->model();
 
@@ -40,7 +40,7 @@ void Window::render(const Shader& shader) const
   u_model::setUModel(shader, model);
   mMesh.draw();
 
-  Lighting::u_material::unbindTextures(shader, &mTexture, 1);
+  Lighting::u_material::unbindTexture(shader, &mTexture);
 
   glDisable(GL_BLEND);
 
@@ -50,5 +50,5 @@ void Window::render(const Shader& shader) const
 void Window::free() const
 {
   mMesh.free();
-  Utils::Textures::deleteTextures({ mTexture });
+  Utils::Textures::deleteTexture(mTexture);
 }

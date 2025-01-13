@@ -76,9 +76,9 @@ bool GLUtils::Textures::createTexture2D(
   return GLUtils::noErrors();
 }
 
-bool GLUtils::Textures::deleteTextures(const unsigned int lenght, const unsigned int* textureIds)
+bool GLUtils::Textures::deleteTextures(const unsigned int length, const unsigned int* textureIds)
 {
-  glDeleteTextures(lenght, textureIds);
+  glDeleteTextures(length, textureIds);
 
   return GLUtils::noErrors();
 }

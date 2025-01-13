@@ -31,7 +31,7 @@ unsigned int Utils_Textures_createTexture2D(
   if (data) {
     if (!GLUtils::Textures::createTexture2D(data, width, height, format, wrap, textureId)) {
       std::cout << "Failed to create texture\n";
-      Utils::Textures::deleteTextures({ Texture { .id = textureId } });
+      Utils::Textures::deleteTexture({ .id = textureId });
       textureId = 0;
     }
   } else {
@@ -96,6 +96,11 @@ void Utils::Textures::deleteTextures(const std::vector<Texture>& textures)
       // }
     }
   }
+}
+
+void Utils::Textures::deleteTexture(const Texture& texture)
+{
+  return Utils::Textures::deleteTextures({ texture });
 }
 
 Texture Utils::Textures::loadTexture2D(const char* path, const TEXTURE_TYPE type, const GLenum wrap)

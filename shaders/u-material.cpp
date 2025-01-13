@@ -26,9 +26,9 @@ void u_material::bindTextures(const Shader& shader, const Texture* textures, con
   }
 }
 
-void u_material::bindTextures(const Shader& shader, const Texture* textures)
+void u_material::bindTexture(const Shader& shader, const Texture* texture)
 {
-  return u_material::bindTextures(shader, textures, 1);
+  return u_material::bindTextures(shader, texture, 1);
 }
 
 void u_material::unbindTextures(
@@ -48,9 +48,9 @@ void u_material::unbindTextures(
   }
 }
 
-void u_material::unbindTextures(const Shader& shader, const Texture* textures)
+void u_material::unbindTexture(const Shader& shader, const Texture* texture)
 {
-  return u_material::unbindTextures(shader, textures, 1);
+  return u_material::unbindTextures(shader, texture, 1);
 }
 
 void u_material::setColor(const Shader& shader, const PhongColor& color)

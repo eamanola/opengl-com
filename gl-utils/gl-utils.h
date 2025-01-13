@@ -48,7 +48,7 @@ bool createTexture2D(
   const GLenum wrap,
   unsigned int& textureId
 );
-bool deleteTextures(const unsigned int lenght, const unsigned int* textureId);
+bool deleteTextures(const unsigned int length, const unsigned int* textureId);
 
 } // namespace Textures
 

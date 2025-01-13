@@ -12,10 +12,10 @@ namespace u_material
 {
 
 void bindTextures(const Shader& shader, const Texture* textures, const unsigned int len);
-void bindTextures(const Shader& shader, const Texture* textures);
+void bindTexture(const Shader& shader, const Texture* texture);
 
 void unbindTextures(const Shader& shader, const Texture* textures, const unsigned int len);
-void unbindTextures(const Shader& shader, const Texture* textures);
+void unbindTexture(const Shader& shader, const Texture* texture);
 
 void setColor(const Shader& shader, const PhongColor& color);
 

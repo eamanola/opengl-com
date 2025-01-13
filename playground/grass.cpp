@@ -46,11 +46,11 @@ void Grass::render(const Shader& shader) const
 {
   glDisable(GL_CULL_FACE);
 
-  Lighting::u_material::bindTextures(shader, &mTexture);
+  Lighting::u_material::bindTexture(shader, &mTexture);
 
   mMesh.drawInstanced(mPositions.size());
 
-  Lighting::u_material::unbindTextures(shader, &mTexture);
+  Lighting::u_material::unbindTexture(shader, &mTexture);
 
   glEnable(GL_CULL_FACE);
 }
@@ -58,6 +58,6 @@ void Grass::render(const Shader& shader) const
 void Grass::free() const
 {
   mMesh.free();
-  Utils::Textures::deleteTextures({ mTexture });
+  Utils::Textures::deleteTexture(mTexture);
   glDeleteBuffers(1, &mModelsVBO);
 }

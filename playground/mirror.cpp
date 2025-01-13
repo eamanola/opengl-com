@@ -67,15 +67,15 @@ void Mirror::render(const Shader& shader) const
 {
   u_model::setUModel(shader, model());
 
-  Lighting::u_material::bindTextures(shader, &mTexture);
+  Lighting::u_material::bindTexture(shader, &mTexture);
   mMesh.draw();
-  Lighting::u_material::unbindTextures(shader, &mTexture);
+  Lighting::u_material::unbindTexture(shader, &mTexture);
 }
 
 void Mirror::free() const
 {
   glDeleteFramebuffers(1, &mFBO);
-  Utils::Textures::deleteTextures({ mTexture });
+  Utils::Textures::deleteTexture(mTexture);
   glDeleteRenderbuffers(1, &mRBO);
 
   if (SAMPLES > 1) {

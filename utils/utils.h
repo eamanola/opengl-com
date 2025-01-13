@@ -34,6 +34,7 @@ Texture loadTexture2D(
   const GLenum wrap = GL_REPEAT
 );
 void deleteTextures(const std::vector<Texture>& textures);
+void deleteTexture(const Texture& texture);
 
 } // namespace Textures
 

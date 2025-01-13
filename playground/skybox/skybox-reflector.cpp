@@ -71,13 +71,16 @@ void SkyboxReflector::draw(const Shader& shader)
   // Glass 	  1.52
   // Diamond 	2.42
   shader.setFloat("u_ratio", 1.f / 1.52f);
+
   glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture.id);
+
   mMesh.draw();
+
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 }
 
 void SkyboxReflector::free()
 {
   mMesh.free();
-  Utils::Textures::deleteTextures({ mTexture });
+  Utils::Textures::deleteTexture(mTexture);
 };

@@ -109,11 +109,11 @@ void Floor::render(const Shader& shader) const
   glBufferData(GL_ARRAY_BUFFER, sizeof(Color) * mColors.size(), &mColors[0], GL_DYNAMIC_DRAW);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  Lighting::u_material::bindTextures(shader, &mTileTexture);
+  Lighting::u_material::bindTexture(shader, &mTileTexture);
 
   mTileMesh.drawInstanced(mRows * mColumns);
 
-  Lighting::u_material::unbindTextures(shader, &mTileTexture);
+  Lighting::u_material::unbindTexture(shader, &mTileTexture);
 
   glDisable(GL_BLEND);
   glEnable(GL_CULL_FACE);
@@ -121,7 +121,7 @@ void Floor::render(const Shader& shader) const
 
 void Floor::free() const
 {
-  Utils::Textures::deleteTextures({ mTileTexture });
+  Utils::Textures::deleteTexture(mTileTexture);
   mTileMesh.free();
   const unsigned int buffers[] = { mOffsetVBO, mColorsVBO };
   glDeleteBuffers(2, buffers);

@@ -25,7 +25,9 @@ void Skybox::draw(const Shader& shader)
   glDepthFunc(GL_LEQUAL);
 
   glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture.id);
+
   mMesh.draw();
+
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
   glDepthFunc(GL_LESS);
@@ -34,5 +36,5 @@ void Skybox::draw(const Shader& shader)
 void Skybox::free()
 {
   mMesh.free();
-  Utils::Textures::deleteTextures({ mTexture });
+  Utils::Textures::deleteTexture(mTexture);
 }
