@@ -57,6 +57,8 @@ void Floor::updateColors()
 
 void Floor::setupBuffers()
 {
+  glBindVertexArray(mTileMesh.vao());
+
   std::vector<glm::vec3> offsets = getOffsets(mRows, mColumns);
   GLUtils::VertexAttribPointer offset = {
     .location = ATTRIB_LOCATIONS::FLOOR_OFFSETS,
@@ -66,9 +68,7 @@ void Floor::setupBuffers()
     .divisor = 1,
   };
 
-  GLUtils::addVertexBuffer(
-    mOffsetVBO, mTileMesh.vao(), &offsets[0], sizeof(glm::vec3) * offsets.size(), { offset }
-  );
+  GLUtils::addVertexBuffer(mOffsetVBO, &offsets[0], sizeof(glm::vec3) * offsets.size(), { offset });
 
   GLUtils::VertexAttribPointer color = {
     .location = ATTRIB_LOCATIONS::FLOOR_COLORS,
@@ -80,12 +80,13 @@ void Floor::setupBuffers()
 
   GLUtils::addVertexBuffer(
     mColorsVBO,
-    mTileMesh.vao(),
     &mColors[0],
     sizeof(glm::vec3) * mColors.size(),
     { color },
     GLUtils::BufferUsage::DYNAMIC
   );
+
+  glBindVertexArray(0);
 }
 
 void Floor::update(const float& time)

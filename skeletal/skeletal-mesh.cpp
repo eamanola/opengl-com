@@ -24,9 +24,13 @@ void SkeletalMesh::setupBones(const unsigned int vao, const std::vector<Skeletal
   };
   attribPointers.push_back(boneWeights);
 
+  glBindVertexArray(vao);
+
   GLUtils::addVertexBuffer(
-    mBufferId, vao, &vertices[0], sizeof(SkeletalVertex) * vertices.size(), attribPointers
+    mBufferId, &vertices[0], sizeof(SkeletalVertex) * vertices.size(), attribPointers
   );
+
+  glBindVertexArray(0);
 }
 
 void SkeletalMesh::free() { glDeleteBuffers(1, &mBufferId); }

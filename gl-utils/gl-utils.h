@@ -70,7 +70,6 @@ struct VertexAttribPointer {
 };
 bool addVertexBuffer(
   unsigned int& bufferId,
-  const unsigned int VAO,
   const void* data,
   const std::size_t size,
   const std::vector<VertexAttribPointer>& attibPointers,

@@ -17,6 +17,7 @@ void Mesh::setupBuffers(
 )
 {
   glGenVertexArrays(1, &VAO);
+  glBindVertexArray(VAO);
 
   std::vector<GLUtils::VertexAttribPointer> attribPointers;
 
@@ -66,12 +67,10 @@ void Mesh::setupBuffers(
 
   unsigned int VBO;
   if (GLUtils::addVertexBuffer(
-        VBO, VAO, &vertices[0], sizeof(Vertex) * vertices.size(), attribPointers
+        VBO, &vertices[0], sizeof(Vertex) * vertices.size(), attribPointers
       )) {
     mBuffers.push_back(VBO);
   }
-
-  glBindVertexArray(VAO);
 
   unsigned int EBO;
   glGenBuffers(1, &EBO);

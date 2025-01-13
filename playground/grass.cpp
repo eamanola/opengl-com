@@ -33,7 +33,14 @@ std::vector<glm::mat4> Grass::models() const
   return models;
 }
 
-void Grass::setupBuffers() { mModelsVBO = u_model::setInstancedModels(mMesh.vao(), models()); }
+void Grass::setupBuffers()
+{
+  glBindVertexArray(mMesh.vao());
+
+  mModelsVBO = u_model::addModelsBuffer(models());
+
+  glBindVertexArray(0);
+}
 
 void Grass::render(const Shader& shader) const
 {

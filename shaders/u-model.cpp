@@ -4,8 +4,7 @@
 #include "shaders/attrib-locations.h"
 #include <iostream>
 
-unsigned int
-u_model::setInstancedModels(const unsigned int vao, const std::vector<glm::mat4>& models)
+unsigned int u_model::addModelsBuffer(const std::vector<glm::mat4>& models)
 {
   const std::size_t stride = sizeof(std::pair<glm::mat4, glm::mat3>);
   const std::size_t sizeOfVec3 = sizeof(glm::vec3);
@@ -39,7 +38,7 @@ u_model::setInstancedModels(const unsigned int vao, const std::vector<glm::mat4>
 
   unsigned int vbo;
 
-  if (!GLUtils::addVertexBuffer(vbo, vao, &data[0], stride * data.size(), modelAttribs)) {
+  if (!GLUtils::addVertexBuffer(vbo, &data[0], stride * data.size(), modelAttribs)) {
     std::cout << "failed to create models buffer\n";
     vbo = 0;
   }

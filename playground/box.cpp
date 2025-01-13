@@ -43,7 +43,14 @@ const std::vector<glm::mat4> Box::models() const
   return models;
 }
 
-void Box::setupBuffers() { mModelsVBO = u_model::setInstancedModels(mMesh.vao(), models()); }
+void Box::setupBuffers()
+{
+  glBindVertexArray(mMesh.vao());
+
+  mModelsVBO = u_model::addModelsBuffer(models());
+
+  glBindVertexArray(0);
+}
 
 void Box::render(const Shader& shader) const
 {

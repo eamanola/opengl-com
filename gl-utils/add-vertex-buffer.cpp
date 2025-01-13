@@ -4,14 +4,12 @@ using namespace GLUtils;
 
 bool GLUtils::addVertexBuffer(
   unsigned int& bufferId,
-  const unsigned int VAO,
   const void* data,
   const std::size_t size,
   const std::vector<VertexAttribPointer>& attibPointers,
   const BufferUsage usage
 )
 {
-  glBindVertexArray(VAO);
   glGenBuffers(1, &bufferId);
   glBindBuffer(GL_ARRAY_BUFFER, bufferId);
 
@@ -28,7 +26,6 @@ bool GLUtils::addVertexBuffer(
   }
 
   glBindBuffer(GL_ARRAY_BUFFER, 0); // Saved to VAO with glVertexAttribPointer
-  glBindVertexArray(0);
 
   if (GLUtils::noErrors()) {
     return true;
