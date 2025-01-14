@@ -26,25 +26,23 @@ std::vector<DirLight> LightSettings::getDirLights(unsigned int count)
 {
   if (count == 0)
     return {};
-  const glm::vec4 AMBIENT(0.2f);
-  const glm::vec4 DIFFUSE(0.5f);
-  const glm::vec4 SPECULAR(1.0f);
-  const glm::vec4 color(1.0f);
+  const Color AMBIENT(0.2f);
+  const Color DIFFUSE(0.5f);
+  const Color SPECULAR(1.0f);
+  const Color lightColor(1.0f);
 
   const glm::vec3 direction(-0.2f, -1.0f, -0.3f);
-  const glm::vec4 ambient = color * AMBIENT;
-  const glm::vec4 diffuse = color * DIFFUSE;
-  const glm::vec4 specular = color * SPECULAR;
+  PhongColor color {
+    .ambient = lightColor * AMBIENT,
+    .diffuse = lightColor * DIFFUSE,
+    .specular = lightColor * SPECULAR,
+  };
   const bool off = false;
 
   DirLight light {
     .direction = direction,
     .light = {
-      .color = {
-        .ambient = ambient,
-        .diffuse = diffuse,
-        .specular = specular,
-      },
+      .color = color,
       .off = off,
     },
   };
@@ -54,28 +52,19 @@ std::vector<DirLight> LightSettings::getDirLights(unsigned int count)
 
 std::vector<PointLight> LightSettings::getPointLights(unsigned int count)
 {
-  if (count == 0)
-    return {};
-  const glm::vec4 AMBIENT(0.2f);
-  const glm::vec4 DIFFUSE(0.5f);
-  const glm::vec4 SPECULAR(1.0f);
-
-  const float aConstant = 1.f;
-  const float aLinear = 0.09f;
-  const float aQuadratic = 0.032f;
+  const Color AMBIENT(0.2f);
+  const Color DIFFUSE(0.5f);
+  const Color SPECULAR(1.0f);
 
   const bool off = false;
 
   std::vector<PointLight> pointLights;
-  pointLights.reserve(mLights.positions.size());
-  for (unsigned int i = 0; i < mLights.positions.size(); i++) {
+  unsigned int size = std::min(count, (unsigned int)mLights.positions.size());
+  pointLights.reserve(size);
+  for (unsigned int i = 0; i < size; i++) {
     PointLight light = {
       .position = mLights.positions[i],
-      .attenuation = {
-        .constant = aConstant,
-        .linear = aLinear,
-        .quadratic = aQuadratic
-      },
+      .attenuation = mLights.attenuations[i],
       .light = {
         .color = {
           .ambient = mLights.colors[i] * AMBIENT,
@@ -110,9 +99,6 @@ std::vector<SpotLight> LightSettings::getSpotLights(unsigned int count)
   const float outerCutOff = glm::cos(glm::radians(17.5f));
   const glm::vec3 position = glm::vec3(0.f);
 
-  const float aConstant = 1.f;
-  const float aLinear = 0.09f;
-  const float aQuadratic = 0.032f;
   const bool off = true;
   const glm::vec4 ambient = color * AMBIENT;
   const glm::vec4 diffuse = color * DIFFUSE;
@@ -123,7 +109,7 @@ std::vector<SpotLight> LightSettings::getSpotLights(unsigned int count)
     .cutOff = cutOff,
     .outerCutOff = outerCutOff,
     .position = position,
-    .attenuation = { .constant = aConstant, .linear = aLinear, .quadratic = aQuadratic },
+    .attenuation = ATTENUATION_50,
     .light = {
       .color = { .ambient = ambient, .diffuse = diffuse, .specular = specular },
       .off = off,

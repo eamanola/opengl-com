@@ -3,6 +3,7 @@
 
 #include "uniform-block-buffer.h"
 
+#include "attenuation.h"
 #include "color.h"
 #include "shader.h"
 
@@ -12,12 +13,6 @@ namespace Lighting
 struct Light {
   PhongColor color;
   bool off;
-};
-
-struct Attenuation {
-  float constant;
-  float linear;
-  float quadratic;
 };
 
 struct DirLight {

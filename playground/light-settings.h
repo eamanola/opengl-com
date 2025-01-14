@@ -29,11 +29,17 @@ public:
       glm::vec3(-4.0f, 2.0f, -12.0f),
       glm::vec3(0.0f, 1.0f, -2.0f),
     };
-    std::vector<glm::vec4> colors = {
-      glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
-      glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
-      glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),
-      glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),
+    std::vector<Color> colors = {
+      Color(1.0f, 1.0f, 1.0f, 1.0f),
+      Color(1.0f, 0.0f, 0.0f, 1.0f),
+      Color(0.0f, 1.0f, 0.0f, 1.0f),
+      Color(0.0f, 0.0f, 1.0f, 1.0f),
+    };
+    std::vector<Attenuation> attenuations = {
+      ATTENUATION_32,
+      ATTENUATION_20,
+      ATTENUATION_20,
+      ATTENUATION_20,
     };
   } mLights;
 
