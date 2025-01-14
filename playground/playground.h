@@ -29,7 +29,9 @@ public:
 
   void setup() override;
   void update(const float& time) override;
-  void render() override;
+  void render(const Camera& camera) const override;
+  using Scene::render;
+
   void teardown() override;
 
   void handleInput(const GLFWwindow* window) override;

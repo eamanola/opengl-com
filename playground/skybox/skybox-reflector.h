@@ -11,7 +11,7 @@ public:
   SkyboxReflector();
   ~SkyboxReflector() { }
 
-  void draw(const Shader& shader);
+  void draw(const Shader& shader) const;
   void free();
 
 private:

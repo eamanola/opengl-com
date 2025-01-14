@@ -61,7 +61,7 @@ SkyboxReflector::SkyboxReflector(/* args */) :
 {
 }
 
-void SkyboxReflector::draw(const Shader& shader)
+void SkyboxReflector::draw(const Shader& shader) const
 {
   shader.setMat4fv("u_model", glm::translate(glm::mat4(1.0), glm::vec3(-1.f, 0.5f, -1.f)));
   // reflect ratio

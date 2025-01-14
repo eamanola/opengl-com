@@ -12,7 +12,7 @@ namespace Utils
 {
 
 void screenshot(
-  Scene& scene, const unsigned& FBO, const glm::vec3& position, const glm::vec3& normal
+  const Scene& scene, const unsigned& FBO, const glm::vec3& position, const glm::vec3& normal
 );
 
 std::string readFile(const char* path);

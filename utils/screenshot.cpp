@@ -2,16 +2,15 @@
 #include <glad/gl.h>
 
 void Utils::screenshot(
-  Scene& scene, const unsigned& FBO, const glm::vec3& position, const glm::vec3& normal
+  const Scene& scene, const unsigned& FBO, const glm::vec3& position, const glm::vec3& normal
 )
 {
-  Camera& camera = scene.camera();
-  const glm::vec3 cameraPos = camera.position();
-  const glm::vec3 cameraDir = camera.front();
+  const glm::vec3 viewPos = scene.camera().position();
 
-  const glm::vec3 incident = glm::normalize(position - cameraPos);
+  const glm::vec3 incident = glm::normalize(position - viewPos);
   const glm::vec3 reflection = glm::reflect(incident, normal);
 
+  Camera camera;
   camera.setPosition(position);
   camera.setDirection(reflection);
 
@@ -20,10 +19,7 @@ void Utils::screenshot(
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  scene.render();
+  scene.render(camera);
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  camera.setPosition(cameraPos);
-  camera.setDirection(cameraDir);
 }

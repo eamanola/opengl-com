@@ -145,8 +145,8 @@ void Playground::setup()
 #endif
 
   const bool animate = false;
-  camera().setPosition(cameraPos, animate);
-  camera().pointTo(pointTo, animate);
+  mCamera.setPosition(cameraPos, animate);
+  mCamera.pointTo(pointTo, animate);
 #define SHININESS 32.f
   mpSkeletal.use();
   mpSkeletal.setFloat("u_material.shininess", SHININESS);
@@ -171,8 +171,8 @@ void Playground::update(const float& time)
   lightingSettings.mLights.positions[0].x = 1.0f + sin(time) * 2.0f;
   lightingSettings.mLights.positions[0].y = sin(time / 2.0f) * 1.0f;
 
-  const bool animatingPos = camera().updatePosition(time);
-  const bool animatingDir = camera().updateDirection(time);
+  const bool animatingPos = mCamera.updatePosition(time);
+  const bool animatingDir = mCamera.updateDirection(time);
 
   tifa.update(time);
   dae.update(time);
@@ -191,13 +191,13 @@ void Playground::update(const float& time)
   mirror.screenshot(*this);
 }
 
-void Playground::render()
+void Playground::render(const Camera& camera) const
 {
-  const glm::mat4 view = camera().view();
-  const glm::mat4 projection = camera().projection();
+  const glm::mat4 view = camera.view();
+  const glm::mat4 projection = camera.projection();
   const glm::mat4 proj_x_view = projection * view;
-  const glm::vec3& view_pos = camera().position();
-  const glm::vec3& view_dir = camera().front();
+  const glm::vec3& view_pos = camera.position();
+  const glm::vec3& view_dir = camera.front();
 
   lightingSettings.updatePointLight0Position();
   lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
@@ -258,15 +258,15 @@ void Playground::render()
   box.render(mpNormals);
 #endif
 
-  mpSkybox.use();
-  const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
-  mpSkybox.setMat4fv("u_proj_x_view", projection * skyboxView);
-  skybox.draw(mpSkybox);
-
   mpReflectSkybox.use();
   mpReflectSkybox.setMat4fv("u_proj_x_view", proj_x_view);
   mpReflectSkybox.setVec3fv("u_view_pos", view_pos);
   skyboxReflector.draw(mpReflectSkybox);
+
+  mpSkybox.use();
+  const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
+  mpSkybox.setMat4fv("u_proj_x_view", projection * skyboxView);
+  skybox.draw(mpSkybox);
 }
 
 void Playground::teardown()
@@ -346,13 +346,13 @@ void Playground::handleInput(const GLFWwindow* window)
   mLastFrame = time;
 
   if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_W) == GLFW_PRESS)
-    camera().moveForward(2.5f * deltaTime);
+    mCamera.moveForward(2.5f * deltaTime);
   else if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_S) == GLFW_PRESS)
-    camera().moveBackward(2.5f * deltaTime);
+    mCamera.moveBackward(2.5f * deltaTime);
   else if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_A) == GLFW_PRESS)
-    camera().moveLeft(2.5f * deltaTime);
+    mCamera.moveLeft(2.5f * deltaTime);
   else if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_D) == GLFW_PRESS)
-    camera().moveRight(2.5f * deltaTime);
+    mCamera.moveRight(2.5f * deltaTime);
 #endif
 }
 
@@ -379,11 +379,11 @@ void Playground::onMouse(const GLFWwindow* window, const double x, const double 
   mLastY = y;
 
   if (glfwGetMouseButton((GLFWwindow*)window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-    camera().changeDirection(xoffset, yoffset);
+    mCamera.changeDirection(xoffset, yoffset);
   }
 }
 
 void Playground::onScroll(const GLFWwindow* window, const double x, const double y)
 {
-  camera().zoom((float)y);
+  mCamera.zoom((float)y);
 }

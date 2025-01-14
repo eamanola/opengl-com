@@ -56,7 +56,7 @@ void Whipper::handleInput(const GLFWwindow* window, const Scene& scene)
   float angle = getAngle(W, D, S, A);
 
   if (angle >= 0 && mState != WHIPPER_STATES::LANDING) {
-    glm::vec3 front = scene.cameraDir();
+    glm::vec3 front = scene.camera().front();
     float x = front.x * cos(glm::radians(angle)) - front.z * sin(glm::radians(angle));
     float z = front.x * sin(glm::radians(angle)) + front.z * cos(glm::radians(angle));
     glm::vec3 direction = glm::vec3(x, 0.f, -z);

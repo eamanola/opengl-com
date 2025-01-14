@@ -45,7 +45,7 @@ public:
 
   void free() const { glDeleteBuffers(1, &mBufferId); }
 
-  void set(const glm::mat4& proj_x_view)
+  void set(const glm::mat4& proj_x_view) const
   {
     UniformBuffer::overwrite(mBufferId, sizeof(glm::mat4), glm::value_ptr(proj_x_view));
   }

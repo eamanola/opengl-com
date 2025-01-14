@@ -46,8 +46,8 @@ public:
   // const unsigned int NR_POINT_LIGHTS = mLights.positions.size();
 
   void setup(const Shader& shader) { }
-  void updatePointLight0Position();
-  void updateSpotLight(const glm::vec3& position, const glm::vec3& direction, bool off);
+  void updatePointLight0Position() const;
+  void updateSpotLight(const glm::vec3& position, const glm::vec3& direction, bool off) const;
   void free() { ub_lights.free(); }
 
 private:

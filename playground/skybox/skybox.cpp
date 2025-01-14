@@ -20,7 +20,7 @@ Skybox::Skybox() :
 {
 }
 
-void Skybox::draw(const Shader& shader)
+void Skybox::draw(const Shader& shader) const
 {
   glDepthFunc(GL_LEQUAL);
 

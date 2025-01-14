@@ -80,7 +80,7 @@ std::vector<PointLight> LightSettings::getPointLights(unsigned int count)
   return pointLights;
 }
 
-void LightSettings::updatePointLight0Position()
+void LightSettings::updatePointLight0Position() const
 {
   ub_lights.setVec3("u_point_lights[0].position", mLights.positions[0]);
 }
@@ -120,6 +120,7 @@ std::vector<SpotLight> LightSettings::getSpotLights(unsigned int count)
 }
 
 void LightSettings::updateSpotLight(const glm::vec3& position, const glm::vec3& direction, bool off)
+  const
 {
   ub_lights.setVec3("u_spot_lights[0].position", position);
   ub_lights.setVec3("u_spot_lights[0].direction", direction);
