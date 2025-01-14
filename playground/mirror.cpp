@@ -32,14 +32,14 @@ Mirror::Mirror(const float vWidth, const float vHeight) :
 {
   if (SAMPLES > 1) {
     // multisampled framebuffer
-    GLUtils::Framebuffer::createFramebufferTexture2D(vWidth, vHeight, SAMPLES, mFBO, mTexI, &mRBO);
+    GLUtils::Framebuffer::createFramebufferTexture2D(vWidth, vHeight, SAMPLES, mFBO, &mTexI, &mRBO);
 
     // framebuffer to downscale/relove to, for drawing
     GLUtils::Framebuffer::createFramebufferTexture2D(
-      vWidth, vHeight, 1, mFBOI, mTexture.id, nullptr
+      vWidth, vHeight, 1, mFBOI, &mTexture.id, nullptr
     );
   } else {
-    GLUtils::Framebuffer::createFramebufferTexture2D(vWidth, vHeight, 1, mFBO, mTexture.id, &mRBO);
+    GLUtils::Framebuffer::createFramebufferTexture2D(vWidth, vHeight, 1, mFBO, &mTexture.id, &mRBO);
   }
 }
 

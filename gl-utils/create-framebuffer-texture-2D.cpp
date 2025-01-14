@@ -1,51 +1,7 @@
 #include "gl-utils.h"
 #include <iostream>
 
-bool GLUtils::Framebuffer::createFramebufferTexture2D(
-  const float width,
-  const float height,
-  const unsigned int samples,
-  unsigned int& outFBO,
-  unsigned int& outTextureId,
-  unsigned int* outRBO
-)
-{
-  unsigned int FBO = 0;
-  glGenFramebuffers(1, &FBO);
-  glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-  unsigned int textureId = 0;
-  addTexture(width, height, samples, textureId);
-
-  unsigned int RBO = 0;
-  if (outRBO != nullptr) {
-    addRenderBuffer(width, height, samples, RBO);
-  }
-
-  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-    std::cout << "frame buffer not complete\n";
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    if (FBO != 0)
-      glDeleteBuffers(1, &FBO);
-    if (textureId != 0)
-      glDeleteTextures(1, &textureId);
-    if (RBO != 0)
-      glDeleteRenderbuffers(1, &RBO);
-    return false;
-  }
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-  outFBO = FBO;
-  outTextureId = textureId;
-  if (outRBO != nullptr) {
-    *outRBO = RBO;
-  }
-
-  return GLUtils::noErrors();
-}
-
-bool GLUtils::Framebuffer::addTexture(
+bool GLUtils_Framebuffer_addColorAttachment(
   const float width, const float height, const unsigned int samples, unsigned int& outTextureId
 )
 {
@@ -78,7 +34,7 @@ bool GLUtils::Framebuffer::addTexture(
   return success;
 }
 
-bool GLUtils::Framebuffer::addRenderBuffer(
+bool GLUtils_Framebuffer_addDepthStencilAttachment(
   const float width, const float height, const unsigned int samples, unsigned int& outRBO
 )
 {
@@ -101,4 +57,55 @@ bool GLUtils::Framebuffer::addRenderBuffer(
   }
 
   return success;
+}
+
+bool GLUtils::Framebuffer::createFramebufferTexture2D(
+  const float width,
+  const float height,
+  const unsigned int samples,
+  unsigned int& outFBO,
+  unsigned int* outTextureId,
+  unsigned int* outRBO
+)
+{
+  unsigned int FBO = 0;
+  glGenFramebuffers(1, &FBO);
+  glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+  unsigned int textureId = 0;
+  if (outTextureId != nullptr) {
+    GLUtils_Framebuffer_addColorAttachment(width, height, samples, textureId);
+  } else {
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+  }
+
+  unsigned int RBO = 0;
+  if (outRBO != nullptr) {
+    GLUtils_Framebuffer_addDepthStencilAttachment(width, height, samples, RBO);
+  }
+
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    std::cout << "frame buffer not complete\n";
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    if (FBO != 0)
+      glDeleteBuffers(1, &FBO);
+    if (textureId != 0)
+      glDeleteTextures(1, &textureId);
+    if (RBO != 0)
+      glDeleteRenderbuffers(1, &RBO);
+    return false;
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  outFBO = FBO;
+  if (outTextureId != nullptr) {
+    *outTextureId = textureId;
+  }
+  if (outRBO != nullptr) {
+    *outRBO = RBO;
+  }
+
+  return GLUtils::noErrors();
 }

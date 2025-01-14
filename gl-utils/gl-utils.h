@@ -16,15 +16,8 @@ bool createFramebufferTexture2D(
   const float height,
   const unsigned int samples,
   unsigned int& outFBO,
-  unsigned int& outTextureId,
+  unsigned int* outTextureId,
   unsigned int* outRBO
-);
-
-bool addTexture(
-  const float width, const float height, const unsigned int samples, unsigned int& textureId
-);
-bool addRenderBuffer(
-  const float width, const float height, const unsigned int samples, unsigned int& outRBO
 );
 
 } // namespace Framebuffer
