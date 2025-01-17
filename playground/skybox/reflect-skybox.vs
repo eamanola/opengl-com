@@ -10,9 +10,10 @@ uniform mat4 u_proj_x_view;
 
 void main()
 {
-  v_normal = normalize(mat3(transpose(inverse(u_model))) * in_normal);
-  v_frag_pos = vec3(u_model * vec4(in_position, 1.0));
+  vec4 position = u_model * vec4(in_position, 1.0);
 
-  // gl_Position = u_proj_x_view * u_model * vec4(in_position, 1.0);
-  gl_Position = u_proj_x_view * vec4(v_frag_pos, 1.0);
+  v_normal = normalize(mat3(transpose(inverse(u_model))) * in_normal);
+  v_frag_pos = vec3(position);
+
+  gl_Position = u_proj_x_view * position;
 }

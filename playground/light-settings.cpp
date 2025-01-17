@@ -22,35 +22,14 @@ LightSettings::LightSettings(
   });
 }
 
-std::vector<DirLight> LightSettings::getDirLights(unsigned int count)
+std::vector<DirLight> LightSettings::getDirLights(unsigned int count) const
 {
-  if (count == 0)
-    return {};
-  const Color AMBIENT(0.2f);
-  const Color DIFFUSE(0.5f);
-  const Color SPECULAR(1.0f);
-  const Color lightColor(1.0f);
-
-  const glm::vec3 direction(-0.2f, -1.0f, -0.3f);
-  PhongColor color {
-    .ambient = lightColor * AMBIENT,
-    .diffuse = lightColor * DIFFUSE,
-    .specular = lightColor * SPECULAR,
-  };
-  const bool off = false;
-
-  DirLight light {
-    .direction = direction,
-    .light = {
-      .color = color,
-      .off = off,
-    },
-  };
-
-  return { light };
+  return std::vector<DirLight>(
+    mDirLights.begin(), mDirLights.begin() + (std::min(count, (unsigned int)mDirLights.size()))
+  );
 }
 
-std::vector<PointLight> LightSettings::getPointLights(unsigned int count)
+std::vector<PointLight> LightSettings::getPointLights(unsigned int count) const
 {
   const Color AMBIENT(0.2f);
   const Color DIFFUSE(0.5f);
@@ -83,6 +62,11 @@ std::vector<PointLight> LightSettings::getPointLights(unsigned int count)
 void LightSettings::updatePointLight0Position() const
 {
   ub_lights.setVec3("u_point_lights[0].position", mLights.positions[0]);
+}
+
+void LightSettings::setPointLight0Position(const glm::vec2& xy)
+{
+  mLights.positions[0] = glm::vec3(xy, mLights.positions[0].z);
 }
 
 std::vector<SpotLight> LightSettings::getSpotLights(unsigned int count)

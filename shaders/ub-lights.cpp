@@ -175,6 +175,12 @@ void ub_lights::copyAttenuation(const std::string& prefix, Attenuation attenuati
 void ub_lights::copyDirLight(const unsigned int index, const DirLight& dirLight, char* padded) const
 {
   const std::string prefix = "u_dir_lights[" + std::to_string(index) + "]";
+  memcpy(
+    &padded[mOffsets.at(prefix + ".direction")],
+    glm::value_ptr(dirLight.direction),
+    sizeof(glm::vec3)
+  );
+
   copyLight(prefix + ".light", dirLight.light, padded);
 }
 

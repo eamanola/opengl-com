@@ -3,9 +3,9 @@
 // #define IN_NR_SPOT_LIGHTS 1
 
 #ifdef IN_NR_DIR_LIGHTS
-  #if (IN_NR_DIR_LIGHTS > 0)
-    #define HAS_DIR_LIGHTS
-  #endif
+#if (IN_NR_DIR_LIGHTS > 0)
+#define HAS_DIR_LIGHTS
+#endif
 #endif
 
 #ifdef HAS_DIR_LIGHTS
@@ -13,9 +13,9 @@
 #endif
 
 #ifdef IN_NR_POINT_LIGHTS
-  #if (IN_NR_POINT_LIGHTS > 0)
-    #define HAS_POINT_LIGHTS
-  #endif
+#if (IN_NR_POINT_LIGHTS > 0)
+#define HAS_POINT_LIGHTS
+#endif
 #endif
 
 #ifdef HAS_POINT_LIGHTS
@@ -23,54 +23,69 @@
 #endif
 
 #ifdef IN_NR_SPOT_LIGHTS
-  #if (IN_NR_SPOT_LIGHTS > 0)
-    #define HAS_SPOT_LIGHTS
-  #endif
+#if (IN_NR_SPOT_LIGHTS > 0)
+#define HAS_SPOT_LIGHTS
 #endif
-
+#endif
 
 #ifdef HAS_SPOT_LIGHTS
 #define CALC_SPOT_LIGHT
 #endif
 
 #ifdef CALC_SPOT_LIGHT
-  #ifndef CALC_POINT_LIGHT
-    #define CALC_POINT_LIGHT
-  #endif
-  #ifndef FRAG_POS
-    #define FRAG_POS
-  #endif
+#ifndef CALC_POINT_LIGHT
+#define CALC_POINT_LIGHT
+#endif
+#ifndef FRAG_POS
+#define FRAG_POS
+#endif
 #endif
 
 #ifdef CALC_POINT_LIGHT
-  #ifndef CALC_DIR_LIGHT
-    #define CALC_DIR_LIGHT
-  #endif
-  #ifndef CALC_ATTENUATION
-    #define CALC_ATTENUATION
-  #endif
-  #ifndef FRAG_POS
-    #define FRAG_POS
-  #endif
+#ifndef CALC_DIR_LIGHT
+#define CALC_DIR_LIGHT
+#endif
+#ifndef CALC_ATTENUATION
+#define CALC_ATTENUATION
+#endif
+#ifndef FRAG_POS
+#define FRAG_POS
+#endif
 #endif
 
 #ifdef CALC_DIR_LIGHT
-  #ifndef MATERIAL
-    #define MATERIAL
-  #endif
-  #ifndef VIEW_DIR
-    #define VIEW_DIR
-  #endif
-  #ifndef NORMAL
-    #define NORMAL
-  #endif
-  #ifndef FRAG_POS
-    #define FRAG_POS
-  #endif
+#ifndef MATERIAL
+#define MATERIAL
+#endif
+#ifndef VIEW_DIR
+#define VIEW_DIR
+#endif
+#ifndef NORMAL
+#define NORMAL
+#endif
+#ifndef FRAG_POS
+#define FRAG_POS
+#endif
 #endif
 
 #ifdef VIEW_DIR
-  #ifndef FRAG_POS
-    #define FRAG_POS
-  #endif
+#ifndef FRAG_POS
+#define FRAG_POS
+#endif
+#endif
+
+#ifdef IN_RENDER_SHADOWS
+
+#ifdef HAS_DIR_LIGHTS
+#ifndef ENABLE_SHADOWS
+#define ENABLE_SHADOWS
+#endif
+#endif
+
+#ifdef HAS_POINT_LIGHTS
+#ifndef ENABLE_CUBE_SHADOWS
+#define ENABLE_CUBE_SHADOWS
+#endif
+#endif
+
 #endif

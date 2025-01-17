@@ -6,6 +6,9 @@
 #define NUM_POINT_LIGHTS 4
 #define NUM_SPOT_LIGHTS 1
 
+#define DIR_LIGHT_DISTANCE 5.f
+#define CUBE_FAR 15.f
+
 Playground::Playground() :
   mpSkeletal(
     "./skeletal/skeletal.vs",
@@ -18,6 +21,10 @@ Playground::Playground() :
     },
     { "shaders/lighted-shader-defines" }
   ),
+  mp_Skeletal_shadow("./skeletal/skeletal.vs", nullptr, "./shadow-maps/simple-depth.fs"),
+  mp_Skeletal_cshadow(
+    "./skeletal/skeletal.vs", "./shadow-maps/cube-depth.gs", "./shadow-maps/cube-depth.fs"
+  ),
   mpLighting(
     "./shaders/lighting.vs",
     nullptr,
@@ -29,6 +36,15 @@ Playground::Playground() :
     },
     { "shaders/lighted-shader-defines" }
   ),
+  mp_Lighting_shadow(
+    "./shaders/lighting.vs", nullptr, "./shadow-maps/simple-depth.fs", { "#define FRAG_POS\n" }
+  ),
+  mp_Lighting_cshadow(
+    "./shaders/lighting.vs",
+    "./shadow-maps/cube-depth.gs",
+    "./shadow-maps/cube-depth.fs",
+    { "#define FRAG_POS\n" }
+  ),
   simpleModel("assets/2b-jumps2/scene.gltf"),
   mpFloor(
     "./disco/floor.vs",
@@ -38,11 +54,16 @@ Playground::Playground() :
       "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
       "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
       "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
-      "#define IN_V_COLOR",
+      "#define IN_V_COLOR\n",
+      "#define IN_RENDER_SHADOWS\n",
     },
     { "shaders/lighted-shader-defines" }
   ),
-  floor(10, 10),
+  mp_Floor_shadow("./disco/floor.vs", nullptr, "./shadow-maps/simple-depth.fs"),
+  mp_Floor_cshadow(
+    "./disco/floor.vs", "./shadow-maps/cube-depth.gs", "./shadow-maps/cube-depth.fs"
+  ),
+  floor(25, 25),
   mpInstanced(
     "./shaders/lighting-instanced.vs",
     nullptr,
@@ -51,15 +72,43 @@ Playground::Playground() :
       "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
       "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
       "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define IN_RENDER_SHADOWS\n",
     },
     { "shaders/lighted-shader-defines" }
+  ),
+  mp_Instanced_shadow(
+    "./shaders/lighting-instanced.vs",
+    nullptr,
+    "./shadow-maps/simple-depth.fs",
+    { "#define FRAG_POS\n" }
+  ),
+  mp_Instanced_cshadow(
+    "./shaders/lighting-instanced.vs",
+    "./shadow-maps/cube-depth.gs",
+    "./shadow-maps/cube-depth.fs",
+    { "#define FRAG_POS\n" }
   ),
   mpSkybox("./playground/skybox/cube.vs", nullptr, "./playground/skybox/cube.fs"),
   mpReflectSkybox(
     "./playground/skybox/reflect-skybox.vs", nullptr, "./playground/skybox/reflect-skybox.fs"
   ),
+  mp_ReflectSkybox_shadow(
+    "./playground/skybox/reflect-skybox.vs", nullptr, "./shadow-maps/simple-depth.fs"
+  ),
+  mp_ReflectSkybox_cshadow(
+    "./playground/skybox/reflect-skybox.vs",
+    "./shadow-maps/cube-depth.gs",
+    "./shadow-maps/cube-depth.fs"
+  ),
+#ifdef SHADOW_DEBUG
+  mpShadowsDebug("./shadow-maps/shadows-debug.vs", nullptr, "./shadow-maps/shadows-debug.fs"),
+#endif
 #ifdef POINTLIGHT_DEBUG
   mpPlain("./shaders/plain.vs", nullptr, "./shaders/single-color.fs"),
+  mp_Plain_shadow("./shaders/plain.vs", nullptr, "./shadow-maps/simple-depth.fs"),
+  mp_Plain_cshadow(
+    "./shaders/plain.vs", "./shadow-maps/cube-depth.gs", "./shadow-maps/cube-depth.fs"
+  ),
 #endif
 #ifdef NORMALS_DEBUG
   mpNormals(
@@ -79,20 +128,30 @@ Playground::Playground() :
   mSpotlightOn(false),
   proj_x_view_ub(
     0,
-    { mpSkeletal,
+    {
+      mpSkeletal,
+      mp_Skeletal_shadow,
+      mp_Skeletal_cshadow,
       mpLighting,
+      mp_Lighting_shadow,
+      mp_Lighting_cshadow,
       mpFloor,
-      mpInstanced
+      mp_Floor_shadow,
+      mp_Floor_cshadow,
+      mpInstanced,
+      mp_Instanced_shadow,
+      mp_Instanced_cshadow,
 #ifdef POINTLIGHT_DEBUG
-      ,
-      mpPlain
+      mpPlain,
+      mp_Plain_shadow,
+      mp_Plain_cshadow,
 #endif
 #ifdef NORMALS_DEBUG
-      ,
-      mpNormals
+      mpNormals,
 #endif
     }
-  )
+  ),
+  mShadows(NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS)
 {
   mLastFrame = 0.f;
   mLastX = 400;
@@ -147,6 +206,14 @@ void Playground::setup()
   const bool animate = false;
   mCamera.setPosition(cameraPos, animate);
   mCamera.pointTo(pointTo, animate);
+
+  std::vector<DirLight> dirLights = lightingSettings.getDirLights(NUM_DIR_LIGHTS);
+  std::vector<glm::mat4> light_spaces;
+  for (DirLight dirLight : dirLights)
+    light_spaces.push_back(
+      mShadows.light_space(-dirLight.direction * DIR_LIGHT_DISTANCE, glm::vec3(0.f))
+    );
+
 #define SHININESS 32.f
   mpSkeletal.use();
   mpSkeletal.setFloat("u_material.shininess", SHININESS);
@@ -156,21 +223,30 @@ void Playground::setup()
 
   mpFloor.use();
   mpFloor.setFloat("u_material.shininess", SHININESS);
+  mpFloor.setFloat("u_far", CUBE_FAR);                     // draw cube shadow map
+  for (unsigned int i = 0; i < light_spaces.size(); i++) { // draw dir shadow map
+    mpFloor.setMat4fv(("u_light_space[" + std::to_string(i) + "]").c_str(), light_spaces[i]);
+  }
 
   mpInstanced.use();
   mpInstanced.setFloat("u_material.shininess", SHININESS);
+  mpInstanced.setFloat("u_far", CUBE_FAR);
+  for (unsigned int i = 0; i < light_spaces.size(); i++) {
+    mpInstanced.setMat4fv(("u_light_space[" + std::to_string(i) + "]").c_str(), light_spaces[i]);
+  }
+
 // mpLighting.setFloat("u_time", -M_PI_2);
 #ifdef NORMALS_DEBUG
   mpNormals.use();
   mpNormals.setVec4fv("u_color", glm::vec4(1.f, 0.f, 1.f, 1.f));
 #endif
+#ifdef SHADOW_DEBUG
+  mShadowsDebug.setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, 1.f)));
+#endif
 }
 
 void Playground::update(const float& time)
 {
-  lightingSettings.mLights.positions[0].x = 1.0f + sin(time) * 2.0f;
-  lightingSettings.mLights.positions[0].y = sin(time / 2.0f) * 1.0f;
-
   const bool animatingPos = mCamera.updatePosition(time);
   const bool animatingDir = mCamera.updateDirection(time);
 
@@ -188,93 +264,256 @@ void Playground::update(const float& time)
   camera().pointTo(whipperPos + glm::vec3(0.f, 1.f, 0.f));
 #endif
 
+#if NUM_DIR_LIGHTS > 0
+  std::vector<glm::vec3> dirLightPos;
+  std::vector<glm::vec3> dirLightPointTo;
+  std::vector<DirLight> dirLights = lightingSettings.getDirLights(NUM_DIR_LIGHTS);
+  for (DirLight dirLight : dirLights) {
+    dirLightPos.push_back(-dirLight.direction * DIR_LIGHT_DISTANCE);
+    dirLightPointTo.push_back(glm::vec3(0.0));
+  }
+  mShadows.updateDirMaps(*this, dirLightPos, dirLightPointTo);
+#endif
+#if NUM_POINT_LIGHTS > 0
+  lightingSettings.setPointLight0Position(
+    glm::vec2(1.0f + sin(time) * 2.0f, sin(time / 2.0f) * 1.0f + 3.f)
+  );
+
+  std::vector<PointLight> pointLights = lightingSettings.getPointLights(NUM_POINT_LIGHTS);
+  std::vector<glm::vec3> pointLightPos;
+  for (PointLight pointLight : pointLights)
+    pointLightPos.push_back(pointLight.position);
+  mShadows.updateCubeMaps(*this, pointLightPos, CUBE_FAR);
+#endif
   mirror.screenshot(*this);
+
+#ifdef SHADOW_DEBUG
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, mShadows.mDepthMap1);
+  mpShadowsDebug.use();
+  mpShadowsDebug.setInt("depthMap", 0);
+  mShadowsDebug.render(mpShadowsDebug);
+
+  glBindTexture(GL_TEXTURE_2D, 0);
+#endif
 }
 
 void Playground::render(const Camera& camera) const
 {
-  const glm::mat4 view = camera.view();
-  const glm::mat4 projection = camera.projection();
+#ifdef NORMALS_DEBUG
+  const Shader* p_normals = &mpNormals;
+#else
+  const Shader* p_normals = nullptr;
+#endif
+#ifdef POINTLIGHT_DEBUG
+  const Shader* p_plain = &mpPlain;
+#else
+  const Shader* p_plain = nullptr;
+#endif
+  const Shader* shaders[] = {
+    &mpSkeletal, &mpLighting, &mpFloor,         &mpInstanced,
+    p_plain,     p_normals,   &mpReflectSkybox, &mpSkybox,
+  };
+
+  renderScene(camera.projection(), camera.view(), camera.position(), camera.front(), shaders);
+}
+
+void Playground::renderShadowMap(const glm::mat4& projection, const glm::mat4& view) const
+{
+#ifdef POINTLIGHT_DEBUG
+  const Shader* p_plain = &mp_Plain_shadow;
+#else
+  const Shader* p_plain = nullptr;
+#endif
+
+  const Shader* shaders[] = {
+    &mp_Skeletal_shadow,
+    &mp_Lighting_shadow,
+    &mp_Floor_shadow,
+    &mp_Instanced_shadow,
+    p_plain,
+    nullptr,
+    &mp_ReflectSkybox_shadow,
+    nullptr,
+  };
+
+  return renderScene(projection, view, glm::vec3(0), glm::vec3(0), shaders);
+}
+
+void Playground::renderCubeMap(
+  const std::vector<glm::mat4>& cube_space, const glm::vec3& lightPos, const float& far
+) const
+{
+#ifdef POINTLIGHT_DEBUG
+  const Shader* p_plain = &mp_Plain_cshadow;
+#else
+  const Shader* p_plain = nullptr;
+#endif
+
+  const Shader* shaders[] = {
+    &mp_Skeletal_cshadow,
+    &mp_Lighting_cshadow,
+    &mp_Floor_cshadow,
+    &mp_Instanced_cshadow,
+    p_plain,
+    nullptr,
+    &mp_ReflectSkybox_cshadow,
+    nullptr,
+  };
+
+  for (unsigned int j = 0; j < 8; j++) {
+    const Shader* s = shaders[j];
+    if (s != nullptr) {
+      s->use();
+      for (unsigned int i = 0; i < 6; i++)
+        s->setMat4fv(("u_cube_space[" + std::to_string(i) + "]").c_str(), cube_space[i]);
+
+      s->setVec3fv("u_light_pos", lightPos);
+      s->setFloat("u_far", far);
+    }
+  }
+
+  return renderScene(glm::mat4(1.0), glm::mat4(1.0), glm::vec3(0), glm::vec3(0), shaders);
+}
+
+void Playground::renderScene(
+  const glm::mat4& projection,
+  const glm::mat4& view,
+  const glm::vec3& view_pos,
+  const glm::vec3& view_dir,
+  const Shader** shaders
+) const
+{
   const glm::mat4 proj_x_view = projection * view;
-  const glm::vec3& view_pos = camera.position();
-  const glm::vec3& view_dir = camera.front();
+  const Shader& p_skeletal = *shaders[0];
+  const Shader& p_lighting = *shaders[1];
+  const Shader& p_floor = *shaders[2];
+  const Shader& p_instanced = *shaders[3];
+  const Shader* p_plain = shaders[4];
+  const Shader* p_normals = shaders[5];
+  const Shader& p_reflect_skybox = *shaders[6];
+  const Shader* p_skybox = shaders[7];
 
   lightingSettings.updatePointLight0Position();
   lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
   proj_x_view_ub.set(proj_x_view);
 
-  mpSkeletal.use();
-  mpSkeletal.setVec3fv("u_view_pos", view_pos);
+  p_skeletal.use();
+  p_skeletal.setVec3fv("u_view_pos", view_pos);
 
   // tifa
-  tifa.render(mpSkeletal);
+  tifa.render(p_skeletal);
 
   // dae
-  dae.render(mpSkeletal);
+  dae.render(p_skeletal);
 
   // whipper
-  whipper.render(mpSkeletal);
+  whipper.render(p_skeletal);
 
-  mpLighting.use();
-  mpLighting.setVec3fv("u_view_pos", view_pos);
+  p_lighting.use();
+  p_lighting.setVec3fv("u_view_pos", view_pos);
 
   glm::mat4 model2b = glm::mat4(1.f);
   model2b = glm::translate(model2b, glm::vec3(0.f, 1.75f, 0.f));
   model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
-  mpLighting.setMat4fv("u_model", model2b);
-  mpLighting.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model2b))));
-  simpleModel.draw(mpLighting);
+  p_lighting.setMat4fv("u_model", model2b);
+  p_lighting.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model2b))));
+  simpleModel.draw(p_lighting);
 
-  // mpLighting.setFloat("u_time", glfwGetTime());
-  // box.render(mpLighting);
-  // mpLighting.setFloat("u_time", -M_PI_2);
-  window.render(mpLighting);
-  mirror.render(mpLighting);
+  mirror.render(p_lighting);
+  window.render(p_lighting);
 
-  mpFloor.use();
-  mpFloor.setVec3fv("u_view_pos", view_pos);
-  floor.render(mpFloor);
+  p_instanced.use();
+  p_instanced.setVec3fv("u_view_pos", view_pos);
 
-  mpInstanced.use();
-  mpInstanced.setVec3fv("u_view_pos", view_pos);
-  box.render(mpInstanced);
-  grass.render(mpInstanced);
+#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
+  mShadows.bindTextures(p_instanced, 2);
+#endif
+  box.render(p_instanced);
+  grass.render(p_instanced);
+#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
+  mShadows.unbindTextures(p_instanced, 2);
+#endif
 
 #ifdef POINTLIGHT_DEBUG
-  mpPlain.use();
-  for (unsigned int i = 0; i < lightingSettings.mLights.positions.size(); i++) {
-    glm::mat4 lightModel = glm::translate(glm::mat4(1.0), lightingSettings.mLights.positions[i]);
-    lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+  if (p_plain != nullptr) {
+    p_plain->use();
+    std::vector<PointLight> pointLights = lightingSettings.getPointLights(NUM_POINT_LIGHTS);
+    for (PointLight pointLight : pointLights) {
+      glm::mat4 lightModel = glm::translate(glm::mat4(1.0), pointLight.position);
+      lightModel = glm::scale(lightModel, glm::vec3(0.2f));
 
-    mpPlain.setVec4fv("u_color", lightingSettings.mLights.colors[i]);
-    mpPlain.setMat4fv("u_model", lightModel);
-    pointLightDebug.render(mpPlain);
+      p_plain->setVec4fv("u_color", pointLight.light.color.diffuse);
+      p_plain->setMat4fv("u_model", lightModel);
+      pointLightDebug.render(*p_plain);
+    }
+    p_plain->setVec4fv("u_color", glm::vec4(0));
   }
-  mpPlain.setVec4fv("u_color", glm::vec4(0));
 #endif
 
 #ifdef NORMALS_DEBUG
-  mpNormals.use();
-  box.render(mpNormals);
+  if (p_normals != nullptr) {
+    p_normals->use();
+    box.render(*p_normals);
+  }
 #endif
 
-  mpReflectSkybox.use();
-  mpReflectSkybox.setMat4fv("u_proj_x_view", proj_x_view);
-  mpReflectSkybox.setVec3fv("u_view_pos", view_pos);
-  skyboxReflector.draw(mpReflectSkybox);
+  p_reflect_skybox.use();
+  p_reflect_skybox.setMat4fv("u_proj_x_view", proj_x_view);
+  p_reflect_skybox.setVec3fv("u_view_pos", view_pos);
 
-  mpSkybox.use();
-  const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
-  mpSkybox.setMat4fv("u_proj_x_view", projection * skyboxView);
-  skybox.draw(mpSkybox);
+  skyboxReflector.draw(p_reflect_skybox);
+
+  // draw last (late as possible) furthest/z-buffer
+  if (p_skybox != nullptr) {
+    p_skybox->use();
+    const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
+    p_skybox->setMat4fv("u_proj_x_view", projection * skyboxView);
+    skybox.draw(*p_skybox);
+  }
+
+  // draw last (late as possible) translucent / blended
+  p_floor.use();
+  p_floor.setVec3fv("u_view_pos", view_pos);
+
+#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
+  mShadows.bindTextures(p_floor, 1);
+#endif
+  floor.render(p_floor);
+#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
+  mShadows.unbindTextures(p_floor, 1);
+#endif
 }
 
 void Playground::teardown()
 {
+  mpSkeletal.free();
+  mp_Skeletal_shadow.free();
+  mp_Skeletal_cshadow.free();
   tifa.free();
   dae.free();
   whipper.free();
-  mpSkeletal.free();
+
+  mpLighting.free();
+  mp_Lighting_shadow.free();
+  mp_Lighting_cshadow.free();
+  simpleModel.free();
+  grass.free();
+  window.free();
+  mirror.free();
+
+  mpFloor.free();
+  mp_Floor_shadow.free();
+  mp_Floor_cshadow.free();
+  floor.free();
+
+  mpInstanced.free();
+  mp_Instanced_shadow.free();
+  mp_Instanced_cshadow.free();
+  box.free();
+
+  mpSkybox.free();
+  skybox.free();
 
 #ifdef POINTLIGHT_DEBUG
   pointLightDebug.free();
@@ -285,25 +524,15 @@ void Playground::teardown()
   mpNormals.free();
 #endif
 
-  simpleModel.free();
-  grass.free();
-  window.free();
-  mpLighting.free();
-  mirror.free();
-
-  mpSkybox.free();
-  skybox.free();
-
-  floor.free();
-  mpFloor.free();
-
-  box.free();
-  mpInstanced.free();
-
   mpReflectSkybox.free();
   skyboxReflector.free();
   lightingSettings.free();
   proj_x_view_ub.free();
+#ifdef SHADOW_DEBUG
+  mShadowsDebug.free();
+  mpShadowsDebug.free();
+#endif
+  mShadows.free();
 }
 
 void Playground::highlight(Box& box, glm::mat4 model)

@@ -31,7 +31,14 @@ out vsout
 #ifdef MATERIAL
   vec2 tex_coords;
 #endif
+#ifdef ENABLE_SHADOWS
+  vec4 light_space_frag_pos[IN_NR_DIR_LIGHTS];
+#endif
 } vs_out;
+
+#ifdef ENABLE_SHADOWS
+uniform mat4 u_light_space[IN_NR_DIR_LIGHTS];
+#endif
 
 void main()
 {
@@ -47,6 +54,13 @@ void main()
 
   #ifdef MATERIAL
   vs_out.tex_coords = in_tex_coords;
+  #endif
+
+  #ifdef ENABLE_SHADOWS
+  for(int i = 0; i < IN_NR_DIR_LIGHTS; i++)
+  {
+    vs_out.light_space_frag_pos[i] = u_light_space[i] * position;
+  }
   #endif
 
   gl_Position = proj_x_view * position;

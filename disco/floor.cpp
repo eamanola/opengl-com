@@ -42,7 +42,7 @@ std::vector<glm::vec3> Floor::getOffsets(unsigned int rows, unsigned int cols) c
 
 void Floor::updateColors()
 {
-  const float OPACITY = 0.1f;
+  const float OPACITY = 0.0f; // 0.4 from floor-tile.png
   for (unsigned int i = 0; i < mRows * mColumns; i++) {
     if (((float)rand() / (RAND_MAX)) > 0.5f) {
       mColors[i] = Color(

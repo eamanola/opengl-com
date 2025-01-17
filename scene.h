@@ -1,9 +1,11 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#define GLFW_INCLUDE_NONE
 #include "camera.h"
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <vector>
 
 class Scene
 {
@@ -15,6 +17,12 @@ public:
   virtual void update(const float& time) { }
   virtual void render(const Camera& camera) const { }
   virtual void render() const { render(camera()); }
+  virtual void renderShadowMap(const glm::mat4& projection, const glm::mat4& view) const { }
+  virtual void renderCubeMap(
+    const std::vector<glm::mat4>& shadowMatrices, const glm::vec3& lightPos, const float& far
+  ) const
+  {
+  }
   virtual void teardown() { }
 
   virtual void handleInput(const GLFWwindow* window) { }
