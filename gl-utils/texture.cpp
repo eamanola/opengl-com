@@ -16,6 +16,7 @@ unsigned int GLUtils::Textures::loadCubemap(std::vector<std::string> paths)
 
   int width, height, nrChannels;
   for (unsigned int i = 0; i < paths.size(); i++) {
+    // stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(paths[i].c_str(), &width, &height, &nrChannels, 0);
     if (data) {
       // no transparency needed, omit format
@@ -39,6 +40,7 @@ unsigned int GLUtils::Textures::loadCubemap(std::vector<std::string> paths)
       break;
     }
   }
+  glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
   return textureId;
 }

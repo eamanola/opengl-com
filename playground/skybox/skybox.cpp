@@ -5,15 +5,15 @@
 #include "utils/utils.h"
 
 Skybox::Skybox() :
-  mMesh(Shapes::CUBE_ONLY_P),
+  mMesh(Shapes::SKYBOX),
   mTexture(Texture {
     .id = GLUtils::Textures::loadCubemap({
-      "assets/skybox/right.jpg",
-      "assets/skybox/left.jpg",
-      "assets/skybox/bottom.jpg",
+      "assets/skybox/right180.jpg",
+      "assets/skybox/left180.jpg",
       "assets/skybox/top.jpg",
-      "assets/skybox/front.jpg",
-      "assets/skybox/back.jpg",
+      "assets/skybox/bottom.jpg",
+      "assets/skybox/back180.jpg",
+      "assets/skybox/front180.jpg",
     }),
     .type = TEXTURE_TYPE_DIFFUSE,
   })
@@ -22,15 +22,21 @@ Skybox::Skybox() :
 
 void Skybox::draw(const Shader& shader) const
 {
+  glDepthMask(GL_FALSE);
   glDepthFunc(GL_LEQUAL);
 
+  glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture.id);
-
+  shader.setInt("skybox", 0);
   mMesh.draw();
 
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
+  // glCullFace(GL_BACK);
+  // glFrontFace(GL_CCW);
+
   glDepthFunc(GL_LESS);
+  glDepthMask(GL_TRUE);
 }
 
 void Skybox::free()

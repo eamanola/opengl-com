@@ -49,12 +49,12 @@ SkyboxReflector::SkyboxReflector(/* args */) :
   ),
   mTexture(Texture {
     .id = GLUtils::Textures::loadCubemap({
-      "assets/skybox/right.jpg",
-      "assets/skybox/left.jpg",
-      "assets/skybox/bottom.jpg",
+      "assets/skybox/right180.jpg",
+      "assets/skybox/left180.jpg",
       "assets/skybox/top.jpg",
-      "assets/skybox/front.jpg",
-      "assets/skybox/back.jpg",
+      "assets/skybox/bottom.jpg",
+      "assets/skybox/back180.jpg",
+      "assets/skybox/front180.jpg",
     }),
     .type = TEXTURE_TYPE_DIFFUSE,
   })
@@ -63,14 +63,16 @@ SkyboxReflector::SkyboxReflector(/* args */) :
 
 void SkyboxReflector::draw(const Shader& shader) const
 {
-  shader.setMat4fv("u_model", glm::translate(glm::mat4(1.0), glm::vec3(-3.f, 0.5f, -1.f)));
+  shader.setMat4fv("u_model", glm::translate(glm::mat4(1.0), glm::vec3(-3.f, 0.6f, -1.f)));
   // reflect ratio
   // Air 	    1.00
   // Water 	  1.33
   // Ice 	    1.309
   // Glass 	  1.52
   // Diamond 	2.42
-  shader.setFloat("u_ratio", 1.f / 1.52f);
+  shader.setFloat("u_ratio", 1.f / 1.33f);
+  glActiveTexture(GL_TEXTURE0);
+  shader.setInt("skybox", 0);
 
   glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture.id);
 

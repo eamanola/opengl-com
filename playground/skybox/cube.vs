@@ -7,8 +7,6 @@ uniform mat4 u_proj_x_view;
 
 void main()
 {
-  // workaround: needs solution
-  // is pic rotations?
-  v_tex_coords = -in_position;
+  v_tex_coords = in_position;
   gl_Position = vec4(u_proj_x_view * vec4(in_position, 1.0)).xyzz;
 }
