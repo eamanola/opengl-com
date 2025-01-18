@@ -206,6 +206,10 @@ void Playground::setup()
       mShadows.light_space(-dirLight.direction * DIR_LIGHT_DISTANCE, glm::vec3(0.f))
     );
 
+#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
+  mShadows.bindTextures();
+#endif
+
 #define SHININESS 32.f
   mpSkeletal.use();
   mpSkeletal.setFloat("u_material.shininess", SHININESS);
@@ -325,15 +329,7 @@ void Playground::render(const Camera& camera) const
     p_plain,     p_normals,   &mpReflectSkybox, &mpSkybox,
   };
 
-#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.bindTextures();
-#endif
-
   renderScene(camera.projection(), camera.view(), camera.position(), camera.front(), shaders);
-
-#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.unbindTextures();
-#endif
 }
 
 void Playground::renderShadowMap(const glm::mat4& projection, const glm::mat4& view) const
@@ -536,6 +532,11 @@ void Playground::teardown()
   mShadowsDebug.free();
   mpShadowsDebug.free();
 #endif
+
+#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
+  mShadows.unbindTextures();
+#endif
+
   mShadows.free();
 }
 
