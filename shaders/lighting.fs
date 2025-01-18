@@ -155,7 +155,8 @@ void main()
   vec3 viewDir = normalize(u_view_pos - fs_in.frag_pos);
 #endif
 
-  mat3x4 lightColor = mat3x4(vec4(vec3(0.0), 1.0), vec4(0.0), vec4(0.0));
+  // mat3x4 lightColor = mat3x4(vec4(vec3(0.0), 1.0), vec4(0.0), vec4(0.0));
+  mat3x4 lightColor = mat3x4(0);
 
 #ifdef HAS_DIR_LIGHTS
   for(int i = 0; i < IN_NR_DIR_LIGHTS; i++)
@@ -230,7 +231,7 @@ vec4 specularColor = vec4(0.0);
   vec4 diffuse = lightColor[1] * diffuseColor;
   vec4 specular = lightColor[2] * specularColor;
 
-  vec4 color = ambient + diffuse + specular;
+  vec4 color = vec4(vec3(ambient + diffuse + specular), diffuseColor.a);
 
   if(color.a < 0.1)
   {
