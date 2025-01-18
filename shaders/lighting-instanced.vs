@@ -10,8 +10,8 @@ layout (location = 1) in vec3 in_normal;
 layout (location = 2) in vec2 in_tex_coords;
 #endif
 
-layout (location = 3) in mat4 in_i_model;
-layout (location = 7) in mat3 in_i_trans_inver_model; // mat3(transpose(inverse(in_i_model)))
+layout (location = 5) in mat4 in_i_model;
+layout (location = 9) in mat3 in_i_trans_inver_model; // mat3(transpose(inverse(in_i_model)))
 
 layout(packed) uniform ub_proj_x_view
 {

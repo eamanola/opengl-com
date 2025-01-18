@@ -3,8 +3,8 @@
 layout (location = 0) in vec3 in_position;
 layout (location = 1) in vec3 in_normal;
 layout (location = 2) in vec2 in_tex_coords;
-layout (location = 3) in vec4 in_color;
-layout (location = 4) in vec3 in_offset;
+layout (location = 5) in vec4 in_color;
+layout (location = 6) in vec3 in_offset;
 
 layout(packed) uniform ub_proj_x_view
 {

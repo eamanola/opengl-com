@@ -1,7 +1,7 @@
 #include "u-model.h"
 
 #include "gl-utils/gl-utils.h"
-#include "shaders/attrib-locations.h"
+#include "shaders/locations.h"
 #include <iostream>
 
 unsigned int u_model::addModelsBuffer(const std::vector<glm::mat4>& models)
@@ -14,7 +14,7 @@ unsigned int u_model::addModelsBuffer(const std::vector<glm::mat4>& models)
   std::vector<GLUtils::VertexAttribPointer> modelAttribs;
   for (unsigned int i = 0; i < 4; i++) {
     modelAttribs.push_back(GLUtils::VertexAttribPointer {
-      .location = ATTRIB_LOCATIONS::INSTANCED_MODELS + i,
+      .location = LOCATIONS::ATTRIBS::INSTANCED_MODELS + i,
       .size = 4,
       .stride = stride,
       .offset = (void*)(i * sizeOfVec4),
@@ -23,7 +23,7 @@ unsigned int u_model::addModelsBuffer(const std::vector<glm::mat4>& models)
   }
   for (unsigned int i = 0; i < 3; i++) {
     modelAttribs.push_back(GLUtils::VertexAttribPointer {
-      .location = ATTRIB_LOCATIONS::INSTANCED_TRA_INV_MODELS + i,
+      .location = LOCATIONS::ATTRIBS::INSTANCED_TRA_INV_MODELS + i,
       .size = 3,
       .stride = stride,
       .offset = (void*)(sizeOfMat4 + i * sizeOfVec3),

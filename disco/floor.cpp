@@ -1,7 +1,7 @@
 #include "floor.h"
 
 #include "gl-utils/gl-utils.h"
-#include "shaders/attrib-locations.h"
+#include "shaders/locations.h"
 #include "shaders/u-material.h"
 #include "shaders/u-model.h"
 #include "shapes.h"
@@ -61,7 +61,7 @@ void Floor::setupBuffers()
 
   std::vector<glm::vec3> offsets = getOffsets(mRows, mColumns);
   GLUtils::VertexAttribPointer offset = {
-    .location = ATTRIB_LOCATIONS::FLOOR_OFFSETS,
+    .location = LOCATIONS::ATTRIBS::FLOOR_OFFSETS,
     .size = 3,
     .stride = sizeof(glm::vec3),
     .offset = (void*)0,
@@ -71,7 +71,7 @@ void Floor::setupBuffers()
   GLUtils::addVertexBuffer(mOffsetVBO, &offsets[0], sizeof(glm::vec3) * offsets.size(), { offset });
 
   GLUtils::VertexAttribPointer color = {
-    .location = ATTRIB_LOCATIONS::FLOOR_COLORS,
+    .location = LOCATIONS::ATTRIBS::FLOOR_COLORS,
     .size = 4,
     .stride = sizeof(Color),
     .offset = (void*)0,

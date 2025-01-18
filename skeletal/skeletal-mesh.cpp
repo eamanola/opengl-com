@@ -1,14 +1,14 @@
 #include "skeletal-mesh.h"
 
 #include "gl-utils/gl-utils.h"
-#include "shaders/attrib-locations.h"
+#include "shaders/locations.h"
 
 void SkeletalMesh::setupBones(const unsigned int vao, const std::vector<SkeletalVertex>& vertices)
 {
   std::vector<GLUtils::VertexAttribPointer> attribPointers;
 
   GLUtils::VertexAttribPointer boneIds = {
-    .location = ATTRIB_LOCATIONS::BONE_IDS,
+    .location = LOCATIONS::ATTRIBS::BONE_IDS,
     .size = MAX_BONE_INFLUENCE,
     .type = GLUtils::AttribType::UNSIGNED_INT,
     .stride = sizeof(SkeletalVertex),
@@ -17,7 +17,7 @@ void SkeletalMesh::setupBones(const unsigned int vao, const std::vector<Skeletal
   attribPointers.push_back(boneIds);
 
   GLUtils::VertexAttribPointer boneWeights = {
-    .location = ATTRIB_LOCATIONS::BONE_WEIGHTS,
+    .location = LOCATIONS::ATTRIBS::BONE_WEIGHTS,
     .size = MAX_BONE_INFLUENCE,
     .stride = sizeof(SkeletalVertex),
     .offset = (void*)(offsetof(SkeletalVertex, boneWeights)),

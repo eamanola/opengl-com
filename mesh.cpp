@@ -1,7 +1,7 @@
 #include "mesh.h"
 
 #include "gl-utils/gl-utils.h"
-#include "shaders/attrib-locations.h"
+#include "shaders/locations.h"
 #include <glad/gl.h>
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) :
@@ -22,7 +22,7 @@ void Mesh::setupBuffers(
   std::vector<GLUtils::VertexAttribPointer> attribPointers;
 
   GLUtils::VertexAttribPointer positions = {
-    .location = ATTRIB_LOCATIONS::POSITION,
+    .location = LOCATIONS::ATTRIBS::POSITION,
     .size = 3,
     .stride = sizeof(Vertex),
     .offset = (void*)offsetof(Vertex, position),
@@ -39,7 +39,7 @@ void Mesh::setupBuffers(
 
   if (enableNormals) {
     GLUtils::VertexAttribPointer normals = {
-      .location = ATTRIB_LOCATIONS::NORMAL,
+      .location = LOCATIONS::ATTRIBS::NORMAL,
       .size = 3,
       .stride = sizeof(Vertex),
       .offset = (void*)offsetof(Vertex, normal),
@@ -57,7 +57,7 @@ void Mesh::setupBuffers(
 
   if (enableTexCoords) {
     GLUtils::VertexAttribPointer texCoords = {
-      .location = ATTRIB_LOCATIONS::TEX_COORDS,
+      .location = LOCATIONS::ATTRIBS::TEX_COORDS,
       .size = 2,
       .stride = sizeof(Vertex),
       .offset = (void*)offsetof(Vertex, texCoords),

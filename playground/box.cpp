@@ -1,6 +1,5 @@
 #include "box.h"
 
-#include "shaders/attrib-locations.h"
 #include "shaders/u-material.h"
 #include "shaders/u-model.h"
 #include "shapes.h"
