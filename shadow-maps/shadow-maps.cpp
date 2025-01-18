@@ -238,46 +238,38 @@ void ShadowMaps::free() const
   glDeleteTextures(textures.size(), &textures[0]);
 }
 
-void ShadowMaps::bindTextures(const Shader& shader) const
+void ShadowMaps::bindTextures() const
 {
   unsigned int start = LOCATIONS::TEXTURES::SHADOWMAPS0;
 
   for (unsigned int i = 0; i < mDirLights.size(); i++) {
     glActiveTexture(GL_TEXTURE0 + i + start);
     glBindTexture(GL_TEXTURE_2D, mDirLights[i].second);
-    // TODO::move to buffer
-    shader.setInt(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), i + start);
   }
   start += mDirLights.size();
 
   for (unsigned int i = 0; i < mPointLights.size(); i++) {
     glActiveTexture(GL_TEXTURE0 + i + start);
     glBindTexture(GL_TEXTURE_CUBE_MAP, mPointLights[i].second);
-    // TODO::move to buffer
-    shader.setInt(("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), i + start);
   }
   // start += mPointLights.size();
 
   glActiveTexture(GL_TEXTURE0);
 }
 
-void ShadowMaps::unbindTextures(const Shader& shader) const
+void ShadowMaps::unbindTextures() const
 {
   unsigned int start = LOCATIONS::TEXTURES::SHADOWMAPS0;
 
   for (unsigned int i = 0; i < mDirLights.size(); i++) {
     glActiveTexture(GL_TEXTURE0 + i + start);
     glBindTexture(GL_TEXTURE_2D, 0);
-    // TODO::move to buffer
-    shader.setInt(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), 0);
   }
   start += mDirLights.size();
 
   for (unsigned int i = 0; i < mPointLights.size(); i++) {
     glActiveTexture(GL_TEXTURE0 + i + start);
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    // TODO::move to buffer
-    shader.setInt(("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), 0);
   }
   // start += mPointLights.size();
 

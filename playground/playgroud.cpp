@@ -1,4 +1,5 @@
 #include "playground.h"
+#include "shaders/locations.h"
 
 // #define FOLLOW_WHIPPER
 
@@ -223,16 +224,34 @@ void Playground::setup()
 
   mpFloor.use();
   mpFloor.setFloat("u_material.shininess", SHININESS);
-  mpFloor.setFloat("u_far", CUBE_FAR);                     // draw cube shadow map
-  for (unsigned int i = 0; i < light_spaces.size(); i++) { // draw dir shadow map
+  // draw dir shadow map
+  for (unsigned int i = 0; i < light_spaces.size(); i++) {
     mpFloor.setMat4fv(("u_light_space[" + std::to_string(i) + "]").c_str(), light_spaces[i]);
+  }
+  // draw cube shadow map
+  mpFloor.setFloat("u_far", CUBE_FAR);
+  unsigned int first = LOCATIONS::TEXTURES::SHADOWMAPS0;
+  for (unsigned int i = 0; i < NUM_DIR_LIGHTS; i++) {
+    mpFloor.setInt(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
+  }
+  first += NUM_DIR_LIGHTS;
+  for (unsigned int i = 0; i < NUM_POINT_LIGHTS; i++) {
+    mpFloor.setInt(("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
   }
 
   mpInstanced.use();
   mpInstanced.setFloat("u_material.shininess", SHININESS);
-  mpInstanced.setFloat("u_far", CUBE_FAR);
   for (unsigned int i = 0; i < light_spaces.size(); i++) {
     mpInstanced.setMat4fv(("u_light_space[" + std::to_string(i) + "]").c_str(), light_spaces[i]);
+  }
+  mpInstanced.setFloat("u_far", CUBE_FAR);
+  first = LOCATIONS::TEXTURES::SHADOWMAPS0;
+  for (unsigned int i = 0; i < NUM_DIR_LIGHTS; i++) {
+    mpInstanced.setInt(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
+  }
+  first += NUM_DIR_LIGHTS;
+  for (unsigned int i = 0; i < NUM_POINT_LIGHTS; i++) {
+    mpInstanced.setInt(("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
   }
 
 // mpLighting.setFloat("u_time", -M_PI_2);
@@ -315,7 +334,15 @@ void Playground::render(const Camera& camera) const
     p_plain,     p_normals,   &mpReflectSkybox, &mpSkybox,
   };
 
+#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
+  mShadows.bindTextures();
+#endif
+
   renderScene(camera.projection(), camera.view(), camera.position(), camera.front(), shaders);
+
+#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
+  mShadows.unbindTextures();
+#endif
 }
 
 void Playground::renderShadowMap(const glm::mat4& projection, const glm::mat4& view) const
@@ -426,14 +453,8 @@ void Playground::renderScene(
   p_instanced.use();
   p_instanced.setVec3fv("u_view_pos", view_pos);
 
-#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.bindTextures(p_instanced);
-#endif
   box.render(p_instanced);
   grass.render(p_instanced);
-#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.unbindTextures(p_instanced);
-#endif
 
 #ifdef POINTLIGHT_DEBUG
   if (p_plain != nullptr) {
@@ -461,7 +482,6 @@ void Playground::renderScene(
   p_reflect_skybox.use();
   p_reflect_skybox.setMat4fv("u_proj_x_view", proj_x_view);
   p_reflect_skybox.setVec3fv("u_view_pos", view_pos);
-
   skyboxReflector.draw(p_reflect_skybox);
 
   // draw last (late as possible) furthest/z-buffer
@@ -475,14 +495,7 @@ void Playground::renderScene(
   // draw last (late as possible) translucent / blended
   p_floor.use();
   p_floor.setVec3fv("u_view_pos", view_pos);
-
-#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.bindTextures(p_floor);
-#endif
   floor.render(p_floor);
-#if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.unbindTextures(p_floor);
-#endif
 }
 
 void Playground::teardown()
