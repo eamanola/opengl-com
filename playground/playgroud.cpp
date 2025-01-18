@@ -288,7 +288,7 @@ void Playground::update(const float& time)
   mirror.screenshot(*this);
 
 #ifdef SHADOW_DEBUG
-  glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE0); //+ LOCATIONS::TEXTURE::DEBUF
   glBindTexture(GL_TEXTURE_2D, mShadows.mDepthMap1);
   mpShadowsDebug.use();
   mpShadowsDebug.setInt("depthMap", 0);
@@ -427,12 +427,12 @@ void Playground::renderScene(
   p_instanced.setVec3fv("u_view_pos", view_pos);
 
 #if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.bindTextures(p_instanced, 2);
+  mShadows.bindTextures(p_instanced);
 #endif
   box.render(p_instanced);
   grass.render(p_instanced);
 #if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.unbindTextures(p_instanced, 2);
+  mShadows.unbindTextures(p_instanced);
 #endif
 
 #ifdef POINTLIGHT_DEBUG
@@ -477,11 +477,11 @@ void Playground::renderScene(
   p_floor.setVec3fv("u_view_pos", view_pos);
 
 #if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.bindTextures(p_floor, 1);
+  mShadows.bindTextures(p_floor);
 #endif
   floor.render(p_floor);
 #if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
-  mShadows.unbindTextures(p_floor, 1);
+  mShadows.unbindTextures(p_floor);
 #endif
 }
 

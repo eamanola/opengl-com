@@ -1,6 +1,7 @@
 #include "skybox.h"
 
 #include "gl-utils/gl-utils.h"
+#include "shaders/locations.h"
 #include "shapes.h"
 #include "utils/utils.h"
 
@@ -25,9 +26,9 @@ void Skybox::draw(const Shader& shader) const
   glDepthMask(GL_FALSE);
   glDepthFunc(GL_LEQUAL);
 
-  glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE0 + LOCATIONS::TEXTURES::SKYBOX_REFLECTOR);
   glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture.id);
-  shader.setInt("skybox", 0);
+  shader.setInt("skybox", LOCATIONS::TEXTURES::SKYBOX_REFLECTOR);
   mMesh.draw();
 
   glBindTexture(GL_TEXTURE_CUBE_MAP, 0);

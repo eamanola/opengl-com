@@ -1,15 +1,14 @@
 #include "u-material.h"
+#include "locations.h"
 
 using namespace Lighting;
 
 void u_material::bindTextures(const Shader& shader, const Texture* textures, const unsigned int len)
 {
-  assert(len <= 2);
+  assert(len <= 2); // add more LOCATION::TEXTURE spots if fail
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
   for (unsigned int i = 0; i < len; i++) {
-    glActiveTexture(GL_TEXTURE0 + i);
-
     std::string number;
     std::string name;
     TEXTURE_TYPE type = textures[i].type;
@@ -21,9 +20,13 @@ void u_material::bindTextures(const Shader& shader, const Texture* textures, con
       name = "texture_specular";
     }
 
-    shader.setInt(("u_material." + name + number).c_str(), i);
+    glActiveTexture(GL_TEXTURE0 + LOCATIONS::TEXTURES::MATERIAL0 + i);
+    shader.setInt(("u_material." + name + number).c_str(), LOCATIONS::TEXTURES::MATERIAL0 + i);
     glBindTexture(GL_TEXTURE_2D, textures[i].id);
   }
+
+  assert(diffuseNr <= 2);
+  assert(specularNr <= 2);
 }
 
 void u_material::bindTexture(const Shader& shader, const Texture* texture)
@@ -37,7 +40,7 @@ void u_material::unbindTextures(
 {
   if (len > 0) {
     for (unsigned int i = 0; i < len; i++) {
-      glActiveTexture(GL_TEXTURE0 + i);
+      glActiveTexture(GL_TEXTURE0 + LOCATIONS::TEXTURES::MATERIAL0 + i);
       glBindTexture(GL_TEXTURE_2D, 0);
     }
     glActiveTexture(GL_TEXTURE0);

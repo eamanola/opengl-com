@@ -1,6 +1,7 @@
 #include "skybox-reflector.h"
 
 #include "gl-utils/gl-utils.h"
+#include "shaders/locations.h"
 #include "utils/utils.h"
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -71,10 +72,10 @@ void SkyboxReflector::draw(const Shader& shader) const
   // Glass 	  1.52
   // Diamond 	2.42
   shader.setFloat("u_ratio", 1.f / 1.33f);
-  glActiveTexture(GL_TEXTURE0);
-  shader.setInt("skybox", 0);
 
+  glActiveTexture(GL_TEXTURE0 + LOCATIONS::TEXTURES::SKYBOX_REFLECTOR);
   glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture.id);
+  shader.setInt("skybox", LOCATIONS::TEXTURES::SKYBOX_REFLECTOR);
 
   mMesh.draw();
 

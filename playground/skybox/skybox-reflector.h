@@ -1,5 +1,5 @@
-#ifndef SKYBOX_REFLECTOR
-#define SKYBOX_REFLECTOR
+#ifndef SKYBOX_REFLECTOR_H
+#define SKYBOX_REFLECTOR_H
 
 #include "mesh.h"
 #include "shader.h"

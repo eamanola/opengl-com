@@ -38,8 +38,8 @@ public:
 
   void free() const;
 
-  void bindTextures(const Shader& shader, unsigned int first = 0) const;
-  void unbindTextures(const Shader& shader, unsigned int first = 0) const;
+  void bindTextures(const Shader& shader) const;
+  void unbindTextures(const Shader& shader) const;
 
   // unsigned int mFBO1;
   // unsigned int mDepthMap1;
