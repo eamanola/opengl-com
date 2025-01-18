@@ -130,22 +130,13 @@ Playground::Playground() :
   proj_x_view_ub(
     0,
     {
-      mpSkeletal,
-      mp_Skeletal_shadow,
-      mp_Skeletal_cshadow,
-      mpLighting,
-      mp_Lighting_shadow,
-      mp_Lighting_cshadow,
-      mpFloor,
-      mp_Floor_shadow,
-      mp_Floor_cshadow,
-      mpInstanced,
-      mp_Instanced_shadow,
-      mp_Instanced_cshadow,
+      mpSkeletal,      mp_Skeletal_shadow,      mp_Skeletal_cshadow,
+      mpLighting,      mp_Lighting_shadow,      mp_Lighting_cshadow,
+      mpFloor,         mp_Floor_shadow,         mp_Floor_cshadow,
+      mpInstanced,     mp_Instanced_shadow,     mp_Instanced_cshadow,
+      mpReflectSkybox, mp_ReflectSkybox_shadow, mp_ReflectSkybox_cshadow,
 #ifdef POINTLIGHT_DEBUG
-      mpPlain,
-      mp_Plain_shadow,
-      mp_Plain_cshadow,
+      mpPlain,         mp_Plain_shadow,         mp_Plain_cshadow,
 #endif
 #ifdef NORMALS_DEBUG
       mpNormals,
@@ -480,13 +471,13 @@ void Playground::renderScene(
 #endif
 
   p_reflect_skybox.use();
-  p_reflect_skybox.setMat4fv("u_proj_x_view", proj_x_view);
   p_reflect_skybox.setVec3fv("u_view_pos", view_pos);
   skyboxReflector.draw(p_reflect_skybox);
 
   // draw last (late as possible) furthest/z-buffer
   if (p_skybox != nullptr) {
     p_skybox->use();
+    // remove translation
     const glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
     p_skybox->setMat4fv("u_proj_x_view", projection * skyboxView);
     skybox.draw(*p_skybox);
