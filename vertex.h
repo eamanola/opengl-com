@@ -3,11 +3,16 @@
 
 #include <glm/glm.hpp>
 
-struct Vertex
-{
-  glm::vec3 position;
-  glm::vec3 normal;
-  glm::vec2 texCoords;
+typedef glm::vec3 Position;
+typedef glm::vec3 Normal;
+typedef glm::vec2 TexCoords;
+typedef glm::vec3 Tangent;
+
+struct Vertex {
+  Position position;
+  Normal normal;
+  TexCoords texCoords;
+  Tangent tangent;
 };
 
 #endif

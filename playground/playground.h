@@ -19,7 +19,7 @@
 #include "mirror.h"
 #include "shaders/ub-proj-x-view.h"
 #ifdef SHADOW_DEBUG
-#include "shadows/shadows-debug.h"
+#include "shadow-maps/shadows-debug.h"
 #endif
 #include "shadow-maps/shadow-maps.h"
 #include "skybox/skybox-reflector.h"
@@ -91,6 +91,9 @@ private:
   Shader mp_ReflectSkybox_shadow;
   Shader mp_ReflectSkybox_cshadow;
   SkyboxReflector skyboxReflector;
+
+  Shader mpNormalMap;
+  Model backpack;
 
 #ifdef SHADOW_DEBUG
   Shader mpShadowsDebug;

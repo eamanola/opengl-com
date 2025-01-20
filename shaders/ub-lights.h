@@ -1,5 +1,5 @@
-#ifndef UB_LIGHTS_BUFFER_H
-#define UB_LIGHTS_BUFFER_H
+#ifndef UB_LIGHTS_H
+#define UB_LIGHTS_H
 
 #include "uniform-block-buffer.h"
 

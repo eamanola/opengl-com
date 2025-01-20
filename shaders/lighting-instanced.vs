@@ -6,7 +6,7 @@ layout (location = 0) in vec3 in_position;
 layout (location = 1) in vec3 in_normal;
 #endif
 
-#ifdef MATERIAL
+#ifdef TEX_COORDS
 layout (location = 2) in vec2 in_tex_coords;
 #endif
 
@@ -28,7 +28,7 @@ out vsout
   vec3 frag_pos;
 #endif
 
-#ifdef MATERIAL
+#ifdef TEX_COORDS
   vec2 tex_coords;
 #endif
 #ifdef ENABLE_SHADOWS
@@ -52,7 +52,7 @@ void main()
   vs_out.frag_pos = vec3(position);
   #endif
 
-  #ifdef MATERIAL
+  #ifdef TEX_COORDS
   vs_out.tex_coords = in_tex_coords;
   #endif
 

@@ -10,7 +10,7 @@ namespace ATTRIBS
 const unsigned int POSITION = 0;
 const unsigned int NORMAL = 1;
 const unsigned int TEX_COORDS = 2;
-// 3 tan
+const unsigned int TANGENTS = 3;
 // 4 bitan
 
 // skeletal.vs
@@ -30,12 +30,13 @@ const unsigned int INSTANCED_TRA_INV_MODELS = INSTANCED_MODELS + 4; // 4 spaces 
 namespace TEXTURES
 {
 const unsigned int DEFAULT = 0;
-const unsigned int MATERIAL0 = 1; // diffuse & specular
+const unsigned int MATERIAL0 = 1; // diffuse, specular & normal
 const unsigned int MATERIAL1 = 2;
-const unsigned int DEBUG = 3;
-const unsigned int SKYBOX = 4;
-const unsigned int SKYBOX_REFLECTOR = 5;
-const unsigned int SHADOWMAPS0 = 6; // varying number
+const unsigned int MATERIAL2 = 3;
+const unsigned int DEBUG = 4;
+const unsigned int SKYBOX = 5;
+const unsigned int SKYBOX_REFLECTOR = 6;
+const unsigned int SHADOWMAPS0 = 7; // varying number
 } // namespace TEXTURES
 
 } // namespace LOCATIONS

@@ -12,7 +12,7 @@ in vsout
   vec3 frag_pos;
 #endif
 
-#ifdef MATERIAL
+#ifdef TEX_COORDS
   vec2 tex_coords;
 #endif
 } gs_in[];
@@ -27,7 +27,7 @@ out vsout
   vec3 frag_pos;
 #endif
 
-#ifdef MATERIAL
+#ifdef TEX_COORDS
   vec2 tex_coords;
 #endif
 } gs_out;

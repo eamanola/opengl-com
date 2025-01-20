@@ -75,7 +75,6 @@
 #endif
 
 #ifdef IN_RENDER_SHADOWS
-
 #ifdef HAS_DIR_LIGHTS
 #ifndef ENABLE_SHADOWS
 #define ENABLE_SHADOWS
@@ -87,5 +86,10 @@
 #define ENABLE_CUBE_SHADOWS
 #endif
 #endif
+#endif
 
+#ifdef MATERIAL
+#ifndef TEX_COORDS
+#define TEX_COORDS
+#endif
 #endif

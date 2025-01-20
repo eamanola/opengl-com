@@ -65,6 +65,24 @@ void Mesh::setupBuffers(
     attribPointers.push_back(texCoords);
   }
 
+  bool enableTangents = false;
+  for (Vertex vertex : vertices) {
+    if (vertex.tangent != Tangent(0)) {
+      enableTangents = true;
+      break;
+    }
+  }
+
+  if (enableTangents) {
+    GLUtils::VertexAttribPointer tangents = {
+      .location = LOCATIONS::ATTRIBS::TANGENTS,
+      .size = 3,
+      .stride = sizeof(Vertex),
+      .offset = (void*)offsetof(Vertex, tangent),
+    };
+    attribPointers.push_back(tangents);
+  }
+
   unsigned int VBO;
   if (GLUtils::addVertexBuffer(
         VBO, &vertices[0], sizeof(Vertex) * vertices.size(), attribPointers

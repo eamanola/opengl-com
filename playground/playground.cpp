@@ -101,6 +101,19 @@ Playground::Playground() :
     "./shadow-maps/cube-depth.gs",
     "./shadow-maps/cube-depth.fs"
   ),
+  mpNormalMap(
+    "./shaders/lighting.vs",
+    nullptr,
+    "./shaders/lighting.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define NORMAL_MAP\n",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
+  backpack("assets/backpack/backpack.obj"),
 #ifdef SHADOW_DEBUG
   mpShadowsDebug("./shadow-maps/shadows-debug.vs", nullptr, "./shadow-maps/shadows-debug.fs"),
 #endif
@@ -121,7 +134,7 @@ Playground::Playground() :
 #endif
   lightingSettings(
     1,
-    { mpSkeletal, mpLighting, mpFloor, mpInstanced },
+    { mpSkeletal, mpLighting, mpNormalMap, mpFloor, mpInstanced },
     NUM_DIR_LIGHTS,
     NUM_POINT_LIGHTS,
     NUM_SPOT_LIGHTS
@@ -130,13 +143,27 @@ Playground::Playground() :
   proj_x_view_ub(
     0,
     {
-      mpSkeletal,      mp_Skeletal_shadow,      mp_Skeletal_cshadow,
-      mpLighting,      mp_Lighting_shadow,      mp_Lighting_cshadow,
-      mpFloor,         mp_Floor_shadow,         mp_Floor_cshadow,
-      mpInstanced,     mp_Instanced_shadow,     mp_Instanced_cshadow,
-      mpReflectSkybox, mp_ReflectSkybox_shadow, mp_ReflectSkybox_cshadow,
+      mpSkeletal,
+      mp_Skeletal_shadow,
+      mp_Skeletal_cshadow,
+      mpLighting,
+      mpNormalMap,
+      mp_Lighting_shadow,
+      mp_Lighting_cshadow,
+      mpFloor,
+      mp_Floor_shadow,
+      mp_Floor_cshadow,
+      mpInstanced,
+      mp_Instanced_shadow,
+      mp_Instanced_cshadow,
+      mpReflectSkybox,
+      mp_ReflectSkybox_shadow,
+      mp_ReflectSkybox_cshadow,
+
 #ifdef POINTLIGHT_DEBUG
-      mpPlain,         mp_Plain_shadow,         mp_Plain_cshadow,
+      mpPlain,
+      mp_Plain_shadow,
+      mp_Plain_cshadow,
 #endif
 #ifdef NORMALS_DEBUG
       mpNormals,
@@ -217,6 +244,9 @@ void Playground::setup()
   mpLighting.use();
   mpLighting.setFloat("u_material.shininess", SHININESS);
 
+  mpNormalMap.use();
+  mpNormalMap.setFloat("u_material.shininess", SHININESS);
+
   mpFloor.use();
   mpFloor.setFloat("u_material.shininess", SHININESS);
   // draw dir shadow map
@@ -256,6 +286,11 @@ void Playground::setup()
 #endif
 #ifdef SHADOW_DEBUG
   mShadowsDebug.setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, 1.f)));
+
+  glActiveTexture(GL_TEXTURE0 + LOCATIONS::TEXTURES::DEBUG);
+  glBindTexture(GL_TEXTURE_2D, mShadows.mDirLights[0].second);
+  mpShadowsDebug.use();
+  mpShadowsDebug.setInt("depthMap", LOCATIONS::TEXTURES::DEBUG);
 #endif
 }
 
@@ -302,13 +337,7 @@ void Playground::update(const float& time)
   mirror.screenshot(*this);
 
 #ifdef SHADOW_DEBUG
-  glActiveTexture(GL_TEXTURE0); //+ LOCATIONS::TEXTURE::DEBUF
-  glBindTexture(GL_TEXTURE_2D, mShadows.mDepthMap1);
-  mpShadowsDebug.use();
-  mpShadowsDebug.setInt("depthMap", 0);
   mShadowsDebug.render(mpShadowsDebug);
-
-  glBindTexture(GL_TEXTURE_2D, 0);
 #endif
 }
 
@@ -325,8 +354,8 @@ void Playground::render(const Camera& camera) const
   const Shader* p_plain = nullptr;
 #endif
   const Shader* shaders[] = {
-    &mpSkeletal, &mpLighting, &mpFloor,         &mpInstanced,
-    p_plain,     p_normals,   &mpReflectSkybox, &mpSkybox,
+    &mpSkeletal, &mpLighting,      &mpFloor,  &mpInstanced, p_plain,
+    p_normals,   &mpReflectSkybox, &mpSkybox, &mpNormalMap,
   };
 
   renderScene(camera.projection(), camera.view(), camera.position(), camera.front(), shaders);
@@ -349,6 +378,7 @@ void Playground::renderShadowMap(const glm::mat4& projection, const glm::mat4& v
     nullptr,
     &mp_ReflectSkybox_shadow,
     nullptr,
+    &mp_Lighting_shadow,
   };
 
   return renderScene(projection, view, glm::vec3(0), glm::vec3(0), shaders);
@@ -373,6 +403,7 @@ void Playground::renderCubeMap(
     nullptr,
     &mp_ReflectSkybox_cshadow,
     nullptr,
+    &mp_Lighting_cshadow,
   };
 
   for (unsigned int j = 0; j < 8; j++) {
@@ -407,6 +438,7 @@ void Playground::renderScene(
   const Shader* p_normals = shaders[5];
   const Shader& p_reflect_skybox = *shaders[6];
   const Shader* p_skybox = shaders[7];
+  const Shader& p_normal_map = *shaders[8];
 
   lightingSettings.updatePointLight0Position();
   lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
@@ -436,6 +468,19 @@ void Playground::renderScene(
 
   mirror.render(p_lighting);
   window.render(p_lighting);
+
+  p_normal_map.use();
+  p_normal_map.setVec3fv("u_view_pos", view_pos);
+
+  glm::mat4 modelBackpack = glm::mat4(1.f);
+  modelBackpack = glm::translate(modelBackpack, glm::vec3(3.f, 1.f, 1.5f));
+  // modelBackpack = glm::rotate(modelBackpack, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
+  modelBackpack = glm::scale(modelBackpack, glm::vec3(0.2f));
+  p_normal_map.setMat4fv("u_model", modelBackpack);
+  p_normal_map.setMat3fv(
+    "u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(modelBackpack)))
+  );
+  backpack.draw(p_normal_map);
 
   p_instanced.use();
   p_instanced.setVec3fv("u_view_pos", view_pos);
@@ -502,6 +547,9 @@ void Playground::teardown()
   window.free();
   mirror.free();
 
+  mpNormalMap.free();
+  backpack.free();
+
   mpFloor.free();
   mp_Floor_shadow.free();
   mp_Floor_cshadow.free();
@@ -526,6 +574,7 @@ void Playground::teardown()
 
   mpReflectSkybox.free();
   skyboxReflector.free();
+
   lightingSettings.free();
   proj_x_view_ub.free();
 #ifdef SHADOW_DEBUG

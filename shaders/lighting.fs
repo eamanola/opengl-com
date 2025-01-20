@@ -4,6 +4,9 @@
 struct Material {
   sampler2D texture_diffuse1;
   sampler2D texture_specular1;
+#ifdef NORMAL_MAP
+  sampler2D texture_normal1;
+#endif
   vec4      diffuse_color;
   vec4      specular_color;
   float     shininess;
@@ -90,15 +93,19 @@ PhongColor calcMaterialColor(Material material);
 
 in vsout
 {
+#ifdef NORMAL_MAP
+  mat3 tbn;
+#else
 #ifdef NORMAL
   vec3 normal;
+#endif
 #endif
 
 #ifdef FRAG_POS
   vec3 frag_pos;
 #endif
 
-#ifdef MATERIAL
+#ifdef TEX_COORDS
   vec2 tex_coords;
 #endif
 
@@ -147,8 +154,14 @@ layout(std140) uniform ub_lights
 
 void main()
 {
+#ifdef NORMAL_MAP
+  vec3 normal = texture(u_material.texture_normal1, fs_in.tex_coords).rgb;
+  normal = normal * 2.0 - 1.0;
+  normal = normalize(fs_in.tbn * normal);
+#else
 #ifdef NORMAL
   vec3 normal = normalize(fs_in.normal);
+#endif
 #endif
 
 #ifdef VIEW_DIR
@@ -238,6 +251,12 @@ vec4 specularColor = vec4(0.0);
     discard;
     return;
   }
+
+  // #ifdef NORMAL_MAP
+  //   // f_color = vec4(fs_in.normal, 1.0) * 2 - vec4(1.0, 1.0, 1.0, 1.0);
+  //   f_color = vec4(normal, 1.0) * 2 - vec4(1.0, 1.0, 1.0, 1.0);
+  //   return;
+  // #endif
 
   f_color = color;
 }

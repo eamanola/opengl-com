@@ -9,9 +9,10 @@
 void Model::loadModel(const std::string path)
 {
   Assimp::Importer importer;
-  unsigned int postProcess = aiProcess_Triangulate |
-                             // aiProcess_FlipUVs | //puts (0,0) to top left (DirectX stuff)
-                             aiProcess_GenSmoothNormals;
+  unsigned int postProcess =
+    aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace;
+  //  aiProcess_FlipUVs | // puts (0,0) to top left (DirectX stuff)
+
   const aiScene* scene = importer.ReadFile(path, postProcess);
 
   if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -42,6 +43,14 @@ void Model::processScene(const aiScene* scene)
       std::vector<std::string> sMaps = loadMaterialTextures(scene, mesh, aiTextureType_SPECULAR);
       textures.insert(textures.end(), sMaps.begin(), sMaps.end());
 
+      // obj normals
+      std::vector<std::string> hMaps = loadMaterialTextures(scene, mesh, aiTextureType_HEIGHT);
+      textures.insert(textures.end(), hMaps.begin(), hMaps.end());
+
+      std::vector<std::string> nMaps = loadMaterialTextures(scene, mesh, aiTextureType_NORMALS);
+      textures.insert(textures.end(), nMaps.begin(), nMaps.end());
+
+      assert(nMaps.size() == 0);
       mMeshTextureMap.push_back(textures);
     }
   }
@@ -54,11 +63,12 @@ Mesh Model::processMesh(const aiScene* scene, const aiMesh* mesh)
 
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     Vertex vertex {
-      .position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z),
-      .normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z),
+      .position = Position(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z),
+      .normal = Normal(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z),
+      .tangent = Tangent(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z),
     };
     if (mesh->mTextureCoords[0]) {
-      vertex.texCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+      vertex.texCoords = TexCoords(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
     }
     vertices.push_back(vertex);
   }
@@ -100,8 +110,25 @@ Texture Model::loadTexture(const aiScene* scene, const aiTextureType& aiType, co
 {
   // std::cout << "loading: " << mDirectory << '/' << str.C_Str() << std::endl;
 
-  const TEXTURE_TYPE type =
-    aiType == aiTextureType_DIFFUSE ? TEXTURE_TYPE_DIFFUSE : TEXTURE_TYPE_SPECULAR;
+  TEXTURE_TYPE type;
+  switch (aiType) {
+  case aiTextureType_DIFFUSE:
+    type = TEXTURE_TYPE_DIFFUSE;
+    break;
+  case aiTextureType_SPECULAR:
+    type = TEXTURE_TYPE_SPECULAR;
+    break;
+  case aiTextureType_NORMALS:
+    type = TEXTURE_TYPE_NORMALS;
+    break;
+  case aiTextureType_HEIGHT:
+    type = TEXTURE_TYPE_NORMALS;
+    break;
+
+  default:
+    assert(false);
+    break;
+  }
 
   const aiTexture* embedded = scene->GetEmbeddedTexture(path);
   if (embedded != nullptr) {

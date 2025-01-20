@@ -65,8 +65,11 @@ Shader::Shader(
     // glGetProgramiv(ID, GL_INFO_LOG_LENGTH, &maxLength);
     char infoLog[maxLength];
     glGetProgramInfoLog(ID, maxLength, nullptr, infoLog);
-    std::cout << "Linking failed:\n" << infoLog << std::endl;
-
+    std::cout << "Linking failed:\n" << infoLog << "\n";
+    std::cout << vPath << "\n";
+    if (gPath != nullptr)
+      std::cout << gPath << "\n";
+    std::cout << fPath << "\n";
     glDeleteProgram(ID);
     return;
   }
