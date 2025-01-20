@@ -26,6 +26,18 @@ Playground::Playground() :
   mp_Skeletal_cshadow(
     "./skeletal/skeletal.vs", "./shadow-maps/cube-depth.gs", "./shadow-maps/cube-depth.fs"
   ),
+  mpSkeletalNormalMap(
+    "./skeletal/skeletal.vs",
+    nullptr,
+    "./shaders/lighting.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define NORMAL_MAP\n",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
   mpLighting(
     "./shaders/lighting.vs",
     nullptr,
@@ -47,6 +59,19 @@ Playground::Playground() :
     { "#define FRAG_POS\n" }
   ),
   simpleModel("assets/2b-jumps2/scene.gltf"),
+  mpLightingNormalMap(
+    "./shaders/lighting.vs",
+    nullptr,
+    "./shaders/lighting.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define NORMAL_MAP\n",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
+  backpack("assets/backpack/backpack.obj"),
   mpFloor(
     "./disco/floor.vs",
     nullptr,
@@ -101,19 +126,6 @@ Playground::Playground() :
     "./shadow-maps/cube-depth.gs",
     "./shadow-maps/cube-depth.fs"
   ),
-  mpNormalMap(
-    "./shaders/lighting.vs",
-    nullptr,
-    "./shaders/lighting.fs",
-    {
-      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
-      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
-      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
-      "#define NORMAL_MAP\n",
-    },
-    { "shaders/lighted-shader-defines" }
-  ),
-  backpack("assets/backpack/backpack.obj"),
 #ifdef SHADOW_DEBUG
   mpShadowsDebug("./shadow-maps/shadows-debug.vs", nullptr, "./shadow-maps/shadows-debug.fs"),
 #endif
@@ -134,7 +146,7 @@ Playground::Playground() :
 #endif
   lightingSettings(
     1,
-    { mpSkeletal, mpLighting, mpNormalMap, mpFloor, mpInstanced },
+    { mpSkeletal, mpSkeletalNormalMap, mpLighting, mpLightingNormalMap, mpFloor, mpInstanced },
     NUM_DIR_LIGHTS,
     NUM_POINT_LIGHTS,
     NUM_SPOT_LIGHTS
@@ -146,8 +158,9 @@ Playground::Playground() :
       mpSkeletal,
       mp_Skeletal_shadow,
       mp_Skeletal_cshadow,
+      mpSkeletalNormalMap,
       mpLighting,
-      mpNormalMap,
+      mpLightingNormalMap,
       mp_Lighting_shadow,
       mp_Lighting_cshadow,
       mpFloor,
@@ -197,6 +210,11 @@ void Playground::setup()
   modelWhipper = glm::scale(modelWhipper, glm::vec3(0.15f));
   whipper.setModel(modelWhipper);
 
+  glm::mat4 modelIcarus = glm::mat4(1.f);
+  modelIcarus = glm::translate(modelIcarus, glm::vec3(4.5f, 0.f, 0.f));
+  modelIcarus = glm::scale(modelIcarus, glm::vec3(0.010f));
+  icarus.setModel(modelIcarus);
+
   // glm::vec3 n = glm::vec3(1.0, 0.765, 0.123);
   // glm::vec3 a = glm::normalize(glm::mat3(transpose(inverse(modelDae))) * glm::mat3(modelWhipper)
   // * n); glm::vec3 b = glm::normalize(glm::mat3(transpose(inverse(modelDae * modelWhipper))) * n);
@@ -241,11 +259,15 @@ void Playground::setup()
   mpSkeletal.use();
   mpSkeletal.setFloat("u_material.shininess", SHININESS);
 
+  mpSkeletalNormalMap.use();
+  mpSkeletalNormalMap.setFloat("u_material.shininess", SHININESS);
+  mpSkeletalNormalMap.setVec4fv("u_material.specular_color", Color { 0.5f });
+
   mpLighting.use();
   mpLighting.setFloat("u_material.shininess", SHININESS);
 
-  mpNormalMap.use();
-  mpNormalMap.setFloat("u_material.shininess", SHININESS);
+  mpLightingNormalMap.use();
+  mpLightingNormalMap.setFloat("u_material.shininess", SHININESS);
 
   mpFloor.use();
   mpFloor.setFloat("u_material.shininess", SHININESS);
@@ -303,6 +325,7 @@ void Playground::update(const float& time)
   dae.update(time);
   whipper.update(time);
   floor.update(time);
+  icarus.update(time);
 
   if (animatingPos || animatingDir) {
     return;
@@ -354,8 +377,8 @@ void Playground::render(const Camera& camera) const
   const Shader* p_plain = nullptr;
 #endif
   const Shader* shaders[] = {
-    &mpSkeletal, &mpLighting,      &mpFloor,  &mpInstanced, p_plain,
-    p_normals,   &mpReflectSkybox, &mpSkybox, &mpNormalMap,
+    &mpSkeletal, &mpLighting,      &mpFloor,  &mpInstanced,         p_plain,
+    p_normals,   &mpReflectSkybox, &mpSkybox, &mpLightingNormalMap, &mpSkeletalNormalMap,
   };
 
   renderScene(camera.projection(), camera.view(), camera.position(), camera.front(), shaders);
@@ -379,6 +402,7 @@ void Playground::renderShadowMap(const glm::mat4& projection, const glm::mat4& v
     &mp_ReflectSkybox_shadow,
     nullptr,
     &mp_Lighting_shadow,
+    &mp_Skeletal_shadow,
   };
 
   return renderScene(projection, view, glm::vec3(0), glm::vec3(0), shaders);
@@ -404,6 +428,7 @@ void Playground::renderCubeMap(
     &mp_ReflectSkybox_cshadow,
     nullptr,
     &mp_Lighting_cshadow,
+    &mp_Skeletal_cshadow,
   };
 
   for (unsigned int j = 0; j < 8; j++) {
@@ -439,6 +464,7 @@ void Playground::renderScene(
   const Shader& p_reflect_skybox = *shaders[6];
   const Shader* p_skybox = shaders[7];
   const Shader& p_normal_map = *shaders[8];
+  const Shader& p_skeletal_normal_map = *shaders[9];
 
   lightingSettings.updatePointLight0Position();
   lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
@@ -455,6 +481,12 @@ void Playground::renderScene(
 
   // whipper
   whipper.render(p_skeletal);
+
+  p_skeletal_normal_map.use();
+  p_skeletal_normal_map.setVec3fv("u_view_pos", view_pos);
+
+  // icarus
+  icarus.render(p_skeletal_normal_map);
 
   p_lighting.use();
   p_lighting.setVec3fv("u_view_pos", view_pos);
@@ -473,7 +505,7 @@ void Playground::renderScene(
   p_normal_map.setVec3fv("u_view_pos", view_pos);
 
   glm::mat4 modelBackpack = glm::mat4(1.f);
-  modelBackpack = glm::translate(modelBackpack, glm::vec3(3.f, 1.f, 1.5f));
+  modelBackpack = glm::translate(modelBackpack, glm::vec3(3.f, 1.f, -3.5f));
   // modelBackpack = glm::rotate(modelBackpack, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
   modelBackpack = glm::scale(modelBackpack, glm::vec3(0.2f));
   p_normal_map.setMat4fv("u_model", modelBackpack);
@@ -539,6 +571,9 @@ void Playground::teardown()
   dae.free();
   whipper.free();
 
+  mpSkeletalNormalMap.free();
+  icarus.free();
+
   mpLighting.free();
   mp_Lighting_shadow.free();
   mp_Lighting_cshadow.free();
@@ -547,7 +582,7 @@ void Playground::teardown()
   window.free();
   mirror.free();
 
-  mpNormalMap.free();
+  mpLightingNormalMap.free();
   backpack.free();
 
   mpFloor.free();

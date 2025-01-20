@@ -50,7 +50,6 @@ void Model::processScene(const aiScene* scene)
       std::vector<std::string> nMaps = loadMaterialTextures(scene, mesh, aiTextureType_NORMALS);
       textures.insert(textures.end(), nMaps.begin(), nMaps.end());
 
-      assert(nMaps.size() == 0);
       mMeshTextureMap.push_back(textures);
     }
   }

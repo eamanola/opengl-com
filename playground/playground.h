@@ -6,6 +6,7 @@
 
 #include "camera.h"
 #include "characters/dae.h"
+#include "characters/icarus.h"
 #include "characters/tifa.h"
 #include "characters/whipper.h"
 #include "light-settings.h"
@@ -66,6 +67,9 @@ private:
   Dae dae;
   Whipper whipper;
 
+  Shader mpSkeletalNormalMap;
+  Icarus icarus;
+
   Shader mpLighting;
   Shader mp_Lighting_shadow;
   Shader mp_Lighting_cshadow;
@@ -73,6 +77,9 @@ private:
   Grass grass;
   Window window;
   Mirror mirror;
+
+  Shader mpLightingNormalMap;
+  Model backpack;
 
   Shader mpFloor;
   Shader mp_Floor_shadow;
@@ -91,9 +98,6 @@ private:
   Shader mp_ReflectSkybox_shadow;
   Shader mp_ReflectSkybox_cshadow;
   SkyboxReflector skyboxReflector;
-
-  Shader mpNormalMap;
-  Model backpack;
 
 #ifdef SHADOW_DEBUG
   Shader mpShadowsDebug;

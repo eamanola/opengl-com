@@ -174,7 +174,7 @@ bool SkeletalModel::readSkeleton(const aiNode* node, const BoneInfos& boneInfos,
 
 #ifdef WITH_TRANSFORM
     std::cout << skeleton.name << "\n";
-    skeleton.transform = AssimpGLMHelpers::ConvertMatrixToGLMFormat(node->mTransformation);
+    skeleton.transform = Assimp2glm::mat4(node->mTransformation);
 #endif
     for (unsigned int i = 0; i < node->mNumChildren; i++) {
       Bone child;

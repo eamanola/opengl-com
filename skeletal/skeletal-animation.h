@@ -33,7 +33,7 @@ private:
     std::vector<glm::mat4>& output
   ) const;
   std::pair<int, float> getTimeFraction(const std::vector<float>& times, float dt) const;
-  glm::mat4 localTransform(const BoneTransforms& transforms, const unsigned int& time) const;
+  glm::mat4 localTransform(const BoneTransforms& transforms, const float& time) const;
 
   std::vector<glm::mat4> mCurrentPose;
   unsigned int mAnimationIndex;

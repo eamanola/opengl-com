@@ -1,20 +1,19 @@
 #ifndef BONE_H
 #define BONE_H
 
+#include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include <glm/glm.hpp>
 
 // #define WITH_TRANSFORM
 
-struct Bone
-{
+struct Bone {
   std::string name;
   unsigned int index;
   glm::mat4 offset;
-  #ifdef WITH_TRANSFORM
+#ifdef WITH_TRANSFORM
   glm::mat4 transform;
-  #endif
+#endif
   std::vector<Bone> children = {};
 };
 
