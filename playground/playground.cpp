@@ -7,34 +7,44 @@
 #define NUM_POINT_LIGHTS 4
 #define NUM_SPOT_LIGHTS 1
 
-#define DIR_LIGHT_DISTANCE 5.f
+#define DIR_LIGHT_DISTANCE 3.f
 #define CUBE_FAR 15.f
 
 Playground::Playground() :
   mpSkeletal(
-    "./skeletal/skeletal.vs",
+    "./shaders/lighting.vs",
     nullptr,
     "./shaders/lighting.fs",
     {
       "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
       "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
       "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define SKELETAL\n",
     },
     { "shaders/lighted-shader-defines" }
   ),
-  mp_Skeletal_shadow("./skeletal/skeletal.vs", nullptr, "./shadow-maps/simple-depth.fs"),
+  mp_Skeletal_shadow(
+    "./shaders/lighting.vs",
+    nullptr,
+    "./shadow-maps/simple-depth.fs",
+    { "#define SKELETAL\n", "#define FRAG_POS\n" }
+  ),
   mp_Skeletal_cshadow(
-    "./skeletal/skeletal.vs", "./shadow-maps/cube-depth.gs", "./shadow-maps/cube-depth.fs"
+    "./shaders/lighting.vs",
+    "./shadow-maps/cube-depth.gs",
+    "./shadow-maps/cube-depth.fs",
+    { "#define SKELETAL\n", "#define FRAG_POS\n" }
   ),
   mpSkeletalNormalMap(
-    "./skeletal/skeletal.vs",
+    "./shaders/lighting.vs",
     nullptr,
     "./shaders/lighting.fs",
     {
       "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
       "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
       "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
-      "#define NORMAL_MAP\n",
+      "#define SKELETAL\n",
+      "#define IN_NORMAL_MAP\n",
     },
     { "shaders/lighted-shader-defines" }
   ),
@@ -67,7 +77,7 @@ Playground::Playground() :
       "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
       "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
       "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
-      "#define NORMAL_MAP\n",
+      "#define IN_NORMAL_MAP\n",
     },
     { "shaders/lighted-shader-defines" }
   ),
@@ -211,7 +221,7 @@ void Playground::setup()
   whipper.setModel(modelWhipper);
 
   glm::mat4 modelIcarus = glm::mat4(1.f);
-  modelIcarus = glm::translate(modelIcarus, glm::vec3(4.5f, 0.f, 0.f));
+  modelIcarus = glm::translate(modelIcarus, glm::vec3(3.f, 0.f, 0.f));
   modelIcarus = glm::scale(modelIcarus, glm::vec3(0.010f));
   icarus.setModel(modelIcarus);
 
@@ -325,7 +335,7 @@ void Playground::update(const float& time)
   dae.update(time);
   whipper.update(time);
   floor.update(time);
-  icarus.update(time);
+  // icarus.update(time);
 
   if (animatingPos || animatingDir) {
     return;
@@ -505,7 +515,7 @@ void Playground::renderScene(
   p_normal_map.setVec3fv("u_view_pos", view_pos);
 
   glm::mat4 modelBackpack = glm::mat4(1.f);
-  modelBackpack = glm::translate(modelBackpack, glm::vec3(3.f, 1.f, -3.5f));
+  modelBackpack = glm::translate(modelBackpack, glm::vec3(3.5f, 1.f, 0.f));
   // modelBackpack = glm::rotate(modelBackpack, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
   modelBackpack = glm::scale(modelBackpack, glm::vec3(0.2f));
   p_normal_map.setMat4fv("u_model", modelBackpack);

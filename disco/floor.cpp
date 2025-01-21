@@ -71,7 +71,7 @@ void Floor::setupBuffers()
   GLUtils::addVertexBuffer(mOffsetVBO, &offsets[0], sizeof(glm::vec3) * offsets.size(), { offset });
 
   GLUtils::VertexAttribPointer color = {
-    .location = LOCATIONS::ATTRIBS::FLOOR_COLORS,
+    .location = LOCATIONS::ATTRIBS::COLOR,
     .size = 4,
     .stride = sizeof(Color),
     .offset = (void*)0,

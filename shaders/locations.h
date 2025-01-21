@@ -11,14 +11,12 @@ const unsigned int POSITION = 0;
 const unsigned int NORMAL = 1;
 const unsigned int TEX_COORDS = 2;
 const unsigned int TANGENTS = 3;
-// 4 bitan
-
-// skeletal.vs
+const unsigned int COLOR = 4;
+// SKELETAL
 const unsigned int BONE_IDS = 5;
 const unsigned int BONE_WEIGHTS = 6;
 
 // floor.vs
-const unsigned int FLOOR_COLORS = 5;
 const unsigned int FLOOR_OFFSETS = 6;
 
 // lighting-instanced.vs
