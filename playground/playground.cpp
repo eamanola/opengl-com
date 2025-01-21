@@ -24,16 +24,13 @@ Playground::Playground() :
     { "shaders/lighted-shader-defines" }
   ),
   mp_Skeletal_shadow(
-    "./shaders/lighting.vs",
-    nullptr,
-    "./shadow-maps/simple-depth.fs",
-    { "#define SKELETAL\n", "#define FRAG_POS\n" }
+    "./shaders/lighting.vs", nullptr, "./shadow-maps/simple-depth.fs", { "#define SKELETAL\n" }
   ),
   mp_Skeletal_cshadow(
     "./shaders/lighting.vs",
     "./shadow-maps/cube-depth.gs",
     "./shadow-maps/cube-depth.fs",
-    { "#define SKELETAL\n", "#define FRAG_POS\n" }
+    { "#define SKELETAL\n" }
   ),
   mpSkeletalNormalMap(
     "./shaders/lighting.vs",
@@ -59,14 +56,9 @@ Playground::Playground() :
     },
     { "shaders/lighted-shader-defines" }
   ),
-  mp_Lighting_shadow(
-    "./shaders/lighting.vs", nullptr, "./shadow-maps/simple-depth.fs", { "#define FRAG_POS\n" }
-  ),
+  mp_Lighting_shadow("./shaders/lighting.vs", nullptr, "./shadow-maps/simple-depth.fs"),
   mp_Lighting_cshadow(
-    "./shaders/lighting.vs",
-    "./shadow-maps/cube-depth.gs",
-    "./shadow-maps/cube-depth.fs",
-    { "#define FRAG_POS\n" }
+    "./shaders/lighting.vs", "./shadow-maps/cube-depth.gs", "./shadow-maps/cube-depth.fs"
   ),
   simpleModel("assets/2b-jumps2/scene.gltf"),
   mpLightingNormalMap(
@@ -114,22 +106,13 @@ Playground::Playground() :
     { "shaders/lighted-shader-defines" }
   ),
   mp_Instanced_shadow(
-    "./shaders/lighting.vs",
-    nullptr,
-    "./shadow-maps/simple-depth.fs",
-    {
-      "#define INSTANCED\n",
-      "#define FRAG_POS\n",
-    }
+    "./shaders/lighting.vs", nullptr, "./shadow-maps/simple-depth.fs", { "#define INSTANCED\n" }
   ),
   mp_Instanced_cshadow(
     "./shaders/lighting.vs",
     "./shadow-maps/cube-depth.gs",
     "./shadow-maps/cube-depth.fs",
-    {
-      "#define INSTANCED\n",
-      "#define FRAG_POS\n",
-    }
+    { "#define INSTANCED\n" }
   ),
   mpSkybox("./playground/skybox/cube.vs", nullptr, "./playground/skybox/cube.fs"),
   mpReflectSkybox(

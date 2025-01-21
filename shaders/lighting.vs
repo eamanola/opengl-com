@@ -37,6 +37,24 @@ layout(packed) uniform ub_proj_x_view
   mat4 proj_x_view;
 };
 
+// Shadows dont need vsout, resulting in out vsout {} -> err
+#ifndef NORMAL_MAP
+#ifndef NORMAL
+#ifndef FRAG_POS
+#ifndef TEX_COORDS
+#ifndef IN_V_COLOR
+#ifndef ENABLE_DIR_SHADOWS
+#ifndef REMOVE_VS_OUT
+#define REMOVE_VS_OUT
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+#endif
+
+#ifndef REMOVE_VS_OUT
 out vsout
 {
 #ifdef NORMAL_MAP
@@ -63,6 +81,7 @@ out vsout
   vec4 light_space_frag_pos[IN_NR_DIR_LIGHTS];
 #endif
 } vs_out;
+#endif
 
 #ifdef SKELETAL
 const uint MAX_BONE_INFLUECE = 4u;
