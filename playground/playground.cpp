@@ -3,7 +3,7 @@
 
 // #define FOLLOW_WHIPPER
 
-#define NUM_DIR_LIGHTS 1
+#define NUM_DIR_LIGHTS 0
 #define NUM_POINT_LIGHTS 4
 #define NUM_SPOT_LIGHTS 1
 

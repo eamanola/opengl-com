@@ -27,7 +27,7 @@ uniform mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
 #endif
 
 #ifdef SKELETAL
-layout (location = 12) in vec4 in_bone_ids;
+layout (location = 12) in vec4 in_bone_ids; // TODO: why uvec4 breaks?
 layout (location = 13) in vec4 in_bone_weights;
 #endif
 
@@ -69,6 +69,10 @@ out vsout
   vec3 frag_pos;
 #endif
 
+#ifdef VIEW_DIR
+  vec3 view_dir;
+#endif
+
 #ifdef TEX_COORDS
   vec2 tex_coords;
 #endif
@@ -92,6 +96,10 @@ uniform mat4 u_bone_transforms[MAX_BONES];
 
 #ifdef ENABLE_DIR_SHADOWS
 uniform mat4 u_light_space[IN_NR_DIR_LIGHTS];
+#endif
+
+#ifdef VIEW_DIR
+uniform vec3 u_view_pos;
 #endif
 
 void main()
@@ -125,6 +133,10 @@ void main()
 
 #ifdef FRAG_POS
   vs_out.frag_pos = vec3(position);
+#endif
+
+#ifdef VIEW_DIR
+  vs_out.view_dir = normalize(u_view_pos - vs_out.frag_pos);
 #endif
 
 #ifdef TEX_COORDS

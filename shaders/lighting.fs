@@ -105,6 +105,10 @@ in vsout
   vec3 frag_pos;
 #endif
 
+#ifdef VIEW_DIR
+  vec3 view_dir;
+#endif
+
 #ifdef TEX_COORDS
   vec2 tex_coords;
 #endif
@@ -119,10 +123,6 @@ in vsout
 } fs_in;
 
 out vec4 f_color;
-
-#ifdef VIEW_DIR
-uniform vec3 u_view_pos;
-#endif
 
 #ifdef MATERIAL
 uniform Material u_material;
@@ -164,10 +164,6 @@ void main()
 #endif
 #endif
 
-#ifdef VIEW_DIR
-  vec3 viewDir = normalize(u_view_pos - fs_in.frag_pos);
-#endif
-
   // mat3x4 lightColor = mat3x4(vec4(vec3(0.0), 1.0), vec4(0.0), vec4(0.0));
   mat3x4 lightColor = mat3x4(0);
 
@@ -176,7 +172,7 @@ void main()
   {
     if(!u_dir_lights[i].light.off)
     {
-      mat3x4 lc = calcDirLight(u_dir_lights[i], normal, viewDir);
+      mat3x4 lc = calcDirLight(u_dir_lights[i], normal, fs_in.view_dir);
 
 #ifdef ENABLE_DIR_SHADOWS
       float shadow = calcShadow(fs_in.light_space_frag_pos[i], u_dir_shadow_maps[i]);
@@ -194,7 +190,7 @@ void main()
   {
     if(!u_point_lights[i].light.off)
     {
-      mat3x4 lc = calcPointLight(u_point_lights[i], normal, viewDir, fs_in.frag_pos);
+      mat3x4 lc = calcPointLight(u_point_lights[i], normal, fs_in.view_dir, fs_in.frag_pos);
 
 #ifdef ENABLE_CUBE_SHADOWS
       float shadow = calcShadow_cube(fs_in.frag_pos, u_point_lights[i].position, u_point_shadow_maps[i], normal);
@@ -212,7 +208,7 @@ void main()
   {
     if(!u_spot_lights[i].light.off)
     {
-      lightColor += calcSpotLight(u_spot_lights[i], normal, viewDir, fs_in.frag_pos);
+      lightColor += calcSpotLight(u_spot_lights[i], normal, fs_in.view_dir, fs_in.frag_pos);
     }
   }
 #endif

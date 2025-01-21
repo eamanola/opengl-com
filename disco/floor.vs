@@ -15,6 +15,7 @@ out vsout
 {
   vec3 normal;
   vec3 frag_pos;
+  vec3 view_dir;
   vec2 tex_coords;
   vec4 color;
 #ifdef ENABLE_DIR_SHADOWS
@@ -29,6 +30,8 @@ uniform mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
 uniform mat4 u_light_space[IN_NR_DIR_LIGHTS];
 #endif
 
+uniform vec3 u_view_pos;
+
 void main()
 {
   vec4 position = u_model * vec4(in_position + in_offset, 1.0);
@@ -36,6 +39,8 @@ void main()
   vs_out.normal = u_trans_inver_model * in_normal;
 
   vs_out.frag_pos = vec3(position);
+
+  vs_out.view_dir = normalize(u_view_pos - vs_out.frag_pos);
 
   vs_out.tex_coords = in_tex_coords;
 
