@@ -18,9 +18,17 @@ layout (location = 3) in vec3 in_tangent;
 layout (location = 4) in vec4 in_color;
 #endif
 
+#ifdef INSTANCED
+layout (location = 5) in mat4 u_model;
+layout (location = 9) in mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
+#else
+uniform mat4 u_model;
+uniform mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
+#endif
+
 #ifdef SKELETAL
-layout (location = 5) in vec4 in_bone_ids;
-layout (location = 6) in vec4 in_bone_weights;
+layout (location = 12) in vec4 in_bone_ids;
+layout (location = 13) in vec4 in_bone_weights;
 #endif
 
 // uniform mat4 u_proj_x_view;
@@ -50,16 +58,21 @@ out vsout
 #ifdef IN_V_COLOR
   vec4 color;
 #endif
-} vs_out;
 
-uniform mat4 u_model;
-uniform mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
+#ifdef ENABLE_DIR_SHADOWS
+  vec4 light_space_frag_pos[IN_NR_DIR_LIGHTS];
+#endif
+} vs_out;
 
 #ifdef SKELETAL
 const uint MAX_BONE_INFLUECE = 4u;
 const uint MAX_BONES = 100u;
 
 uniform mat4 u_bone_transforms[MAX_BONES];
+#endif
+
+#ifdef ENABLE_DIR_SHADOWS
+uniform mat4 u_light_space[IN_NR_DIR_LIGHTS];
 #endif
 
 void main()
@@ -101,6 +114,13 @@ void main()
 
 #ifdef IN_V_COLOR
   vs_out.color = in_color;
+#endif
+
+#ifdef ENABLE_DIR_SHADOWS
+  for(uint i = 0u; i < uint(IN_NR_DIR_LIGHTS); i++)
+  {
+    vs_out.light_space_frag_pos[i] = u_light_space[i] * position;
+  }
 #endif
 
   gl_Position = proj_x_view * position;

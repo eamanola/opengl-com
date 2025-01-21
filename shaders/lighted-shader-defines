@@ -76,8 +76,8 @@
 
 #ifdef IN_RENDER_SHADOWS
 #ifdef HAS_DIR_LIGHTS
-#ifndef ENABLE_SHADOWS
-#define ENABLE_SHADOWS
+#ifndef ENABLE_DIR_SHADOWS
+#define ENABLE_DIR_SHADOWS
 #endif
 #endif
 

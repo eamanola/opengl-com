@@ -80,7 +80,7 @@ mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPo
 float calcAttenuation(Attenuation attenuation, float distance);
 #endif
 
-#ifdef ENABLE_SHADOWS
+#ifdef ENABLE_DIR_SHADOWS
 float calcShadow(vec4 light_space_frag_pos, sampler2D shadowMap);
 #endif
 #ifdef ENABLE_CUBE_SHADOWS
@@ -113,7 +113,7 @@ in vsout
   vec4 color;
 #endif
 
-#ifdef ENABLE_SHADOWS
+#ifdef ENABLE_DIR_SHADOWS
   vec4 light_space_frag_pos[IN_NR_DIR_LIGHTS];
 #endif
 } fs_in;
@@ -128,7 +128,7 @@ uniform vec3 u_view_pos;
 uniform Material u_material;
 #endif
 
-#ifdef ENABLE_SHADOWS
+#ifdef ENABLE_DIR_SHADOWS
 uniform sampler2D u_dir_shadow_maps[IN_NR_DIR_LIGHTS];
 #endif
 #ifdef ENABLE_CUBE_SHADOWS
@@ -178,7 +178,7 @@ void main()
     {
       mat3x4 lc = calcDirLight(u_dir_lights[i], normal, viewDir);
 
-#ifdef ENABLE_SHADOWS
+#ifdef ENABLE_DIR_SHADOWS
       float shadow = calcShadow(fs_in.light_space_frag_pos[i], u_dir_shadow_maps[i]);
       lc[1] *= (1 - shadow);
       lc[2] *= (1 - shadow);
@@ -349,7 +349,7 @@ mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPo
 }
 #endif
 
-#ifdef ENABLE_SHADOWS
+#ifdef ENABLE_DIR_SHADOWS
   float simplePcf(vec3 projCoords, sampler2D shadowMap)
   {
     float shadow = 0.0;

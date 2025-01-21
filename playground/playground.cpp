@@ -101,28 +101,35 @@ Playground::Playground() :
   ),
   floor(25, 25),
   mpInstanced(
-    "./shaders/lighting-instanced.vs",
+    "./shaders/lighting.vs",
     nullptr,
     "./shaders/lighting.fs",
     {
       "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
       "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
       "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define INSTANCED\n",
       "#define IN_RENDER_SHADOWS\n",
     },
     { "shaders/lighted-shader-defines" }
   ),
   mp_Instanced_shadow(
-    "./shaders/lighting-instanced.vs",
+    "./shaders/lighting.vs",
     nullptr,
     "./shadow-maps/simple-depth.fs",
-    { "#define FRAG_POS\n" }
+    {
+      "#define INSTANCED\n",
+      "#define FRAG_POS\n",
+    }
   ),
   mp_Instanced_cshadow(
-    "./shaders/lighting-instanced.vs",
+    "./shaders/lighting.vs",
     "./shadow-maps/cube-depth.gs",
     "./shadow-maps/cube-depth.fs",
-    { "#define FRAG_POS\n" }
+    {
+      "#define INSTANCED\n",
+      "#define FRAG_POS\n",
+    }
   ),
   mpSkybox("./playground/skybox/cube.vs", nullptr, "./playground/skybox/cube.fs"),
   mpReflectSkybox(
@@ -148,10 +155,13 @@ Playground::Playground() :
 #endif
 #ifdef NORMALS_DEBUG
   mpNormals(
-    "./shaders/lighting-instanced.vs",
+    "./shaders/lighting.vs",
     "./shaders/draw-normals.gs",
     "./shaders/single-color.fs",
-    { "#define NORMAL\n" }
+    {
+      "#define INSTANCED\n",
+      "#define NORMAL\n",
+    }
   ),
 #endif
   lightingSettings(
