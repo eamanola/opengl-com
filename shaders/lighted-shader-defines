@@ -101,4 +101,7 @@
 #ifndef NORMAL_MAP
 #define NORMAL_MAP
 #endif
+#ifndef TBN
+#define TBN
+#endif
 #endif

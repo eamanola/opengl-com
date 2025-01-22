@@ -88,14 +88,15 @@ float calcShadow_cube(vec3 frag_pos, vec3 lightPos, samplerCube shadowMap, vec3 
 #endif
 
 #ifdef MATERIAL
-PhongColor calcMaterialColor(Material material);
+PhongColor calcMaterialColor(Material material, vec2 texCoords);
 #endif
+
+PhongColor calcColor(vec2 texCoords);
+PhongColor calcLight(vec3 normal);
 
 in vsout
 {
-#ifdef NORMAL_MAP
-  mat3 tbn;
-#else
+#ifndef NORMAL_MAP
 #ifdef NORMAL
   vec3 normal;
 #endif
@@ -119,6 +120,10 @@ in vsout
 
 #ifdef ENABLE_DIR_SHADOWS
   vec4 light_space_frag_pos[IN_NR_DIR_LIGHTS];
+#endif
+
+#ifdef TBN
+  mat3 tbn;
 #endif
 } fs_in;
 
@@ -154,17 +159,67 @@ layout(std140) uniform ub_lights
 
 void main()
 {
+  vec2 texCoords = fs_in.tex_coords;
+
+  // calc color
+  PhongColor color = calcColor(texCoords);
+  float alpha = color.diffuse.a;
+
+  if(alpha < 0.1)
+  {
+    discard;
+    return;
+  }
+
+  // calc normal
+  vec3 normal;
 #ifdef NORMAL_MAP
-  vec3 normal = texture(u_material.texture_normal1, fs_in.tex_coords).rgb;
+  normal = texture(u_material.texture_normal1, texCoords).rgb;
   normal = normal * 2.0 - 1.0;
   normal = normalize(fs_in.tbn * normal);
 #else
 #ifdef NORMAL
-  vec3 normal = normalize(fs_in.normal);
+  normal = normalize(fs_in.normal);
 #endif
+#endif
+  // #ifdef NORMAL_MAP
+  //   f_color = vec4(normal, 1.0) * 2 - 1;
+  //   return;
+  // #endif
+
+  // calc light
+  PhongColor lightColor = calcLight(normal);
+
+  // combine
+  vec4 ambient = lightColor.ambient * color.diffuse;
+  vec4 diffuse = lightColor.diffuse * color.diffuse;
+  vec4 specular = lightColor.specular * color.specular;
+
+  f_color = vec4(vec3(ambient + diffuse + specular), alpha);
+}
+
+
+PhongColor calcColor(vec2 texCoords)
+{
+  vec4 diffuseColor = vec4(0.0);
+  vec4 specularColor = vec4(0.0);
+
+#ifdef MATERIAL
+  PhongColor materialColor = calcMaterialColor(u_material, texCoords);
+  diffuseColor += materialColor.diffuse;
+  specularColor += materialColor.specular;
 #endif
 
-  // mat3x4 lightColor = mat3x4(vec4(vec3(0.0), 1.0), vec4(0.0), vec4(0.0));
+#ifdef IN_V_COLOR
+  diffuseColor += fs_in.color;
+  specularColor += fs_in.color;
+#endif
+
+  return PhongColor(vec4(0), diffuseColor, specularColor);
+}
+
+PhongColor calcLight(vec3 normal)
+{
   mat3x4 lightColor = mat3x4(0);
 
 #ifdef HAS_DIR_LIGHTS
@@ -213,58 +268,17 @@ void main()
   }
 #endif
 
-// #ifdef ENABLE_CUBE_SHADOWS
-//   for(int i = 0; i < IN_NR_POINT_LIGHTS; i++)
-//   {
-//     float shadow_inv_cube = 1 - calcShadow_cube(fs_in.frag_pos, u_point_lights[i].position, u_point_shadow_maps[i], normal);
-//     lightColor[1] *= shadow_inv_cube;
-//     lightColor[2] *= shadow_inv_cube;
-//   }
-// #endif
-
-vec4 diffuseColor = vec4(0.0);
-vec4 specularColor = vec4(0.0);
-
-#ifdef MATERIAL
-  PhongColor materialColor = calcMaterialColor(u_material);
-  diffuseColor += materialColor.diffuse;
-  specularColor += materialColor.specular;
-#endif
-
-#ifdef IN_V_COLOR
-  diffuseColor += fs_in.color;
-  specularColor += fs_in.color;
-#endif
-
-  vec4 ambient = lightColor[0] * diffuseColor;
-  vec4 diffuse = lightColor[1] * diffuseColor;
-  vec4 specular = lightColor[2] * specularColor;
-
-  vec4 color = vec4(vec3(ambient + diffuse + specular), diffuseColor.a);
-
-  if(color.a < 0.1)
-  {
-    discard;
-    return;
-  }
-
-  // #ifdef NORMAL_MAP
-  //   // f_color = vec4(fs_in.normal, 1.0) * 2 - vec4(1.0, 1.0, 1.0, 1.0);
-  //   f_color = vec4(normal, 1.0) * 2 - vec4(1.0, 1.0, 1.0, 1.0);
-  //   return;
-  // #endif
-
-  f_color = color;
+  return PhongColor(lightColor[0], lightColor[1], lightColor[2]);
 }
 
 #ifdef MATERIAL
-PhongColor calcMaterialColor(Material material)
+PhongColor calcMaterialColor(Material material, vec2 texCoords)
 {
-  vec4 diffuseColor = vec4(texture(u_material.texture_diffuse1, fs_in.tex_coords));
-  vec4 specularColor = vec4(texture(u_material.texture_specular1, fs_in.tex_coords));
+  vec4 diffuseColor = vec4(texture(material.texture_diffuse1, texCoords));
+  vec4 specularColor = vec4(texture(material.texture_specular1, texCoords));
 
-  diffuseColor += u_material.diffuse_color;
-  specularColor += u_material.specular_color;
+  diffuseColor += material.diffuse_color;
+  specularColor += material.specular_color;
 
   return PhongColor(vec4(0), diffuseColor, specularColor);
 }

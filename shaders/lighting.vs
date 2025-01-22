@@ -57,9 +57,7 @@ layout(packed) uniform ub_proj_x_view
 #ifndef REMOVE_VS_OUT
 out vsout
 {
-#ifdef NORMAL_MAP
-  mat3 tbn;
-#else
+#ifndef NORMAL_MAP
 #ifdef NORMAL
   vec3 normal;
 #endif
@@ -83,6 +81,10 @@ out vsout
 
 #ifdef ENABLE_DIR_SHADOWS
   vec4 light_space_frag_pos[IN_NR_DIR_LIGHTS];
+#endif
+
+#ifdef TBN
+  mat3 tbn;
 #endif
 } vs_out;
 #endif
@@ -118,14 +120,16 @@ void main()
 
   vec4 position = model * vec4(in_position, 1.0);
 
-#ifdef NORMAL_MAP
+#ifdef TBN
   vec3 t_tangent = normalize(trans_inver_model * in_tangent);
   vec3 t_normal = normalize(trans_inver_model * in_normal);
   vec3 t_tan_ortho = normalize(t_tangent - dot(t_tangent, t_normal) * t_normal);
   vec3 t_bitan = cross(t_normal, t_tan_ortho);
 
   vs_out.tbn = mat3(t_tangent, t_bitan, t_normal);
-#else
+#endif
+
+#ifndef NORMAL_MAP
   #ifdef NORMAL
   vs_out.normal = trans_inver_model * in_normal;
   #endif

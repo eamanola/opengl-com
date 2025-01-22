@@ -27,14 +27,16 @@ const unsigned int FLOOR_OFFSETS = 14;
 
 namespace TEXTURES
 {
-const unsigned int DEFAULT = 0;
-const unsigned int MATERIAL0 = 1; // diffuse, specular & normal
-const unsigned int MATERIAL1 = 2;
-const unsigned int MATERIAL2 = 3;
-const unsigned int DEBUG = 4;
-const unsigned int SKYBOX = 5;
-const unsigned int SKYBOX_REFLECTOR = 6;
-const unsigned int SHADOWMAPS0 = 7; // varying number
+unsigned int texture0 = 0;
+const unsigned int DEFAULT = texture0++;
+const unsigned int MATERIAL0 = texture0++; // diffuse, specular, normal, height
+const unsigned int MATERIAL1 = texture0++;
+const unsigned int MATERIAL2 = texture0++;
+const unsigned int MATERIAL3 = texture0++;
+const unsigned int DEBUG = texture0++;
+const unsigned int SKYBOX = texture0++;
+const unsigned int SKYBOX_REFLECTOR = texture0++;
+const unsigned int SHADOWMAPS0 = texture0++; // varying number
 } // namespace TEXTURES
 
 } // namespace LOCATIONS
