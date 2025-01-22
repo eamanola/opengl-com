@@ -95,13 +95,28 @@
 #endif
 
 #ifdef IN_NORMAL_MAP
-#ifndef TANGENT
-#define TANGENT
-#endif
 #ifndef NORMAL_MAP
 #define NORMAL_MAP
 #endif
 #ifndef TBN
 #define TBN
+#endif
+#endif
+
+#ifdef IN_HEIGHT_MAP
+#ifndef HEIGHT_MAP
+#define HEIGHT_MAP
+#endif
+#ifndef TBN
+#define TBN
+#endif
+#ifndef VIEW_DIR
+#define VIEW_DIR
+#endif
+#endif
+
+#ifdef TBN
+#ifndef TANGENT
+#define TANGENT
 #endif
 #endif

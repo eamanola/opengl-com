@@ -7,6 +7,9 @@ struct Material {
 #ifdef NORMAL_MAP
   sampler2D texture_normal1;
 #endif
+#ifdef HEIGHT_MAP
+  sampler2D texture_height1;
+#endif
   vec4      diffuse_color;
   vec4      specular_color;
   float     shininess;
@@ -94,6 +97,10 @@ PhongColor calcMaterialColor(Material material, vec2 texCoords);
 PhongColor calcColor(vec2 texCoords);
 PhongColor calcLight(vec3 normal);
 
+#ifdef HEIGHT_MAP
+vec2 parallax(vec2 texCoords, vec3 tan_view_dir);
+#endif
+
 in vsout
 {
 #ifndef NORMAL_MAP
@@ -122,8 +129,12 @@ in vsout
   vec4 light_space_frag_pos[IN_NR_DIR_LIGHTS];
 #endif
 
-#ifdef TBN
+#ifdef NORMAL_MAP
   mat3 tbn;
+#endif
+
+#ifdef HEIGHT_MAP
+  vec3 tan_view_dir;
 #endif
 } fs_in;
 
@@ -139,6 +150,10 @@ uniform sampler2D u_dir_shadow_maps[IN_NR_DIR_LIGHTS];
 #ifdef ENABLE_CUBE_SHADOWS
 uniform samplerCube u_point_shadow_maps[IN_NR_POINT_LIGHTS];
 uniform float u_far;
+#endif
+
+#ifdef HEIGHT_MAP
+uniform float u_height_scale;
 #endif
 
 layout(std140) uniform ub_lights
@@ -160,6 +175,15 @@ layout(std140) uniform ub_lights
 void main()
 {
   vec2 texCoords = fs_in.tex_coords;
+
+  #ifdef HEIGHT_MAP
+  texCoords = parallax(texCoords, fs_in.tan_view_dir);
+  if(texCoords.x < 0.0 || texCoords.x > 1.0 || texCoords.y < 0.0 || texCoords.y > 1.0)
+  {
+    discard;
+    return;
+  }
+  #endif
 
   // calc color
   PhongColor color = calcColor(texCoords);
@@ -197,7 +221,6 @@ void main()
 
   f_color = vec4(vec3(ambient + diffuse + specular), alpha);
 }
-
 
 PhongColor calcColor(vec2 texCoords)
 {
@@ -270,6 +293,58 @@ PhongColor calcLight(vec3 normal)
 
   return PhongColor(lightColor[0], lightColor[1], lightColor[2]);
 }
+
+#ifdef HEIGHT_MAP
+vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
+{
+  const float minSteps = 8.0;
+  const float maxSteps = 32.0;
+  float numSteps = mix(maxSteps, minSteps, max(dot(vec3(0.0, 0.0, 1.0), tan_view_dir), 0.0));
+
+  float step = 1.0 / numSteps;
+
+  vec2 offsetLimit = tan_view_dir.xy / tan_view_dir.z;
+  vec2 p = offsetLimit * u_height_scale;
+  vec2 deltaTex = p / numSteps;
+
+  vec2 tex = texCoords;
+  float height = texture(u_material.texture_height1, tex).r;
+  float current = 0.0;
+
+  while(current < height) {
+    tex -= deltaTex;
+    height = texture(u_material.texture_height1, tex).r;
+    current += step;
+  }
+
+  // Parallax Occlusion
+  vec2 prevTex = tex + deltaTex;
+
+  float after = height - current;
+  float before = texture(u_material.texture_height1, prevTex).r - current + step;
+
+  float weight = after / (after - before);
+  vec2 occulated = prevTex * weight + tex * (1 - weight);
+
+  return occulated;
+}
+
+vec2 parallax(vec2 texCoords, vec3 tan_view_dir)
+{
+  return steepParallax(texCoords, tan_view_dir);
+  // // adjust height depending on view angle, 0 perpendicular, 1 parallel
+  // vec2 offsetLimit = tan_view_dir.xy / tan_view_dir.z;
+
+  // // extra control
+  // const float height_scale = 0.1;
+
+  // float height = texture(u_material.texture_height1, texCoords).r;
+
+  // vec2 p = offsetLimit * height * height_scale;
+
+  // return texCoords - p;
+}
+#endif
 
 #ifdef MATERIAL
 PhongColor calcMaterialColor(Material material, vec2 texCoords)

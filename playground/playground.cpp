@@ -61,7 +61,7 @@ Playground::Playground() :
     "./shaders/lighting.vs", "./shadow-maps/cube-depth.gs", "./shadow-maps/cube-depth.fs"
   ),
   simpleModel("assets/2b-jumps2/scene.gltf"),
-  mpLightingNormalMap(
+  mpLightingNormalHeightMap(
     "./shaders/lighting.vs",
     nullptr,
     "./shaders/lighting.fs",
@@ -70,10 +70,10 @@ Playground::Playground() :
       "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
       "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
       "#define IN_NORMAL_MAP\n",
+      "#define IN_HEIGHT_MAP\n",
     },
     { "shaders/lighted-shader-defines" }
   ),
-  backpack("assets/backpack/backpack.obj"),
   mpFloor(
     "./disco/floor.vs",
     nullptr,
@@ -149,7 +149,12 @@ Playground::Playground() :
 #endif
   lightingSettings(
     1,
-    { mpSkeletal, mpSkeletalNormalMap, mpLighting, mpLightingNormalMap, mpFloor, mpInstanced },
+    { mpSkeletal,
+      mpSkeletalNormalMap,
+      mpLighting,
+      mpLightingNormalHeightMap,
+      mpFloor,
+      mpInstanced },
     NUM_DIR_LIGHTS,
     NUM_POINT_LIGHTS,
     NUM_SPOT_LIGHTS
@@ -163,7 +168,7 @@ Playground::Playground() :
       mp_Skeletal_cshadow,
       mpSkeletalNormalMap,
       mpLighting,
-      mpLightingNormalMap,
+      mpLightingNormalHeightMap,
       mp_Lighting_shadow,
       mp_Lighting_cshadow,
       mpFloor,
@@ -234,6 +239,9 @@ void Playground::setup()
 
   window.setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, -1.f)));
 
+  wall.setModel(glm::translate(glm::mat4(1.f), glm::vec3(4.f, 1.f, 0.f)));
+  toy.setModel(glm::translate(glm::mat4(1.f), glm::vec3(4.f, 2.f, 0.f)));
+
   glm::vec3 cameraPos = glm::vec3(0.f, 1.f, 8.f);
   glm::vec3 pointTo = glm::vec3(0.f, 1.f, 0.f);
 
@@ -269,8 +277,9 @@ void Playground::setup()
   mpLighting.use();
   mpLighting.setFloat("u_material.shininess", SHININESS);
 
-  mpLightingNormalMap.use();
-  mpLightingNormalMap.setFloat("u_material.shininess", SHININESS);
+  mpLightingNormalHeightMap.use();
+  mpLightingNormalHeightMap.setFloat("u_material.shininess", SHININESS);
+  mpLightingNormalHeightMap.setFloat("u_height_scale", 0.15);
 
   mpFloor.use();
   mpFloor.setFloat("u_material.shininess", SHININESS);
@@ -380,8 +389,10 @@ void Playground::render(const Camera& camera) const
   const Shader* p_plain = nullptr;
 #endif
   const Shader* shaders[] = {
-    &mpSkeletal, &mpLighting,      &mpFloor,  &mpInstanced,         p_plain,
-    p_normals,   &mpReflectSkybox, &mpSkybox, &mpLightingNormalMap, &mpSkeletalNormalMap,
+    &mpSkeletal,          &mpLighting, &mpFloor,
+    &mpInstanced,         p_plain,     p_normals,
+    &mpReflectSkybox,     &mpSkybox,   &mpLightingNormalHeightMap,
+    &mpSkeletalNormalMap,
   };
 
   renderScene(camera.projection(), camera.view(), camera.position(), camera.front(), shaders);
@@ -506,16 +517,8 @@ void Playground::renderScene(
 
   p_normal_map.use();
   p_normal_map.setVec3fv("u_view_pos", view_pos);
-
-  glm::mat4 modelBackpack = glm::mat4(1.f);
-  modelBackpack = glm::translate(modelBackpack, glm::vec3(3.5f, 1.f, 0.f));
-  // modelBackpack = glm::rotate(modelBackpack, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
-  modelBackpack = glm::scale(modelBackpack, glm::vec3(0.2f));
-  p_normal_map.setMat4fv("u_model", modelBackpack);
-  p_normal_map.setMat3fv(
-    "u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(modelBackpack)))
-  );
-  backpack.draw(p_normal_map);
+  wall.render(p_normal_map);
+  toy.render(p_normal_map);
 
   p_instanced.use();
   p_instanced.setVec3fv("u_view_pos", view_pos);
@@ -585,8 +588,9 @@ void Playground::teardown()
   window.free();
   mirror.free();
 
-  mpLightingNormalMap.free();
-  backpack.free();
+  mpLightingNormalHeightMap.free();
+  wall.free();
+  toy.free();
 
   mpFloor.free();
   mp_Floor_shadow.free();

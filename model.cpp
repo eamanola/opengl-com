@@ -121,7 +121,7 @@ Texture Model::loadTexture(const aiScene* scene, const aiTextureType& aiType, co
     type = TEXTURE_TYPE_NORMALS;
     break;
   case aiTextureType_HEIGHT:
-    type = TEXTURE_TYPE_NORMALS;
+    type = TEXTURE_TYPE_HEIGHT;
     break;
 
   default:

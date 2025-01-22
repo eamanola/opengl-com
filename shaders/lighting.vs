@@ -83,8 +83,12 @@ out vsout
   vec4 light_space_frag_pos[IN_NR_DIR_LIGHTS];
 #endif
 
-#ifdef TBN
+#ifdef NORMAL_MAP
   mat3 tbn;
+#endif
+
+#ifdef HEIGHT_MAP
+  vec3 tan_view_dir;
 #endif
 } vs_out;
 #endif
@@ -120,15 +124,6 @@ void main()
 
   vec4 position = model * vec4(in_position, 1.0);
 
-#ifdef TBN
-  vec3 t_tangent = normalize(trans_inver_model * in_tangent);
-  vec3 t_normal = normalize(trans_inver_model * in_normal);
-  vec3 t_tan_ortho = normalize(t_tangent - dot(t_tangent, t_normal) * t_normal);
-  vec3 t_bitan = cross(t_normal, t_tan_ortho);
-
-  vs_out.tbn = mat3(t_tangent, t_bitan, t_normal);
-#endif
-
 #ifndef NORMAL_MAP
   #ifdef NORMAL
   vs_out.normal = trans_inver_model * in_normal;
@@ -156,6 +151,23 @@ void main()
   {
     vs_out.light_space_frag_pos[i] = u_light_space[i] * position;
   }
+#endif
+
+#ifdef TBN
+  vec3 t_tangent = normalize(trans_inver_model * in_tangent);
+  vec3 t_normal = normalize(trans_inver_model * in_normal);
+  vec3 t_tan_ortho = normalize(t_tangent - dot(t_tangent, t_normal) * t_normal);
+  vec3 t_bitan = cross(t_normal, t_tan_ortho);
+
+  mat3 tbn = mat3(t_tangent, t_bitan, t_normal);
+#endif
+
+#ifdef NORMAL_MAP
+  vs_out.tbn = tbn;
+#endif
+
+#ifdef HEIGHT_MAP
+  vs_out.tan_view_dir = normalize(transpose(tbn) * vs_out.view_dir);
 #endif
 
   gl_Position = proj_x_view * position;

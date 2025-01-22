@@ -25,6 +25,8 @@
 #include "shadow-maps/shadow-maps.h"
 #include "skybox/skybox-reflector.h"
 #include "skybox/skybox.h"
+#include "toy.h"
+#include "wall.h"
 #include "window.h"
 
 class Playground : public Scene
@@ -78,8 +80,9 @@ private:
   Window window;
   Mirror mirror;
 
-  Shader mpLightingNormalMap;
-  Model backpack;
+  Shader mpLightingNormalHeightMap;
+  Wall wall;
+  Toy toy;
 
   Shader mpFloor;
   Shader mp_Floor_shadow;
