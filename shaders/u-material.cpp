@@ -5,11 +5,12 @@ using namespace Lighting;
 
 void u_material::bindTextures(const Shader& shader, const Texture* textures, const unsigned int len)
 {
-  assert(len <= 4); // add more LOCATION::TEXTURE spots if fail
+  assert(len <= 5); // add more LOCATION::TEXTURE spots if fail
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
   unsigned int normalNr = 1;
   unsigned int heightNr = 1;
+  unsigned int emissiveNr = 1;
 
   for (unsigned int i = 0; i < len; i++) {
     std::string number;
@@ -27,6 +28,9 @@ void u_material::bindTextures(const Shader& shader, const Texture* textures, con
     } else if (type == TEXTURE_TYPE_HEIGHT) {
       number = std::to_string(heightNr++);
       name = "texture_height";
+    } else if (type == TEXTURE_TYPE_EMISSIVE) {
+      number = std::to_string(emissiveNr++);
+      name = "texture_emissive";
     } else {
       assert(false);
     }
@@ -40,6 +44,7 @@ void u_material::bindTextures(const Shader& shader, const Texture* textures, con
   assert(specularNr <= 2);
   assert(normalNr <= 2);
   assert(heightNr <= 2);
+  assert(emissiveNr <= 2);
 }
 
 void u_material::bindTexture(const Shader& shader, const Texture* texture)
@@ -63,6 +68,7 @@ void u_material::unbindTextures(
     shader.setInt("u_material.texture_specular1", 0);
     shader.setInt("u_material.texture_normal1", 0);
     shader.setInt("u_material.texture_height1", 0);
+    shader.setInt("u_material.texture_emissive1", 0);
   }
 }
 

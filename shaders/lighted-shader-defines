@@ -68,12 +68,6 @@
 #endif
 #endif
 
-#ifdef VIEW_DIR
-#ifndef FRAG_POS
-#define FRAG_POS
-#endif
-#endif
-
 #ifdef IN_RENDER_SHADOWS
 #ifdef HAS_DIR_LIGHTS
 #ifndef ENABLE_DIR_SHADOWS
@@ -88,18 +82,15 @@
 #endif
 #endif
 
-#ifdef MATERIAL
-#ifndef TEX_COORDS
-#define TEX_COORDS
-#endif
-#endif
-
 #ifdef IN_NORMAL_MAP
 #ifndef NORMAL_MAP
 #define NORMAL_MAP
 #endif
 #ifndef TBN
 #define TBN
+#endif
+#ifndef MATERIAL
+#define MATERIAL
 #endif
 #endif
 
@@ -113,10 +104,25 @@
 #ifndef VIEW_DIR
 #define VIEW_DIR
 #endif
+#ifndef MATERIAL
+#define MATERIAL
+#endif
 #endif
 
 #ifdef TBN
 #ifndef TANGENT
 #define TANGENT
+#endif
+#endif
+
+#ifdef MATERIAL
+#ifndef TEX_COORDS
+#define TEX_COORDS
+#endif
+#endif
+
+#ifdef VIEW_DIR
+#ifndef FRAG_POS
+#define FRAG_POS
 #endif
 #endif

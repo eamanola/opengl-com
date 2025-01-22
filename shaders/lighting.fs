@@ -4,6 +4,7 @@
 struct Material {
   sampler2D texture_diffuse1;
   sampler2D texture_specular1;
+  sampler2D texture_emissive1;
 #ifdef NORMAL_MAP
   sampler2D texture_normal1;
 #endif
@@ -219,7 +220,12 @@ void main()
   vec4 diffuse = lightColor.diffuse * color.diffuse;
   vec4 specular = lightColor.specular * color.specular;
 
-  f_color = vec4(vec3(ambient + diffuse + specular), alpha);
+  vec4 emissive;
+  #ifdef MATERIAL
+  emissive = texture(u_material.texture_emissive1, texCoords);
+  #endif
+
+  f_color = vec4(vec3(ambient + diffuse + specular + emissive), alpha);
 }
 
 PhongColor calcColor(vec2 texCoords)

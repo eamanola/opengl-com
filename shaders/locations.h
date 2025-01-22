@@ -28,14 +28,15 @@ const unsigned int FLOOR_OFFSETS = 14;
 namespace TEXTURES
 {
 const unsigned int DEFAULT = 0;
-const unsigned int MATERIAL0 = 1; // diffuse, specular, normal, height
+const unsigned int MATERIAL0 = 1; // diffuse, specular, normal, height, emissive
 const unsigned int MATERIAL1 = 2;
 const unsigned int MATERIAL2 = 3;
 const unsigned int MATERIAL3 = 4;
-const unsigned int DEBUG = 5;
-const unsigned int SKYBOX = 6;
-const unsigned int SKYBOX_REFLECTOR = 7;
-const unsigned int SHADOWMAPS0 = 8; // varying number
+const unsigned int MATERIAL4 = 5;
+const unsigned int DEBUG = 6;
+const unsigned int SKYBOX = 7;
+const unsigned int SKYBOX_REFLECTOR = 8;
+const unsigned int SHADOWMAPS0 = 9; // varying number
 } // namespace TEXTURES
 
 } // namespace LOCATIONS

@@ -43,12 +43,14 @@ void Model::processScene(const aiScene* scene)
       std::vector<std::string> sMaps = loadMaterialTextures(scene, mesh, aiTextureType_SPECULAR);
       textures.insert(textures.end(), sMaps.begin(), sMaps.end());
 
-      // obj normals
       std::vector<std::string> hMaps = loadMaterialTextures(scene, mesh, aiTextureType_HEIGHT);
       textures.insert(textures.end(), hMaps.begin(), hMaps.end());
 
       std::vector<std::string> nMaps = loadMaterialTextures(scene, mesh, aiTextureType_NORMALS);
       textures.insert(textures.end(), nMaps.begin(), nMaps.end());
+
+      std::vector<std::string> eMaps = loadMaterialTextures(scene, mesh, aiTextureType_EMISSIVE);
+      textures.insert(textures.end(), eMaps.begin(), eMaps.end());
 
       mMeshTextureMap.push_back(textures);
     }
@@ -122,6 +124,9 @@ Texture Model::loadTexture(const aiScene* scene, const aiTextureType& aiType, co
     break;
   case aiTextureType_HEIGHT:
     type = TEXTURE_TYPE_HEIGHT;
+    break;
+  case aiTextureType_EMISSIVE:
+    type = TEXTURE_TYPE_EMISSIVE;
     break;
 
   default:
