@@ -129,7 +129,7 @@ private:
 
   ub_proj_x_view proj_x_view_ub;
 
-// #define POST_PROCESS
+#define POST_PROCESS
 #ifdef POST_PROCESS
   Shader mPostProcess;
   DrawTexture mDrawTexture;

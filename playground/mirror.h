@@ -12,7 +12,7 @@
 class Mirror : public Renderable
 {
 public:
-  Mirror(const float width, const float height, const unsigned int samples);
+  Mirror(const unsigned int samples, const std::size_t width, const std::size_t height);
   ~Mirror() { }
 
   void screenshot(const Scene& scene, const glm::vec3& positionOffset) const;

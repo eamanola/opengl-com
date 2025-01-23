@@ -1,24 +1,46 @@
 #include "render-buffer.h"
 
 #include "gl-utils/gl-utils.h"
+#include <cassert>
 
-RenderBuffer::RenderBuffer(unsigned int width, unsigned int height, unsigned int samples) :
+RenderBuffer::RenderBuffer(
+  unsigned int samples, Format internal, const std::size_t width, const std::size_t height
+) :
   mTexture(Texture { .type = TEXTURE_TYPE_DIFFUSE }), mWidth(width), mHeight(height)
 {
+  GLenum format;
+  GLenum type;
+
+  switch (internal) {
+  case RGB:
+    format = GL_RGB;
+    type = GL_UNSIGNED_BYTE;
+    break;
+
+  case RGBA16F:
+    format = GL_RGBA;
+    type = GL_FLOAT;
+    break;
+
+  default:
+    assert(false);
+    break;
+  }
+
   if (samples > 1) {
     // multisampled framebuffer
     // no output format&type in multisample
     GLUtils::Framebuffer::createFramebufferTexture2D(
-      mFBO, &mTexI, &mRBO, samples, GL_RGB, width, height, GL_NONE, GL_NONE
+      mFBO, &mTexI, &mRBO, samples, internal, width, height, GL_NONE, GL_NONE
     );
 
     // framebuffer to downscale/relove to, for drawing
     GLUtils::Framebuffer::createFramebufferTexture2D(
-      mFBOI, &mTexture.id, nullptr, 1, GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE
+      mFBOI, &mTexture.id, nullptr, 1, internal, width, height, format, type
     );
   } else {
     GLUtils::Framebuffer::createFramebufferTexture2D(
-      mFBO, &mTexture.id, &mRBO, 1, GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE
+      mFBO, &mTexture.id, &mRBO, 1, internal, width, height, format, type
     );
 
     mFBOI = 0;

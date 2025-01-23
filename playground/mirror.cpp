@@ -5,16 +5,16 @@
 #include <glad/gl.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-Mirror::Mirror(const float width, const float height, const unsigned int samples) :
+Mirror::Mirror(const unsigned int samples, const std::size_t width, const std::size_t height) :
   mNormal(glm::normalize(glm::vec3(0.f, 0.f, 1.f))),
   mMesh(
     // clang-format off
     std::vector<Vertex> ({
       // mirrored .texCoords.x
-      { .position = { -2.5f, -2.5f * height / width, 0.f }, .normal = mNormal, .texCoords = { 1.f, 0.f } },
-      { .position = {  2.5f, -2.5f * height / width, 0.f }, .normal = mNormal, .texCoords = { 0.f, 0.f } },
-      { .position = {  2.5f,  2.5f * height / width, 0.f }, .normal = mNormal, .texCoords = { 0.f, 1.f } },
-      { .position = { -2.5f,  2.5f * height / width, 0.f }, .normal = mNormal, .texCoords = { 1.f, 1.f } },
+      { .position = { -2.5f, -2.5f * (float)height / (float)width, 0.f }, .normal = mNormal, .texCoords = { 1.f, 0.f } },
+      { .position = {  2.5f, -2.5f * (float)height / (float)width, 0.f }, .normal = mNormal, .texCoords = { 0.f, 0.f } },
+      { .position = {  2.5f,  2.5f * (float)height / (float)width, 0.f }, .normal = mNormal, .texCoords = { 0.f, 1.f } },
+      { .position = { -2.5f,  2.5f * (float)height / (float)width, 0.f }, .normal = mNormal, .texCoords = { 1.f, 1.f } },
     }),
     std::vector<unsigned int> ({
       0, 1, 2,
@@ -22,7 +22,7 @@ Mirror::Mirror(const float width, const float height, const unsigned int samples
     })
     // clang-format on
   ),
-  mRenderBuffer(width, height, samples)
+  mRenderBuffer(samples, RenderBuffer::Format::RGB, width, height)
 {
 }
 

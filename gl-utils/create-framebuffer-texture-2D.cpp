@@ -6,8 +6,8 @@ bool GLUtils_Framebuffer_addColorAttachment(
   GLenum attachement,
   const unsigned int samples,
   GLenum internal,
-  const float width,
-  const float height,
+  const std::size_t width,
+  const std::size_t height,
   GLenum format,
   GLenum type
 )
@@ -42,7 +42,10 @@ bool GLUtils_Framebuffer_addColorAttachment(
 }
 
 bool GLUtils_Framebuffer_addDepthStencilAttachment(
-  unsigned int& outRBO, const unsigned int samples, const float width, const float height
+  unsigned int& outRBO,
+  const unsigned int samples,
+  const std::size_t width,
+  const std::size_t height
 )
 {
   unsigned int RBO;
@@ -72,8 +75,8 @@ bool GLUtils::Framebuffer::createFramebufferTexture2D(
   unsigned int* outRBO,
   const unsigned int samples,
   GLenum internal,
-  const float width,
-  const float height,
+  const std::size_t width,
+  const std::size_t height,
   GLenum format,
   GLenum type
 )

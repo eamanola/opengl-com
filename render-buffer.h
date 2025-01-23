@@ -2,11 +2,19 @@
 #define RENDER_BUFFER_H
 
 #include "texture.h"
+#include <glad/gl.h>
 
 class RenderBuffer
 {
 public:
-  RenderBuffer(unsigned int width, unsigned int height, unsigned int samples);
+  enum Format {
+    RGB = GL_RGB,
+    RGBA16F = GL_RGBA16F,
+  };
+
+  RenderBuffer(
+    unsigned int samples, Format internal, const std::size_t width, const std::size_t height
+  );
   ~RenderBuffer() { }
   void free() const;
   void blit() const;
@@ -19,8 +27,8 @@ private:
   unsigned int mRBO;
 
   Texture mTexture;
-  const float mWidth;
-  const float mHeight;
+  const std::size_t mWidth;
+  const std::size_t mHeight;
 
   unsigned int mFBOI;
   unsigned int mTexI;

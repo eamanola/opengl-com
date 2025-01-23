@@ -62,7 +62,7 @@ Playground::Playground() :
     "./shaders/lighting.vs", "./shadow-maps/cube-depth.gs", "./shadow-maps/cube-depth.fs"
   ),
   simpleModel("assets/2b-jumps2/scene.gltf"),
-  mirror(800.f, 600.f, SAMPLES),
+  mirror(SAMPLES, 800, 600),
   mpLightingNormalHeightMap(
     "./shaders/lighting.vs",
     nullptr,
@@ -194,8 +194,8 @@ Playground::Playground() :
     }
   ),
 #ifdef POST_PROCESS
-  mPostProcess("./shaders/postprocess/plain.vert", nullptr, "./shaders/postprocess/plain.frag"),
-  mRBuffer(800, 600, SAMPLES),
+  mPostProcess("./shaders/postprocess/plain.vert", nullptr, "./shaders/postprocess/hdr.frag"),
+  mRBuffer(SAMPLES, RenderBuffer::Format::RGBA16F, 800, 600),
 #endif
   mShadows(NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS)
 {

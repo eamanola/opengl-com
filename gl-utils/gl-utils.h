@@ -17,8 +17,8 @@ bool createFramebufferTexture2D(
   unsigned int* outRBO,
   const unsigned int samples,
   GLenum internal,
-  const float width,
-  const float height,
+  const std::size_t width,
+  const std::size_t height,
   GLenum format,
   GLenum type
 );
