@@ -11,10 +11,6 @@
 namespace Utils
 {
 
-void screenshot(
-  const Scene& scene, const unsigned& FBO, const glm::vec3& position, const glm::vec3& normal
-);
-
 std::string readFile(const char* path);
 
 std::string shaderSource(

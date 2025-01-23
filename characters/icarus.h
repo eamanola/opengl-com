@@ -7,6 +7,7 @@ class Icarus : public Character
 {
 public:
   Icarus() : Character("assets/robo/scene.gltf") { }
+  // Icarus() : Character("assets/drone/scene.gltf") { }
   ~Icarus() { }
 };
 

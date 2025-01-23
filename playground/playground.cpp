@@ -3,12 +3,13 @@
 
 // #define FOLLOW_WHIPPER
 
-#define NUM_DIR_LIGHTS 0
+#define NUM_DIR_LIGHTS 1
 #define NUM_POINT_LIGHTS 4
 #define NUM_SPOT_LIGHTS 1
 
 #define DIR_LIGHT_DISTANCE 3.f
 #define CUBE_FAR 15.f
+#define SAMPLES 4
 
 Playground::Playground() :
   mpSkeletal(
@@ -61,6 +62,7 @@ Playground::Playground() :
     "./shaders/lighting.vs", "./shadow-maps/cube-depth.gs", "./shadow-maps/cube-depth.fs"
   ),
   simpleModel("assets/2b-jumps2/scene.gltf"),
+  mirror(800.f, 600.f, SAMPLES),
   mpLightingNormalHeightMap(
     "./shaders/lighting.vs",
     nullptr,
@@ -220,6 +222,9 @@ void Playground::setup()
 
   glm::mat4 modelIcarus = glm::mat4(1.f);
   modelIcarus = glm::translate(modelIcarus, glm::vec3(3.f, 0.f, 0.f));
+
+  // modelIcarus = glm::translate(modelIcarus, glm::vec3(3.f, 0.5f, 0.f));
+  // modelIcarus = glm::rotate(modelIcarus, glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
   modelIcarus = glm::scale(modelIcarus, glm::vec3(0.010f));
   icarus.setModel(modelIcarus);
 
