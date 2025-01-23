@@ -6,9 +6,9 @@
 Wall::Wall(/* args */) :
   mMesh(Shapes::withTangents(Shapes::QUAD)),
   mTextures({
-    Utils::Textures::loadTexture2D("./assets/wall/bricks2.jpg", TEXTURE_TYPE_DIFFUSE),
-    Utils::Textures::loadTexture2D("./assets/wall/bricks2_normal.jpg", TEXTURE_TYPE_NORMALS),
-    Utils::Textures::loadTexture2D("./assets/wall/bricks2_disp.jpg", TEXTURE_TYPE_HEIGHT),
+    Utils::Textures::loadTexture2D("./assets/wall/bricks2.jpg", TEXTURE_TYPE_DIFFUSE, true),
+    Utils::Textures::loadTexture2D("./assets/wall/bricks2_normal.jpg", TEXTURE_TYPE_NORMALS, false),
+    Utils::Textures::loadTexture2D("./assets/wall/bricks2_disp.jpg", TEXTURE_TYPE_HEIGHT, false),
   })
 {
 }

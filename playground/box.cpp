@@ -9,8 +9,8 @@
 Box::Box() :
   mMesh(Shapes::CUBE),
   mTextures({
-    Utils::Textures::loadTexture2D("assets/container2.png", TEXTURE_TYPE_DIFFUSE),
-    Utils::Textures::loadTexture2D("assets/container2_specular.png", TEXTURE_TYPE_SPECULAR),
+    Utils::Textures::loadTexture2D("assets/container2.png", TEXTURE_TYPE_DIFFUSE, true),
+    Utils::Textures::loadTexture2D("assets/container2_specular.png", TEXTURE_TYPE_SPECULAR, false),
   }),
   mPositions({
     glm::vec3(0.0f, 0.0f, 0.0f),

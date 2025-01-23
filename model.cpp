@@ -134,6 +134,8 @@ Texture Model::loadTexture(const aiScene* scene, const aiTextureType& aiType, co
     break;
   }
 
+  const bool srgb = type == TEXTURE_TYPE_DIFFUSE;
+
   const aiTexture* embedded = scene->GetEmbeddedTexture(path);
   if (embedded != nullptr) {
     // Points to an array of mWidth * mHeight aiTexel's.
@@ -144,10 +146,10 @@ Texture Model::loadTexture(const aiScene* scene, const aiTextureType& aiType, co
     if (embedded->mHeight > 0)
       length *= embedded->mHeight;
 
-    return Utils::Textures::loadTexture2D((unsigned char*)embedded->pcData, length, type);
+    return Utils::Textures::loadTexture2D((unsigned char*)embedded->pcData, length, type, srgb);
   }
 
-  return Utils::Textures::loadTexture2D((mDirectory + '/' + path).c_str(), type);
+  return Utils::Textures::loadTexture2D((mDirectory + '/' + path).c_str(), type, srgb);
 }
 
 void Model::draw(const Shader& shader) const

@@ -4,10 +4,8 @@
 #include <iostream>
 #include <stb_image.h>
 
-GLenum Utils_Textures_adjustFormat(const GLenum format, const unsigned int nrChannels)
+GLenum Utils_Textures_format(const bool srgb, const unsigned int nrChannels)
 {
-  bool srgb = (format == GL_SRGB) || (format == GL_SRGB_ALPHA);
-
   if (nrChannels == 3)
     return srgb ? GL_SRGB : GL_RGB;
 
@@ -15,8 +13,6 @@ GLenum Utils_Textures_adjustFormat(const GLenum format, const unsigned int nrCha
     return srgb ? GL_SRGB_ALPHA : GL_RGBA;
 
   assert(false);
-
-  return format;
 }
 
 unsigned int Utils_Textures_createTexture2D(
@@ -48,14 +44,14 @@ GLenum Utils_Textures_imageFormat(TEXTURE_TYPE type)
   return type == TEXTURE_TYPE_DIFFUSE ? GL_SRGB_ALPHA : GL_RGBA;
 }
 
-unsigned int Utils_Textures_loadTexture2D(const char* path, const GLenum format, const GLenum wrap)
+unsigned int Utils_Textures_loadTexture2D(const char* path, const bool srgb, const GLenum wrap)
 {
   stbi_set_flip_vertically_on_load(true);
   int width, height, nrChannels;
   unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
 
   const unsigned int textureId = Utils_Textures_createTexture2D(
-    data, width, height, Utils_Textures_adjustFormat(format, nrChannels), wrap
+    data, width, height, Utils_Textures_format(srgb, nrChannels), wrap
   );
 
   stbi_image_free(data);
@@ -64,7 +60,7 @@ unsigned int Utils_Textures_loadTexture2D(const char* path, const GLenum format,
 }
 
 unsigned int Utils_Textures_loadTexture2D(
-  const unsigned char* buffer, const unsigned int len, const GLenum format, const GLenum wrap
+  const unsigned char* buffer, const unsigned int len, const bool srgb, const GLenum wrap
 )
 {
   stbi_set_flip_vertically_on_load(true);
@@ -72,7 +68,7 @@ unsigned int Utils_Textures_loadTexture2D(
   unsigned char* data = stbi_load_from_memory(buffer, len, &width, &height, &nrChannels, 0);
 
   const unsigned int textureId = Utils_Textures_createTexture2D(
-    data, width, height, Utils_Textures_adjustFormat(format, nrChannels), wrap
+    data, width, height, Utils_Textures_format(srgb, nrChannels), wrap
   );
 
   stbi_image_free(data);
@@ -103,20 +99,26 @@ void Utils::Textures::deleteTexture(const Texture& texture)
   return Utils::Textures::deleteTextures({ texture });
 }
 
-Texture Utils::Textures::loadTexture2D(const char* path, const TEXTURE_TYPE type, const GLenum wrap)
+Texture Utils::Textures::loadTexture2D(
+  const char* path, const TEXTURE_TYPE type, const bool srgb, const GLenum wrap
+)
 {
   return Texture {
-    .id = Utils_Textures_loadTexture2D(path, Utils_Textures_imageFormat(type), wrap),
+    .id = Utils_Textures_loadTexture2D(path, srgb, wrap),
     .type = type,
   };
 }
 
 Texture Utils::Textures::loadTexture2D(
-  const unsigned char* buffer, const unsigned int len, const TEXTURE_TYPE type, const GLenum wrap
+  const unsigned char* buffer,
+  const unsigned int len,
+  const TEXTURE_TYPE type,
+  const bool srgb,
+  const GLenum wrap
 )
 {
   return Texture {
-    .id = Utils_Textures_loadTexture2D(buffer, len, Utils_Textures_imageFormat(type), wrap),
+    .id = Utils_Textures_loadTexture2D(buffer, len, srgb, wrap),
     .type = type,
   };
 }

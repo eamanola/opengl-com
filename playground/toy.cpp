@@ -6,9 +6,9 @@
 Toy::Toy(/* args */) :
   mMesh(Shapes::withTangents(Shapes::QUAD)),
   mTextures({
-    Utils::Textures::loadTexture2D("./assets/toy/wood.png", TEXTURE_TYPE_DIFFUSE),
-    Utils::Textures::loadTexture2D("./assets/toy/toy_box_normal.png", TEXTURE_TYPE_NORMALS),
-    Utils::Textures::loadTexture2D("./assets/toy/toy_box_disp.png", TEXTURE_TYPE_HEIGHT),
+    Utils::Textures::loadTexture2D("./assets/toy/wood.png", TEXTURE_TYPE_DIFFUSE, true),
+    Utils::Textures::loadTexture2D("./assets/toy/toy_box_normal.png", TEXTURE_TYPE_NORMALS, false),
+    Utils::Textures::loadTexture2D("./assets/toy/toy_box_disp.png", TEXTURE_TYPE_HEIGHT, false),
   })
 {
 }

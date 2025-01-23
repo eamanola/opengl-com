@@ -10,7 +10,8 @@
 
 Floor::Floor(unsigned int rows, unsigned columns) :
   mTileMesh(Shapes::QUAD),
-  mTileTexture(Utils::Textures::loadTexture2D("./assets/floor-tile.png", TEXTURE_TYPE_DIFFUSE)),
+  mTileTexture(Utils::Textures::loadTexture2D("./assets/floor-tile.png", TEXTURE_TYPE_DIFFUSE, true)
+  ),
   mRows(rows),
   mColumns(columns)
 {

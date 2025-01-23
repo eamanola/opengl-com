@@ -22,11 +22,14 @@ std::string shaderSource(
 namespace Textures
 {
 
-Texture loadTexture2D(const char* path, const TEXTURE_TYPE type, const GLenum wrap = GL_REPEAT);
+Texture loadTexture2D(
+  const char* path, const TEXTURE_TYPE type, const bool srgb, const GLenum wrap = GL_REPEAT
+);
 Texture loadTexture2D(
   const unsigned char* buffer,
   const unsigned int len,
   const TEXTURE_TYPE type,
+  const bool srgb,
   const GLenum wrap = GL_REPEAT
 );
 void deleteTextures(const std::vector<Texture>& textures);
