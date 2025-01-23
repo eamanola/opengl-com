@@ -12,12 +12,15 @@ namespace Framebuffer
 {
 
 bool createFramebufferTexture2D(
-  const float width,
-  const float height,
-  const unsigned int samples,
   unsigned int& outFBO,
   unsigned int* outTextureId,
-  unsigned int* outRBO
+  unsigned int* outRBO,
+  const unsigned int samples,
+  GLenum internal,
+  const float width,
+  const float height,
+  GLenum format,
+  GLenum type
 );
 
 } // namespace Framebuffer

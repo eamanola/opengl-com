@@ -16,12 +16,11 @@
 #endif
 #include "box.h"
 #include "disco/floor.h"
+#include "draw-texture.h"
 #include "grass.h"
 #include "mirror.h"
+#include "render-buffer.h"
 #include "shaders/ub-proj-x-view.h"
-#ifdef SHADOW_DEBUG
-#include "shadow-maps/shadows-debug.h"
-#endif
 #include "shadow-maps/shadow-maps.h"
 #include "skybox/skybox-reflector.h"
 #include "skybox/skybox.h"
@@ -38,6 +37,7 @@ public:
   void setup() override;
   void update(const float& time) override;
   void render(const Camera& camera) const override;
+  void render() const override;
   using Scene::render;
 
   void renderShadowMap(const glm::mat4& projection, const glm::mat4& view) const override;
@@ -104,7 +104,6 @@ private:
 
 #ifdef SHADOW_DEBUG
   Shader mpShadowsDebug;
-  ShadowsDebug mShadowsDebug;
 #endif
 
 #ifdef POINTLIGHT_DEBUG
@@ -129,6 +128,14 @@ private:
   bool mFirstMouse;
 
   ub_proj_x_view proj_x_view_ub;
+
+// #define POST_PROCESS
+#ifdef POST_PROCESS
+  Shader mPostProcess;
+  DrawTexture mDrawTexture;
+  RenderBuffer mRBuffer;
+#endif
+
   ShadowMaps mShadows;
 };
 

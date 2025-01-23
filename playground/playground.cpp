@@ -193,6 +193,10 @@ Playground::Playground() :
 #endif
     }
   ),
+#ifdef POST_PROCESS
+  mPostProcess("./shaders/postprocess/plain.vert", nullptr, "./shaders/postprocess/plain.frag"),
+  mRBuffer(800, 600, SAMPLES),
+#endif
   mShadows(NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS)
 {
   mLastFrame = 0.f;
@@ -244,8 +248,8 @@ void Playground::setup()
 
   window.setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, -1.f)));
 
-  wall.setModel(glm::translate(glm::mat4(1.f), glm::vec3(4.f, 1.f, 0.f)));
-  toy.setModel(glm::translate(glm::mat4(1.f), glm::vec3(4.f, 2.f, 0.f)));
+  wall.setModel(glm::translate(glm::mat4(1.f), glm::vec3(4.5f, 1.f, 0.f)));
+  toy.setModel(glm::translate(glm::mat4(1.f), glm::vec3(4.5f, 3.f, 0.f)));
 
   glm::vec3 cameraPos = glm::vec3(0.f, 1.f, 8.f);
   glm::vec3 pointTo = glm::vec3(0.f, 1.f, 0.f);
@@ -323,14 +327,6 @@ void Playground::setup()
   mpNormals.use();
   mpNormals.setVec4fv("u_color", glm::vec4(1.f, 0.f, 1.f, 1.f));
 #endif
-#ifdef SHADOW_DEBUG
-  mShadowsDebug.setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, 1.f)));
-
-  glActiveTexture(GL_TEXTURE0 + LOCATIONS::TEXTURES::DEBUG);
-  glBindTexture(GL_TEXTURE_2D, mShadows.mDirLights[0].second);
-  mpShadowsDebug.use();
-  mpShadowsDebug.setInt("depthMap", LOCATIONS::TEXTURES::DEBUG);
-#endif
 }
 
 void Playground::update(const float& time)
@@ -377,7 +373,30 @@ void Playground::update(const float& time)
   mirror.screenshot(*this);
 
 #ifdef SHADOW_DEBUG
-  mShadowsDebug.render(mpShadowsDebug);
+  mpShadowsDebug.use();
+  mpShadowsDebug.setInt("depthMap", 0);
+  mDrawTexture.render(mpShadowsDebug, mShadows.mDirLights[0].second)
+#endif
+}
+
+void Playground::render() const
+{
+#ifdef POST_PROCESS
+  glBindFramebuffer(GL_FRAMEBUFFER, mRBuffer.fbo());
+
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  render(camera());
+
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  mRBuffer.blit();
+  mPostProcess.use();
+  mPostProcess.setInt("tex", 0);
+  mDrawTexture.render(mPostProcess, mRBuffer.texture());
+#else
+  render(camera());
 #endif
 }
 
@@ -507,19 +526,6 @@ void Playground::renderScene(
   // icarus
   icarus.render(p_skeletal_normal_map);
 
-  p_lighting.use();
-  p_lighting.setVec3fv("u_view_pos", view_pos);
-
-  glm::mat4 model2b = glm::mat4(1.f);
-  model2b = glm::translate(model2b, glm::vec3(0.f, 1.75f, 0.f));
-  model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
-  p_lighting.setMat4fv("u_model", model2b);
-  p_lighting.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model2b))));
-  simpleModel.draw(p_lighting);
-
-  mirror.render(p_lighting);
-  window.render(p_lighting);
-
   p_normal_map.use();
   p_normal_map.setVec3fv("u_view_pos", view_pos);
   wall.render(p_normal_map);
@@ -557,6 +563,20 @@ void Playground::renderScene(
   p_reflect_skybox.use();
   p_reflect_skybox.setVec3fv("u_view_pos", view_pos);
   skyboxReflector.draw(p_reflect_skybox);
+
+  p_lighting.use();
+  p_lighting.setVec3fv("u_view_pos", view_pos);
+
+  glm::mat4 model2b = glm::mat4(1.f);
+  model2b = glm::translate(model2b, glm::vec3(0.f, 1.75f, 0.f));
+  model2b = glm::rotate(model2b, glm::radians(90.f), glm::vec3(1.f, 0.f, 0.f));
+  p_lighting.setMat4fv("u_model", model2b);
+  p_lighting.setMat3fv("u_trans_inver_model", glm::mat3(glm::transpose(glm::inverse(model2b))));
+  simpleModel.draw(p_lighting);
+
+  mirror.render(p_lighting);
+  // draw last (late as possible) translucent / blended
+  window.render(p_lighting);
 
   // draw last (late as possible) furthest/z-buffer
   if (p_skybox != nullptr) {
@@ -625,12 +645,17 @@ void Playground::teardown()
   lightingSettings.free();
   proj_x_view_ub.free();
 #ifdef SHADOW_DEBUG
-  mShadowsDebug.free();
   mpShadowsDebug.free();
 #endif
 
 #if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
   mShadows.unbindTextures();
+#endif
+
+#ifdef POST_PROCESS
+  mPostProcess.free();
+  mDrawTexture.free();
+  mRBuffer.free();
 #endif
 
   mShadows.free();

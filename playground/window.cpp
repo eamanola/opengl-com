@@ -23,20 +23,20 @@ void Window::render(const Shader& shader) const
 
   Lighting::u_material::bindTexture(shader, &mTexture);
 
-  glm::mat4 model = this->model();
+  glm::mat4 model;
 
-  model = glm::translate(model, glm::vec3(0.5f, 0.5f, 0.55f));
+  model = glm::translate(this->model(), glm::vec3(0.5f, 0.5f, 0.55f));
   u_model::setUModel(shader, model);
   mMesh.draw();
 
   // order matters / depth buffer
   // 2nd will glitch through last window
-  // semi transpaers shoudl draw last, and in order from furthest to nearest
-  model = glm::translate(glm::mat4(1.0f), glm::vec3(0.4f, 1.2f, 0.6f));
+  // semi transpaers should draw last, and in order from furthest to nearest
+  model = glm::translate(this->model(), glm::vec3(0.4f, 1.2f, 0.6f));
   u_model::setUModel(shader, model);
   mMesh.draw();
 
-  model = glm::translate(glm::mat4(1.0f), glm::vec3(0.6f, 0.8f, 0.555f));
+  model = glm::translate(this->model(), glm::vec3(0.6f, 0.8f, 0.555f));
   u_model::setUModel(shader, model);
   mMesh.draw();
 

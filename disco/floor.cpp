@@ -26,7 +26,7 @@ std::vector<glm::vec3> Floor::getOffsets(unsigned int rows, unsigned int cols) c
 {
   std::vector<glm::vec3> positions;
   const float offset = 0.005f;
-  const float width = 1.f + 2.f * offset;
+  const float width = 2.f + 2.f * offset;
   const float height = width;
   const float x0 = -(rows * width) / 2.f + width / 2.f;
   const float y0 = -(cols * height) / 2.f + height / 2.f;

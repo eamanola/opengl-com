@@ -2,27 +2,34 @@
 #include <iostream>
 
 bool GLUtils_Framebuffer_addColorAttachment(
-  const float width, const float height, const unsigned int samples, unsigned int& outTextureId
+  unsigned int& outTextureId,
+  GLenum attachement,
+  const unsigned int samples,
+  GLenum internal,
+  const float width,
+  const float height,
+  GLenum format,
+  GLenum type
 )
 {
   unsigned int textureId;
   glGenTextures(1, &textureId);
   if (samples < 2) {
     glBindTexture(GL_TEXTURE_2D, textureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal, width, height, 0, format, type, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachement, GL_TEXTURE_2D, textureId, 0);
   } else {
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, textureId);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGB, width, height, GL_TRUE);
+    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, internal, width, height, GL_TRUE);
     glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
-    glFramebufferTexture2D(
-      GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, textureId, 0
-    );
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachement, GL_TEXTURE_2D_MULTISAMPLE, textureId, 0);
   }
 
   bool success = GLUtils::noErrors();
@@ -35,7 +42,7 @@ bool GLUtils_Framebuffer_addColorAttachment(
 }
 
 bool GLUtils_Framebuffer_addDepthStencilAttachment(
-  const float width, const float height, const unsigned int samples, unsigned int& outRBO
+  unsigned int& outRBO, const unsigned int samples, const float width, const float height
 )
 {
   unsigned int RBO;
@@ -60,12 +67,15 @@ bool GLUtils_Framebuffer_addDepthStencilAttachment(
 }
 
 bool GLUtils::Framebuffer::createFramebufferTexture2D(
-  const float width,
-  const float height,
-  const unsigned int samples,
   unsigned int& outFBO,
   unsigned int* outTextureId,
-  unsigned int* outRBO
+  unsigned int* outRBO,
+  const unsigned int samples,
+  GLenum internal,
+  const float width,
+  const float height,
+  GLenum format,
+  GLenum type
 )
 {
   unsigned int FBO = 0;
@@ -74,7 +84,9 @@ bool GLUtils::Framebuffer::createFramebufferTexture2D(
 
   unsigned int textureId = 0;
   if (outTextureId != nullptr) {
-    GLUtils_Framebuffer_addColorAttachment(width, height, samples, textureId);
+    GLUtils_Framebuffer_addColorAttachment(
+      textureId, GL_COLOR_ATTACHMENT0, samples, internal, width, height, format, type
+    );
   } else {
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
@@ -82,7 +94,7 @@ bool GLUtils::Framebuffer::createFramebufferTexture2D(
 
   unsigned int RBO = 0;
   if (outRBO != nullptr) {
-    GLUtils_Framebuffer_addDepthStencilAttachment(width, height, samples, RBO);
+    GLUtils_Framebuffer_addDepthStencilAttachment(RBO, samples, width, height);
   }
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {

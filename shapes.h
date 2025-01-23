@@ -17,10 +17,10 @@ Shape withTangents(const Shape& shape);
 const Shape QUAD {
   {
    // clang-format off
-    { .position { -0.5f, -0.5f, 0.f }, .normal  { 0.f, 0.f, 1.f }, .texCoords { 0.f, 0.f } },
-    { .position {  0.5f, -0.5f, 0.f }, .normal  { 0.f, 0.f, 1.f }, .texCoords { 1.f, 0.f } },
-    { .position {  0.5f,  0.5f, 0.f }, .normal  { 0.f, 0.f, 1.f }, .texCoords { 1.f, 1.f } },
-    { .position { -0.5f,  0.5f, 0.f }, .normal  { 0.f, 0.f, 1.f }, .texCoords { 0.f, 1.f } },
+    { .position { -1.f, -1.f, 0.f }, .normal  { 0.f, 0.f, 1.f }, .texCoords { 0.f, 0.f } },
+    { .position {  1.f, -1.f, 0.f }, .normal  { 0.f, 0.f, 1.f }, .texCoords { 1.f, 0.f } },
+    { .position {  1.f,  1.f, 0.f }, .normal  { 0.f, 0.f, 1.f }, .texCoords { 1.f, 1.f } },
+    { .position { -1.f,  1.f, 0.f }, .normal  { 0.f, 0.f, 1.f }, .texCoords { 0.f, 1.f } },
    // clang-format on
   },
   {
