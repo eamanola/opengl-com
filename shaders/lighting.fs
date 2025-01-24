@@ -300,6 +300,9 @@ vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
   const float maxSteps = 32.0;
   float numSteps = mix(maxSteps, minSteps, max(dot(vec3(0.0, 0.0, 1.0), tan_view_dir), 0.0));
 
+  if (numSteps < minSteps)
+    return vec2(-1.0);
+
   float step = 1.0 / numSteps;
 
   vec2 offsetLimit = tan_view_dir.xy / tan_view_dir.z;
