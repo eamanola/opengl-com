@@ -22,7 +22,7 @@ Mirror::Mirror(const unsigned int samples, const std::size_t width, const std::s
     })
     // clang-format on
   ),
-  mRenderBuffer(samples, RenderBuffer::Format::RGB, width, height)
+  mRenderBuffer(samples, RenderBuffer::Format::RGB, width, height, 1)
 {
 }
 
@@ -57,9 +57,9 @@ void Mirror::render(const Shader& shader) const
 {
   u_model::setUModel(shader, model());
 
-  Lighting::u_material::bindTexture(shader, &mRenderBuffer.texture());
+  Lighting::u_material::bindTexture(shader, mRenderBuffer.textures(0));
   mMesh.draw();
-  Lighting::u_material::unbindTexture(shader, &mRenderBuffer.texture());
+  Lighting::u_material::unbindTexture(shader, mRenderBuffer.textures(0));
 }
 
 void Mirror::free() const

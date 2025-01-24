@@ -1,4 +1,6 @@
 #include "gl-utils.h"
+
+#include <cstring>
 #include <iostream>
 
 bool GLUtils_Framebuffer_addColorAttachment(
@@ -71,7 +73,8 @@ bool GLUtils_Framebuffer_addDepthStencilAttachment(
 
 bool GLUtils::Framebuffer::createFramebufferTexture2D(
   unsigned int& outFBO,
-  unsigned int* outTextureId,
+  unsigned int* outTextureIds,
+  unsigned int texturesLen,
   unsigned int* outRBO,
   const unsigned int samples,
   GLenum internal,
@@ -85,11 +88,13 @@ bool GLUtils::Framebuffer::createFramebufferTexture2D(
   glGenFramebuffers(1, &FBO);
   glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
-  unsigned int textureId = 0;
-  if (outTextureId != nullptr) {
-    GLUtils_Framebuffer_addColorAttachment(
-      textureId, GL_COLOR_ATTACHMENT0, samples, internal, width, height, format, type
-    );
+  unsigned int textureIds[texturesLen];
+  if (texturesLen > 0) {
+    for (unsigned int i = 0; i < texturesLen; i++) {
+      GLUtils_Framebuffer_addColorAttachment(
+        textureIds[i], GL_COLOR_ATTACHMENT0 + i, samples, internal, width, height, format, type
+      );
+    }
   } else {
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
@@ -105,18 +110,19 @@ bool GLUtils::Framebuffer::createFramebufferTexture2D(
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     if (FBO != 0)
       glDeleteBuffers(1, &FBO);
-    if (textureId != 0)
-      glDeleteTextures(1, &textureId);
+    if (texturesLen > 0)
+      glDeleteTextures(texturesLen, textureIds);
     if (RBO != 0)
       glDeleteRenderbuffers(1, &RBO);
+
     return false;
   }
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
   outFBO = FBO;
-  if (outTextureId != nullptr) {
-    *outTextureId = textureId;
+  if (texturesLen > 0) {
+    memcpy(outTextureIds, textureIds, sizeof(textureIds));
   }
   if (outRBO != nullptr) {
     *outRBO = RBO;

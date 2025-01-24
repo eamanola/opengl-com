@@ -1,12 +1,18 @@
 #include "render-buffer.h"
 
 #include "gl-utils/gl-utils.h"
+#include "utils/utils.h"
 #include <cassert>
+#include <iostream>
 
 RenderBuffer::RenderBuffer(
-  unsigned int samples, Format internal, const std::size_t width, const std::size_t height
+  unsigned int samples,
+  Format internal,
+  const std::size_t width,
+  const std::size_t height,
+  unsigned int colorOutputs
 ) :
-  mTexture(Texture { .type = TEXTURE_TYPE_DIFFUSE }), mWidth(width), mHeight(height)
+  mTextures(colorOutputs, Texture { .type = TEXTURE_TYPE_DIFFUSE }), mWidth(width), mHeight(height)
 {
   GLenum format;
   GLenum type;
@@ -28,23 +34,36 @@ RenderBuffer::RenderBuffer(
   }
 
   if (samples > 1) {
+    unsigned int texI[colorOutputs] = {};
+    unsigned int tex[colorOutputs] = {};
     // multisampled framebuffer
     // no output format&type in multisample
     GLUtils::Framebuffer::createFramebufferTexture2D(
-      mFBO, &mTexI, &mRBO, samples, internal, width, height, GL_NONE, GL_NONE
+      mFBO, texI, colorOutputs, &mRBO, samples, internal, width, height, GL_NONE, GL_NONE
     );
 
     // framebuffer to downscale/relove to, for drawing
     GLUtils::Framebuffer::createFramebufferTexture2D(
-      mFBOI, &mTexture.id, nullptr, 1, internal, width, height, format, type
-    );
-  } else {
-    GLUtils::Framebuffer::createFramebufferTexture2D(
-      mFBO, &mTexture.id, &mRBO, 1, internal, width, height, format, type
+      mFBOI, tex, colorOutputs, nullptr, 1, internal, width, height, format, type
     );
 
+    mTexI.reserve(colorOutputs);
+    for (unsigned int i = 0; i < colorOutputs; i++) {
+      mTextures[i].id = tex[i];
+      mTexI.push_back(texI[i]);
+    }
+  } else {
+    unsigned int tex[colorOutputs] = {};
+
+    GLUtils::Framebuffer::createFramebufferTexture2D(
+      mFBO, tex, colorOutputs, &mRBO, 1, internal, width, height, format, type
+    );
+
+    for (unsigned int i = 0; i < colorOutputs; i++) {
+      mTextures[i].id = tex[i];
+    }
+
     mFBOI = 0;
-    mTexI = 0;
   }
 }
 
@@ -68,11 +87,11 @@ void RenderBuffer::blit() const
 void RenderBuffer::free() const
 {
   glDeleteFramebuffers(1, &mFBO);
-  glDeleteTextures(1, &mTexture.id);
+  Utils::Textures::deleteTextures(mTextures);
   glDeleteRenderbuffers(1, &mRBO);
 
   if (mFBOI != 0) {
     glDeleteFramebuffers(1, &mFBOI);
-    glDeleteTextures(1, &mTexI);
+    glDeleteTextures(mTexI.size(), &mTexI[0]);
   }
 }

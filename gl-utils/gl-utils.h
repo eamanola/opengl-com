@@ -13,7 +13,8 @@ namespace Framebuffer
 
 bool createFramebufferTexture2D(
   unsigned int& outFBO,
-  unsigned int* outTextureId,
+  unsigned int* outTextureIds,
+  unsigned int texturesLen,
   unsigned int* outRBO,
   const unsigned int samples,
   GLenum internal,

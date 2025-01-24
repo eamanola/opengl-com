@@ -195,7 +195,7 @@ Playground::Playground() :
   ),
 #ifdef POST_PROCESS
   mPostProcess("./shaders/postprocess/plain.vert", nullptr, "./shaders/postprocess/hdr.frag"),
-  mRBuffer(SAMPLES, RenderBuffer::Format::RGBA16F, 800, 600),
+  mRBuffer(SAMPLES, RenderBuffer::Format::RGBA16F, 800, 600, 1),
 #endif
   mShadows(NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS)
 {
@@ -394,7 +394,7 @@ void Playground::render() const
   mRBuffer.blit();
   mPostProcess.use();
   mPostProcess.setInt("tex", 0);
-  mDrawTexture.render(mPostProcess, mRBuffer.texture());
+  mDrawTexture.render(mPostProcess, *mRBuffer.textures(0));
 #else
   render(camera());
 #endif

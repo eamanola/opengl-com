@@ -11,9 +11,9 @@ struct Material {
 #ifdef HEIGHT_MAP
   sampler2D texture_height1;
 #endif
-  vec4      diffuse_color;
-  vec4      specular_color;
-  float     shininess;
+  vec4 diffuse_color;
+  vec4 specular_color;
+  float shininess;
 };
 #endif
 
@@ -137,7 +137,8 @@ in vsout
 #ifdef HEIGHT_MAP
   vec3 tan_view_dir;
 #endif
-} fs_in;
+}
+fs_in;
 
 out vec4 f_color;
 
@@ -172,26 +173,23 @@ layout(std140) uniform ub_lights
 #endif
 };
 
-
 void main()
 {
   vec2 texCoords = fs_in.tex_coords;
 
-  #ifdef HEIGHT_MAP
+#ifdef HEIGHT_MAP
   texCoords = parallax(texCoords, fs_in.tan_view_dir);
-  if(texCoords.x < 0.0 || texCoords.x > 1.0 || texCoords.y < 0.0 || texCoords.y > 1.0)
-  {
+  if (texCoords.x < 0.0 || texCoords.x > 1.0 || texCoords.y < 0.0 || texCoords.y > 1.0) {
     discard;
     return;
   }
-  #endif
+#endif
 
   // calc color
   PhongColor color = calcColor(texCoords);
   float alpha = color.diffuse.a;
 
-  if(alpha < 0.1)
-  {
+  if (alpha < 0.1) {
     discard;
     return;
   }
@@ -221,9 +219,9 @@ void main()
   vec4 specular = lightColor.specular * color.specular;
 
   vec4 emissive;
-  #ifdef MATERIAL
+#ifdef MATERIAL
   emissive = texture(u_material.texture_emissive1, texCoords);
-  #endif
+#endif
 
   f_color = vec4(vec3(ambient + diffuse + specular + emissive), alpha);
 }
@@ -252,10 +250,8 @@ PhongColor calcLight(vec3 normal)
   mat3x4 lightColor = mat3x4(0);
 
 #ifdef HAS_DIR_LIGHTS
-  for(int i = 0; i < IN_NR_DIR_LIGHTS; i++)
-  {
-    if(!u_dir_lights[i].light.off)
-    {
+  for (int i = 0; i < IN_NR_DIR_LIGHTS; i++) {
+    if (!u_dir_lights[i].light.off) {
       mat3x4 lc = calcDirLight(u_dir_lights[i], normal, fs_in.view_dir);
 
 #ifdef ENABLE_DIR_SHADOWS
@@ -270,14 +266,13 @@ PhongColor calcLight(vec3 normal)
 #endif
 
 #ifdef HAS_POINT_LIGHTS
-  for(int i = 0; i < IN_NR_POINT_LIGHTS; i++)
-  {
-    if(!u_point_lights[i].light.off)
-    {
+  for (int i = 0; i < IN_NR_POINT_LIGHTS; i++) {
+    if (!u_point_lights[i].light.off) {
       mat3x4 lc = calcPointLight(u_point_lights[i], normal, fs_in.view_dir, fs_in.frag_pos);
 
 #ifdef ENABLE_CUBE_SHADOWS
-      float shadow = calcShadow_cube(fs_in.frag_pos, u_point_lights[i].position, u_point_shadow_maps[i], normal);
+      float shadow =
+        calcShadow_cube(fs_in.frag_pos, u_point_lights[i].position, u_point_shadow_maps[i], normal);
       lc[1] *= (1 - shadow);
       lc[2] *= (1 - shadow);
 #endif
@@ -288,10 +283,8 @@ PhongColor calcLight(vec3 normal)
 #endif
 
 #ifdef HAS_SPOT_LIGHTS
-  for(int i = 0; i < IN_NR_SPOT_LIGHTS; i++)
-  {
-    if(!u_spot_lights[i].light.off)
-    {
+  for (int i = 0; i < IN_NR_SPOT_LIGHTS; i++) {
+    if (!u_spot_lights[i].light.off) {
       lightColor += calcSpotLight(u_spot_lights[i], normal, fs_in.view_dir, fs_in.frag_pos);
     }
   }
@@ -317,7 +310,7 @@ vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
   float height = texture(u_material.texture_height1, tex).r;
   float current = 0.0;
 
-  while(current < height) {
+  while (current < height) {
     tex -= deltaTex;
     height = texture(u_material.texture_height1, tex).r;
     current += step;
@@ -368,11 +361,8 @@ PhongColor calcMaterialColor(Material material, vec2 texCoords)
 #ifdef CALC_ATTENUATION
 float calcAttenuation(Attenuation attenuation, float distance)
 {
-  return 1.0 / (
-    attenuation.constant
-    + attenuation.linear * distance
-    + attenuation.quadratic * (distance * distance)
-  );
+  return 1.0 / (attenuation.constant + attenuation.linear * distance +
+                attenuation.quadratic * (distance * distance));
 }
 #endif
 
@@ -413,11 +403,7 @@ mat3x4 calcPointLight(PointLight pointLight, vec3 normal, vec3 viewDir, vec3 fra
 
   float attenuation = calcAttenuation(pointLight.attenuation, lightDist);
 
-  return calcDirLight(
-    DirLight(-lightDir, pointLight.light),
-    normal,
-    viewDir
-  ) * attenuation;
+  return calcDirLight(DirLight(-lightDir, pointLight.light), normal, viewDir) * attenuation;
 }
 #endif
 
@@ -432,61 +418,59 @@ mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPo
   float intensity = clamp((theta - spotLight.outerCutOff) / epsilon, 0.0, 1.0);
 
   return calcPointLight(
-    PointLight(spotLight.position, spotLight.attenuation, spotLight.light),
-    normal,
-    viewDir,
-    fragPos
-  ) * intensity;
+           PointLight(spotLight.position, spotLight.attenuation, spotLight.light),
+           normal,
+           viewDir,
+           fragPos
+         ) *
+         intensity;
 }
 #endif
 
 #ifdef ENABLE_DIR_SHADOWS
-  float simplePcf(vec3 projCoords, sampler2D shadowMap)
-  {
-    float shadow = 0.0;
+float simplePcf(vec3 projCoords, sampler2D shadowMap)
+{
+  float shadow = 0.0;
 
-    vec2 texSize = 1.0 / textureSize(shadowMap, 0);
-    float current = projCoords.z;
-    const float bias = 0.005;
+  vec2 texSize = 1.0 / textureSize(shadowMap, 0);
+  float current = projCoords.z;
+  const float bias = 0.005;
 
-    for(int x = -1; x < 1; x++)
-    {
-      for(int y = -1; y < 1; y++)
-      {
-        float depth = texture(shadowMap, projCoords.xy + vec2(x, y) * texSize).r;
-        shadow += (current - bias > depth) ? 1.0 : 0.0;
-      }
+  for (int x = -1; x < 1; x++) {
+    for (int y = -1; y < 1; y++) {
+      float depth = texture(shadowMap, projCoords.xy + vec2(x, y) * texSize).r;
+      shadow += (current - bias > depth) ? 1.0 : 0.0;
     }
-
-    return shadow / 9.0;
   }
 
-  float calcShadow(vec4 light_space_frag_pos, sampler2D shadowMap)
-  {
-    // NDC
-    vec3 projCoords = (light_space_frag_pos.xyz / light_space_frag_pos.w) * 0.5 + 0.5;
+  return shadow / 9.0;
+}
 
-    // current surface from light
-    float current = projCoords.z;
+float calcShadow(vec4 light_space_frag_pos, sampler2D shadowMap)
+{
+  // NDC
+  vec3 projCoords = (light_space_frag_pos.xyz / light_space_frag_pos.w) * 0.5 + 0.5;
 
-    // outside shadow map
-    if(current > 1.0)
-    {
-      return 0.0;
-    }
+  // current surface from light
+  float current = projCoords.z;
 
-    return simplePcf(projCoords, shadowMap);
-
-    // // closest surface to light
-    // float closest = texture(shadowMap, projCoords.xy).r;
-
-    // // fix shadow acne
-    // const float bias = 0.005; // max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
-
-    // float shadow = current - bias > closest ? 1.0 : 0.0;
-
-    // return shadow;
+  // outside shadow map
+  if (current > 1.0) {
+    return 0.0;
   }
+
+  return simplePcf(projCoords, shadowMap);
+
+  // // closest surface to light
+  // float closest = texture(shadowMap, projCoords.xy).r;
+
+  // // fix shadow acne
+  // const float bias = 0.005; // max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+
+  // float shadow = current - bias > closest ? 1.0 : 0.0;
+
+  // return shadow;
+}
 #endif
 
 #ifdef ENABLE_CUBE_SHADOWS
@@ -496,8 +480,7 @@ float calcShadow_cube(vec3 frag_pos, vec3 lightPos, samplerCube shadowMap, vec3 
 
   float current = length(diff);
 
-  if(current > u_far)
-  {
+  if (current > u_far) {
     return 0.0;
   }
 

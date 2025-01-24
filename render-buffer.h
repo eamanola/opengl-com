@@ -3,6 +3,7 @@
 
 #include "texture.h"
 #include <glad/gl.h>
+#include <vector>
 
 class RenderBuffer
 {
@@ -12,26 +13,32 @@ public:
     RGBA16F = GL_RGBA16F,
   };
 
+  // upto 8 color outputs guaranteed
+  // can query max with GL_MAX_COLOR_ATTACHMENTS
   RenderBuffer(
-    unsigned int samples, Format internal, const std::size_t width, const std::size_t height
+    unsigned int samples,
+    Format internal,
+    const std::size_t width,
+    const std::size_t height,
+    unsigned int colorOutputs
   );
   ~RenderBuffer() { }
   void free() const;
   void blit() const;
 
   const unsigned int& fbo() const { return mFBO; }
-  const Texture& texture() const { return mTexture; }
+  const Texture* textures(unsigned int index = 0) const { return &mTextures[index]; }
 
 private:
   unsigned int mFBO;
   unsigned int mRBO;
 
-  Texture mTexture;
+  std::vector<Texture> mTextures;
   const std::size_t mWidth;
   const std::size_t mHeight;
 
   unsigned int mFBOI;
-  unsigned int mTexI;
+  std::vector<unsigned int> mTexI;
 };
 
 #endif
