@@ -1,5 +1,7 @@
 #version 330 core
 
+out vec4 f_color;
+
 #ifdef MATERIAL
 struct Material {
   sampler2D texture_diffuse1;
@@ -139,8 +141,6 @@ in vsout
 #endif
 }
 fs_in;
-
-out vec4 f_color;
 
 #ifdef MATERIAL
 uniform Material u_material;
@@ -301,6 +301,7 @@ vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
   float numSteps = mix(maxSteps, minSteps, max(dot(vec3(0.0, 0.0, 1.0), tan_view_dir), 0.0));
 
   if (numSteps < minSteps)
+    // discard;
     return vec2(-1.0);
 
   float step = 1.0 / numSteps;

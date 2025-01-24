@@ -76,7 +76,7 @@ std::vector<SpotLight> LightSettings::getSpotLights(unsigned int count)
   const glm::vec4 AMBIENT(0.2f);
   const glm::vec4 DIFFUSE(0.5f);
   const glm::vec4 SPECULAR(1.0f);
-  const glm::vec4 color(1.0f);
+  const glm::vec4 color(5.0f);
 
   const glm::vec3 direction = glm::vec3(0.0f);
   const float cutOff = glm::cos(glm::radians(12.5f));

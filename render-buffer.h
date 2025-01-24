@@ -10,6 +10,7 @@ class RenderBuffer
 public:
   enum Format {
     RGB = GL_RGB,
+    RGB16F = GL_RGB16F,
     RGBA16F = GL_RGBA16F,
   };
 

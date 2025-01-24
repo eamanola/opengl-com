@@ -68,7 +68,7 @@ private:
       glm::vec3(0.0f, 1.0f, -2.0f),
     };
     std::vector<Color> colors = {
-      Color(1.0f, 1.0f, 1.0f, 1.0f),
+      Color(5.0f, 5.0f, 5.0f, 5.0f),
       Color(10.0f, 0.0f, 0.0f, 1.0f),
       Color(0.0f, 10.0f, 0.0f, 1.0f),
       Color(0.0f, 0.0f, 10.0f, 1.0f),

@@ -8,7 +8,7 @@ Whipper::Whipper() :
   Character("assets/whipper/scene.gltf"),
   mColor(PhongColor {
     .diffuse = Color(170.f / 255.f, 59.f / 255.f, 159.f / 255.f, 1.0),
-    .specular = Color(0.4f, 0.4f, 0.4f, 1.0),
+    .specular = Color(0.1f, 0.1f, 0.1f, 1.0),
   })
 {
   mRotation = 0.f;

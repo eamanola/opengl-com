@@ -23,6 +23,11 @@ RenderBuffer::RenderBuffer(
     type = GL_UNSIGNED_BYTE;
     break;
 
+  case RGB16F:
+    format = GL_RGB;
+    type = GL_FLOAT;
+    break;
+
   case RGBA16F:
     format = GL_RGBA;
     type = GL_FLOAT;
@@ -72,14 +77,21 @@ void RenderBuffer::blit() const
   // resolve framebuffer
   if (mFBOI != 0) {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, mFBO);
-    // glReadBuffer(GL_COLOR_ATTACHMENT0);
-
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFBOI);
-    // glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-    glBlitFramebuffer(
-      0, 0, mWidth, mHeight, 0, 0, mWidth, mHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST
-    );
+    for (unsigned int i = 0; i < mTextures.size(); i++) {
+      if (mTextures[i].id == 0)
+        continue;
+
+      glReadBuffer(GL_COLOR_ATTACHMENT0 + i);
+      glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
+      glBlitFramebuffer(
+        0, 0, mWidth, mHeight, 0, 0, mWidth, mHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST
+      );
+    }
+
+    glReadBuffer(GL_COLOR_ATTACHMENT0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // GL_READ_FRAMEBUFFER + GL_DRAW_FRAMEBUFFER
   }
 }

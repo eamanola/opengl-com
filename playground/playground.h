@@ -52,7 +52,25 @@ public:
   void onScroll(const GLFWwindow* window, const double x, const double y) override;
 
 private:
-  void toggleSpotLight() { mSpotlightOn = !mSpotlightOn; };
+  float mExposure;
+  void addExposure(float exposure)
+  {
+    mExposure += exposure;
+
+    if (mExposure > 3.5f)
+      mExposure = 0.1f;
+
+    std::cout << "Exposure: " << mExposure << "\n";
+  }
+  bool mSpotlightOn;
+  void toggleSpotLight() { mSpotlightOn = !mSpotlightOn; }
+  bool mBloomOn;
+  void toggleBloom()
+  {
+    mBloomOn = !mBloomOn;
+
+    std::cout << "Bloom: " << (mBloomOn ? "on" : "off") << "\n";
+  }
   void highlight(Box& box, glm::mat4 model);
   void renderScene(
     const glm::mat4& projection,
@@ -120,8 +138,6 @@ private:
 
   LightSettings lightingSettings;
 
-  bool mSpotlightOn;
-
   float mLastFrame;
   float mLastX;
   float mLastY;
@@ -129,11 +145,21 @@ private:
 
   ub_proj_x_view proj_x_view_ub;
 
-#define POST_PROCESS
-#ifdef POST_PROCESS
-  Shader mPostProcess;
+#define BLOOM
+// #define HDR
+#ifdef BLOOM
+#define HDR
+#endif
+
+#ifdef BLOOM
+  Shader mpBrightness;
+  Shader mpGaussian;
+  RenderBuffer mGaussianBuffer;
+#endif
+#ifdef HDR
+  Shader mpBloom;
   DrawTexture mDrawTexture;
-  RenderBuffer mRBuffer;
+  RenderBuffer mHDRBuffer;
 #endif
 
   ShadowMaps mShadows;

@@ -161,7 +161,6 @@ Playground::Playground() :
     NUM_POINT_LIGHTS,
     NUM_SPOT_LIGHTS
   ),
-  mSpotlightOn(false),
   proj_x_view_ub(
     0,
     {
@@ -193,9 +192,14 @@ Playground::Playground() :
 #endif
     }
   ),
-#ifdef POST_PROCESS
-  mPostProcess("./shaders/postprocess/plain.vert", nullptr, "./shaders/postprocess/hdr.frag"),
-  mRBuffer(SAMPLES, RenderBuffer::Format::RGBA16F, 800, 600, 1),
+#ifdef BLOOM
+  mpBrightness("./shaders/postprocess/plain.vs", nullptr, "./shaders/postprocess/brightness.fs"),
+  mpGaussian("./shaders/postprocess/plain.vs", nullptr, "./shaders/postprocess/gaussian.fs"),
+  mGaussianBuffer(1, RenderBuffer::Format::RGB16F, 800, 600, 2),
+#endif
+#ifdef HDR
+  mpBloom("./shaders/postprocess/plain.vs", nullptr, "./shaders/postprocess/bloom.fs"),
+  mHDRBuffer(SAMPLES, RenderBuffer::Format::RGBA16F, 800, 600, 1),
 #endif
   mShadows(NUM_DIR_LIGHTS, NUM_POINT_LIGHTS, NUM_SPOT_LIGHTS)
 {
@@ -203,6 +207,11 @@ Playground::Playground() :
   mLastX = 400;
   mLastY = 300;
   mFirstMouse = true;
+  mSpotlightOn = false;
+  mExposure = 0.f;
+  addExposure(0.7f);
+  mBloomOn = false;
+  toggleBloom();
 }
 
 Playground::~Playground() { }
@@ -381,20 +390,64 @@ void Playground::update(const float& time)
 
 void Playground::render() const
 {
-#ifdef POST_PROCESS
-  glBindFramebuffer(GL_FRAMEBUFFER, mRBuffer.fbo());
+#ifdef HDR
+  // lighting
+  glBindFramebuffer(GL_FRAMEBUFFER, mHDRBuffer.fbo());
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  render(camera());
+  mHDRBuffer.blit();
 
-  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+#ifdef BLOOM
+  // brightness
+  glBindFramebuffer(GL_FRAMEBUFFER, mGaussianBuffer.fbo());
+  glDrawBuffer(GL_COLOR_ATTACHMENT0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  render(camera());
+  mpBrightness.use();
+  mpBrightness.setInt("tex", 0);
+  mDrawTexture.render(mHDRBuffer.textures(0), 1);
 
+  // gaussian / blur
+  const unsigned int PASSES = 10;
+
+  mpGaussian.use();
+  mpGaussian.setInt("tex", 0);
+
+  // brightness / initial value in GL_COLOR_ATTACHMENT0, start with GL_COLOR_ATTACHMENT1
+  bool horizontal = true;
+  for (unsigned int i = 0; i < PASSES; i++) {
+    mpGaussian.setBool("horizontal", horizontal);
+
+    glDrawBuffer(GL_COLOR_ATTACHMENT0 + horizontal);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    mDrawTexture.render(mGaussianBuffer.textures(!horizontal));
+
+    horizontal = !horizontal;
+  }
+#endif
+
+  // draw
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  mpBloom.use();
+  mpBloom.setFloat("u_exposure", mExposure);
+  mpBloom.setInt("scene", 0);
+#ifdef BLOOM
+  mpBloom.setInt("bloom", 1);
+  mpBloom.setBool("u_bloom_on", mBloomOn);
+#else
+  mpBloom.setBool("u_bloom_on", false);
+#endif
 
-  mRBuffer.blit();
-  mPostProcess.use();
-  mPostProcess.setInt("tex", 0);
-  mDrawTexture.render(mPostProcess, *mRBuffer.textures(0));
+  const Texture* scene = mHDRBuffer.textures(0);
+#ifdef BLOOM
+  const Texture* bloom = mGaussianBuffer.textures(0);
+  const Texture texs[2] = { *scene, *bloom };
+  mDrawTexture.render(texs, 2);
+#else
+  mDrawTexture.render(scene, 1);
+#endif
+  // mDrawTexture.render(&texs[1], 1);
 #else
   render(camera());
 #endif
@@ -652,10 +705,15 @@ void Playground::teardown()
   mShadows.unbindTextures();
 #endif
 
-#ifdef POST_PROCESS
-  mPostProcess.free();
+#ifdef BLOOM
+  mpBrightness.free();
+  mpGaussian.free();
+  mGaussianBuffer.free();
+#endif
+#ifdef HDR
+  mpBloom.free();
   mDrawTexture.free();
-  mRBuffer.free();
+  mHDRBuffer.free();
 #endif
 
   mShadows.free();
@@ -708,6 +766,12 @@ void Playground::handleInput(const GLFWwindow* window)
     mCamera.moveLeft(2.5f * deltaTime);
   else if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_D) == GLFW_PRESS)
     mCamera.moveRight(2.5f * deltaTime);
+#ifdef HDR
+  else if (glfwGetKey((GLFWwindow*)window, GLFW_KEY_E) == GLFW_PRESS) {
+    addExposure(0.5f * deltaTime);
+#endif
+  }
+
 #endif
 }
 
@@ -715,6 +779,10 @@ void Playground::onChar(const char c)
 {
   if (c == 'f') {
     toggleSpotLight();
+#ifdef BLOOM
+  } else if (c == 'b') {
+    toggleBloom();
+#endif
   } else if (c == ' ') {
     std::cout << " ";
   }

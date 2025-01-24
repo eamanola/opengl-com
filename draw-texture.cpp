@@ -2,10 +2,17 @@
 
 DrawTexture::DrawTexture() : mMesh(Shapes::QUAD) { }
 
-void DrawTexture::render(const Shader& shader, const Texture& texture) const
+void DrawTexture::render(const Texture* textures, const unsigned int len) const
 {
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture.id);
+  for (unsigned int i = 0; i < len; i++) {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, textures[i].id);
+  }
+
   mMesh.draw();
-  glBindTexture(GL_TEXTURE_2D, 0);
+
+  for (unsigned int i = 0; i < len; i++) {
+    glActiveTexture(GL_TEXTURE0 + i);
+    glBindTexture(GL_TEXTURE_2D, 0);
+  }
 }

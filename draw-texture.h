@@ -2,7 +2,6 @@
 #define DRAW_TEXTURE
 
 #include "mesh.h"
-#include "shader.h"
 #include "texture.h"
 
 class DrawTexture
@@ -13,7 +12,7 @@ public:
 
   void free() const { mMesh.free(); }
 
-  void render(const Shader& shader, const Texture& texture) const;
+  void render(const Texture* texture, const unsigned int len = 1) const;
 
 private:
   const Mesh mMesh;
