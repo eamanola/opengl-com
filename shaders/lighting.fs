@@ -1,5 +1,11 @@
 #version 330 core
 
+struct PhongColor {
+  vec4 ambient;
+  vec4 diffuse;
+  vec4 specular;
+};
+
 // typedefs
 #ifdef MATERIAL
 struct Material {
@@ -27,11 +33,6 @@ struct Attenuation {
 #endif
 
 #ifdef CALC_DIR_LIGHT // or CALC_POINT_LIGHT or CALC_SPOT_LIGHT
-struct PhongColor {
-  vec4 ambient;
-  vec4 diffuse;
-  vec4 specular;
-};
 struct Light {
   PhongColor color;
 
@@ -82,12 +83,13 @@ mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPo
 #endif
 
 #ifdef CALC_ATTENUATION
-float calcAttenuation(Attenuation attenuation, float distance);
+float calcAttenuation(Attenuation attenuation, float dist);
 #endif
 
 #ifdef ENABLE_DIR_SHADOWS
 float calcShadow(vec4 light_space_frag_pos, sampler2D shadowMap);
 #endif
+
 #ifdef ENABLE_CUBE_SHADOWS
 float calcShadow_cube(vec3 frag_pos, vec3 lightPos, samplerCube shadowMap, vec3 normal);
 #endif
@@ -97,6 +99,7 @@ PhongColor calcMaterialColor(Material material, vec2 texCoords);
 #endif
 
 PhongColor calcColor(vec2 texCoords);
+
 PhongColor calcLight(vec3 normal);
 
 #ifdef HEIGHT_MAP
@@ -307,7 +310,7 @@ vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
     // discard;
     return vec2(-1.0);
 
-  float step = 1.0 / numSteps;
+  float stepSize = 1.0 / numSteps;
 
   vec2 offsetLimit = tan_view_dir.xy / tan_view_dir.z;
   vec2 p = offsetLimit * u_height_scale;
@@ -320,14 +323,14 @@ vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
   while (current < height) {
     tex -= deltaTex;
     height = texture(u_material.texture_height1, tex).r;
-    current += step;
+    current += stepSize;
   }
 
   // Parallax Occlusion
   vec2 prevTex = tex + deltaTex;
 
   float after = height - current;
-  float before = texture(u_material.texture_height1, prevTex).r - current + step;
+  float before = texture(u_material.texture_height1, prevTex).r - current + stepSize;
 
   float weight = after / (after - before);
   vec2 occulated = prevTex * weight + tex * (1 - weight);
@@ -355,8 +358,8 @@ vec2 parallax(vec2 texCoords, vec3 tan_view_dir)
 #ifdef MATERIAL
 PhongColor calcMaterialColor(Material material, vec2 texCoords)
 {
-  vec4 diffuseColor = vec4(texture(material.texture_diffuse1, texCoords));
-  vec4 specularColor = vec4(texture(material.texture_specular1, texCoords));
+  vec4 diffuseColor = texture(material.texture_diffuse1, texCoords);
+  vec4 specularColor = texture(material.texture_specular1, texCoords);
 
   diffuseColor += material.diffuse_color;
   specularColor += material.specular_color;
@@ -366,10 +369,9 @@ PhongColor calcMaterialColor(Material material, vec2 texCoords)
 #endif
 
 #ifdef CALC_ATTENUATION
-float calcAttenuation(Attenuation attenuation, float distance)
+float calcAttenuation(Attenuation atte, float dist)
 {
-  return 1.0 / (attenuation.constant + attenuation.linear * distance +
-                attenuation.quadratic * (distance * distance));
+  return 1.0 / (atte.constant + atte.linear * dist + atte.quadratic * (dist * dist));
 }
 #endif
 
@@ -404,9 +406,9 @@ mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
 #ifdef CALC_POINT_LIGHT
 mat3x4 calcPointLight(PointLight pointLight, vec3 normal, vec3 viewDir, vec3 fragPos)
 {
-  vec3 lightDiff = pointLight.position - fragPos;
-  vec3 lightDir = normalize(lightDiff);
-  float lightDist = length(lightDiff);
+  vec3 diff = pointLight.position - fragPos;
+  vec3 lightDir = normalize(diff);
+  float lightDist = length(diff);
 
   float attenuation = calcAttenuation(pointLight.attenuation, lightDist);
 
@@ -417,8 +419,8 @@ mat3x4 calcPointLight(PointLight pointLight, vec3 normal, vec3 viewDir, vec3 fra
 #ifdef CALC_SPOT_LIGHT
 mat3x4 calcSpotLight(SpotLight spotLight, vec3 normal, vec3 viewDir, vec3 fragPos)
 {
-  vec3 lightDiff = spotLight.position - fragPos;
-  vec3 lightDir = normalize(lightDiff);
+  vec3 diff = spotLight.position - fragPos;
+  vec3 lightDir = normalize(diff);
 
   float theta = dot(lightDir, normalize(-spotLight.direction));
   float epsilon = (spotLight.cutOff - spotLight.outerCutOff);

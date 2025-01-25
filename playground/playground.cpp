@@ -356,8 +356,8 @@ void Playground::update(const float& time)
   }
 #ifdef FOLLOW_WHIPPER
   const glm::vec3& whipperPos = whipper.position();
-  camera().setPosition(whipperPos + glm::vec3(0.f, 1.f, 8.f));
-  camera().pointTo(whipperPos + glm::vec3(0.f, 1.f, 0.f));
+  mCamera.setPosition(whipperPos + glm::vec3(0.f, 1.f, 8.f));
+  mCamera.pointTo(whipperPos + glm::vec3(0.f, 1.f, 0.f));
 #endif
 
 #if NUM_DIR_LIGHTS > 0
