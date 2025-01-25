@@ -1,4 +1,5 @@
 #version 330 core
+
 out vec4 f_color;
 
 in vec3 v_frag_pos;
@@ -12,7 +13,7 @@ void main()
 {
   vec3 i = normalize(v_frag_pos - u_view_pos);
   vec3 r;
-  if(u_ratio == 0.0)
+  if (u_ratio == 0.0)
     r = reflect(i, v_normal);
   else
     r = refract(i, v_normal, u_ratio);

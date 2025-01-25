@@ -1,43 +1,7 @@
 #version 330 core
 
-layout (location = 0) in vec3 in_position;
-
-#ifdef NORMAL
-layout (location = 1) in vec3 in_normal;
-#endif
-
-#ifdef TEX_COORDS
-layout (location = 2) in vec2 in_tex_coords;
-#endif
-
-#ifdef TANGENT
-layout (location = 3) in vec3 in_tangent;
-#endif
-
-#ifdef IN_V_COLOR
-layout (location = 4) in vec4 in_color;
-#endif
-
-#ifdef INSTANCED
-layout (location = 5) in mat4 u_model;
-layout (location = 9) in mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
-#else
-uniform mat4 u_model;
-uniform mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
-#endif
-
-#ifdef SKELETAL
-layout (location = 12) in vec4 in_bone_ids; // TODO: why uvec4 breaks?
-layout (location = 13) in vec4 in_bone_weights;
-#endif
-
-// uniform mat4 u_proj_x_view;
-layout(packed) uniform ub_proj_x_view
-{
-  mat4 proj_x_view;
-};
-
 // Shadows dont need vsout, resulting in out vsout {} -> err
+// use plain instead? atm compiles to samne
 #ifndef NORMAL_MAP
 #ifndef NORMAL
 #ifndef FRAG_POS
@@ -90,8 +54,43 @@ out vsout
 #ifdef HEIGHT_MAP
   vec3 tan_view_dir;
 #endif
-} vs_out;
+}
+vs_out;
 #endif
+
+layout(location = 0) in vec3 in_position;
+
+#ifdef NORMAL
+layout(location = 1) in vec3 in_normal;
+#endif
+
+#ifdef TEX_COORDS
+layout(location = 2) in vec2 in_tex_coords;
+#endif
+
+#ifdef TANGENT
+layout(location = 3) in vec3 in_tangent;
+#endif
+
+#ifdef IN_V_COLOR
+layout(location = 4) in vec4 in_color;
+#endif
+
+#ifdef INSTANCED
+layout(location = 5) in mat4 u_model;
+layout(location = 9) in mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
+#else
+uniform mat4 u_model;
+uniform mat3 u_trans_inver_model; // mat3(transpose(inverse(u_model)))
+#endif
+
+#ifdef SKELETAL
+layout(location = 12) in vec4 in_bone_ids; // TODO: why uvec4 breaks?
+layout(location = 13) in vec4 in_bone_weights;
+#endif
+
+// uniform mat4 u_proj_x_view;
+layout(packed) uniform ub_proj_x_view { mat4 proj_x_view; };
 
 #ifdef SKELETAL
 const uint MAX_BONE_INFLUECE = 4u;
@@ -115,7 +114,7 @@ void main()
 
 #ifdef SKELETAL
   mat4 boneTransform = mat4(0.0);
-  for(uint i = 0u; i < MAX_BONE_INFLUECE; i++)
+  for (uint i = 0u; i < MAX_BONE_INFLUECE; i++)
     boneTransform += u_bone_transforms[uint(in_bone_ids[i])] * in_bone_weights[i];
 
   model = model * boneTransform;
@@ -125,9 +124,9 @@ void main()
   vec4 position = model * vec4(in_position, 1.0);
 
 #ifndef NORMAL_MAP
-  #ifdef NORMAL
+#ifdef NORMAL
   vs_out.normal = trans_inver_model * in_normal;
-  #endif
+#endif
 #endif
 
 #ifdef FRAG_POS
@@ -147,8 +146,7 @@ void main()
 #endif
 
 #ifdef ENABLE_DIR_SHADOWS
-  for(uint i = 0u; i < uint(IN_NR_DIR_LIGHTS); i++)
-  {
+  for (uint i = 0u; i < uint(IN_NR_DIR_LIGHTS); i++) {
     vs_out.light_space_frag_pos[i] = u_light_space[i] * position;
   }
 #endif

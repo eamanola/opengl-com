@@ -149,18 +149,6 @@ Playground::Playground() :
     }
   ),
 #endif
-  lightingSettings(
-    1,
-    { mpSkeletal,
-      mpSkeletalNormalMap,
-      mpLighting,
-      mpLightingNormalHeightMap,
-      mpFloor,
-      mpInstanced },
-    NUM_DIR_LIGHTS,
-    NUM_POINT_LIGHTS,
-    NUM_SPOT_LIGHTS
-  ),
   proj_x_view_ub(
     0,
     {
@@ -191,6 +179,20 @@ Playground::Playground() :
       mpNormals,
 #endif
     }
+  ),
+  lightingSettings(
+    1,
+    {
+      mpSkeletal,
+      mpSkeletalNormalMap,
+      mpLighting,
+      mpLightingNormalHeightMap,
+      mpFloor,
+      mpInstanced,
+    },
+    NUM_DIR_LIGHTS,
+    NUM_POINT_LIGHTS,
+    NUM_SPOT_LIGHTS
   ),
 #ifdef BLOOM
   mpBrightness("./shaders/postprocess/plain.vs", nullptr, "./shaders/postprocess/brightness.fs"),

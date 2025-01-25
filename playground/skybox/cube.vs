@@ -1,7 +1,8 @@
 #version 330 core
-layout (location = 0) in vec3 in_position;
 
 out vec3 v_tex_coords;
+
+layout(location = 0) in vec3 in_position;
 
 uniform mat4 u_proj_x_view;
 

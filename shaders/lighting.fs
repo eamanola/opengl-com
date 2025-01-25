@@ -1,7 +1,6 @@
 #version 330 core
 
-out vec4 f_color;
-
+// typedefs
 #ifdef MATERIAL
 struct Material {
   sampler2D texture_diffuse1;
@@ -103,6 +102,9 @@ PhongColor calcLight(vec3 normal);
 #ifdef HEIGHT_MAP
 vec2 parallax(vec2 texCoords, vec3 tan_view_dir);
 #endif
+// end typedefs
+
+out vec4 f_color;
 
 in vsout
 {
@@ -142,6 +144,22 @@ in vsout
 }
 fs_in;
 
+// layout(std140) uniform ub_lights
+layout(packed) uniform ub_lights
+{
+#ifdef HAS_DIR_LIGHTS
+  DirLight u_dir_lights[IN_NR_DIR_LIGHTS];
+#endif
+
+#ifdef HAS_POINT_LIGHTS
+  PointLight u_point_lights[IN_NR_POINT_LIGHTS];
+#endif
+
+#ifdef HAS_SPOT_LIGHTS
+  SpotLight u_spot_lights[IN_NR_SPOT_LIGHTS];
+#endif
+};
+
 #ifdef MATERIAL
 uniform Material u_material;
 #endif
@@ -157,21 +175,6 @@ uniform float u_far;
 #ifdef HEIGHT_MAP
 uniform float u_height_scale;
 #endif
-
-layout(std140) uniform ub_lights
-{
-#ifdef HAS_DIR_LIGHTS
-  DirLight u_dir_lights[IN_NR_DIR_LIGHTS];
-#endif
-
-#ifdef HAS_POINT_LIGHTS
-  PointLight u_point_lights[IN_NR_POINT_LIGHTS];
-#endif
-
-#ifdef HAS_SPOT_LIGHTS
-  SpotLight u_spot_lights[IN_NR_SPOT_LIGHTS];
-#endif
-};
 
 void main()
 {

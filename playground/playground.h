@@ -136,14 +136,13 @@ private:
   Shader mpNormals;
 #endif
 
-  LightSettings lightingSettings;
-
   float mLastFrame;
   float mLastX;
   float mLastY;
   bool mFirstMouse;
 
   ub_proj_x_view proj_x_view_ub;
+  LightSettings lightingSettings;
 
 #define BLOOM
 // #define HDR
