@@ -36,7 +36,7 @@ void u_material::bindTextures(const Shader& shader, const Texture* textures, con
     }
 
     glActiveTexture(GL_TEXTURE0 + LOCATIONS::TEXTURES::MATERIAL0 + i);
-    shader.setInt(("u_material." + name + number).c_str(), LOCATIONS::TEXTURES::MATERIAL0 + i);
+    shader.setSampler(("u_material." + name + number).c_str(), LOCATIONS::TEXTURES::MATERIAL0 + i);
     glBindTexture(GL_TEXTURE_2D, textures[i].id);
   }
 
@@ -64,11 +64,11 @@ void u_material::unbindTextures(
     glActiveTexture(GL_TEXTURE0);
 
     // TODO
-    shader.setInt("u_material.texture_diffuse1", 0);
-    shader.setInt("u_material.texture_specular1", 0);
-    shader.setInt("u_material.texture_normal1", 0);
-    shader.setInt("u_material.texture_height1", 0);
-    shader.setInt("u_material.texture_emissive1", 0);
+    shader.setSampler("u_material.texture_diffuse1", 0);
+    shader.setSampler("u_material.texture_specular1", 0);
+    shader.setSampler("u_material.texture_normal1", 0);
+    shader.setSampler("u_material.texture_height1", 0);
+    shader.setSampler("u_material.texture_emissive1", 0);
   }
 }
 

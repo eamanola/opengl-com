@@ -79,8 +79,6 @@ void Shader::use() const { glUseProgram(ID); }
 
 void Shader::free() const { glDeleteProgram(ID); }
 
-void Shader::setBool(const char* name, const bool& value) const { setInt(name, (int)value); }
-
 void Shader::setInt(const char* name, const int& value) const
 {
   glUniform1i(glGetUniformLocation(ID, name), value);

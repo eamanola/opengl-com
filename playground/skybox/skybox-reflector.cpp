@@ -76,7 +76,7 @@ void SkyboxReflector::draw(const Shader& shader) const
 
   glActiveTexture(GL_TEXTURE0 + LOCATIONS::TEXTURES::SKYBOX_REFLECTOR);
   glBindTexture(GL_TEXTURE_CUBE_MAP, mTexture.id);
-  shader.setInt("skybox", LOCATIONS::TEXTURES::SKYBOX_REFLECTOR);
+  shader.setSampler("skybox", LOCATIONS::TEXTURES::SKYBOX_REFLECTOR);
 
   mMesh.draw();
 

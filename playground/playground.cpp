@@ -309,11 +309,11 @@ void Playground::setup()
   mpFloor.setFloat("u_far", CUBE_FAR);
   unsigned int first = LOCATIONS::TEXTURES::SHADOWMAPS0;
   for (unsigned int i = 0; i < NUM_DIR_LIGHTS; i++) {
-    mpFloor.setInt(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
+    mpFloor.setSampler(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
   }
   first += NUM_DIR_LIGHTS;
   for (unsigned int i = 0; i < NUM_POINT_LIGHTS; i++) {
-    mpFloor.setInt(("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
+    mpFloor.setSampler(("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
   }
 
   mpInstanced.use();
@@ -324,11 +324,11 @@ void Playground::setup()
   mpInstanced.setFloat("u_far", CUBE_FAR);
   first = LOCATIONS::TEXTURES::SHADOWMAPS0;
   for (unsigned int i = 0; i < NUM_DIR_LIGHTS; i++) {
-    mpInstanced.setInt(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
+    mpInstanced.setSampler(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
   }
   first += NUM_DIR_LIGHTS;
   for (unsigned int i = 0; i < NUM_POINT_LIGHTS; i++) {
-    mpInstanced.setInt(("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
+    mpInstanced.setSampler(("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
   }
 
 // mpLighting.setFloat("u_time", -M_PI_2);
@@ -383,7 +383,7 @@ void Playground::update(const float& time)
 
 #ifdef SHADOW_DEBUG
   mpShadowsDebug.use();
-  mpShadowsDebug.setInt("depthMap", 0);
+  mpShadowsDebug.setSampler("depthMap", 0);
   mDrawTexture.render(mpShadowsDebug, mShadows.mDirLights[0].second)
 #endif
 }
@@ -404,14 +404,14 @@ void Playground::render() const
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   mpBrightness.use();
-  mpBrightness.setInt("tex", 0);
+  mpBrightness.setSampler("tex", 0);
   mDrawTexture.render(mHDRBuffer.textures(0), 1);
 
   // gaussian / blur
   const unsigned int PASSES = 10;
 
   mpGaussian.use();
-  mpGaussian.setInt("tex", 0);
+  mpGaussian.setSampler("tex", 0);
 
   // brightness / initial value in GL_COLOR_ATTACHMENT0, start with GL_COLOR_ATTACHMENT1
   bool horizontal = true;
@@ -431,9 +431,9 @@ void Playground::render() const
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   mpBloom.use();
   mpBloom.setFloat("u_exposure", mExposure);
-  mpBloom.setInt("scene", 0);
+  mpBloom.setSampler("scene", 0);
 #ifdef BLOOM
-  mpBloom.setInt("bloom", 1);
+  mpBloom.setSampler("bloom", 1);
   mpBloom.setBool("u_bloom_on", mBloomOn);
 #else
   mpBloom.setBool("u_bloom_on", false);
