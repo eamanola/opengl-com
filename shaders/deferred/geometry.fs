@@ -31,7 +31,7 @@ PhongColor calcMaterialColor(Material material, vec2 texCoords);
 PhongColor calcColor(vec2 texCoords);
 
 #ifdef HEIGHT_MAP
-vec2 parallax(vec2 texCoords, vec3 tan_view_dir);
+vec2 parallax(vec2 texCoords, vec3 tanViewDir);
 #endif
 // end typedefs
 
@@ -54,10 +54,6 @@ in vsout
 
 #ifdef FRAG_POS
   vec3 frag_pos;
-#endif
-
-#ifdef VIEW_DIR
-  vec3 view_dir;
 #endif
 
 #ifdef TEX_COORDS
@@ -159,11 +155,11 @@ PhongColor calcColor(vec2 texCoords)
 }
 
 #ifdef HEIGHT_MAP
-vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
+vec2 steepParallax(vec2 texCoords, vec3 tanViewDir)
 {
   const float minSteps = 8.0;
   const float maxSteps = 32.0;
-  float numSteps = mix(maxSteps, minSteps, max(dot(vec3(0.0, 0.0, 1.0), tan_view_dir), 0.0));
+  float numSteps = mix(maxSteps, minSteps, max(dot(vec3(0.0, 0.0, 1.0), tanViewDir), 0.0));
 
   if (numSteps < minSteps)
     // discard;
@@ -171,7 +167,7 @@ vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
 
   float stepSize = 1.0 / numSteps;
 
-  vec2 offsetLimit = tan_view_dir.xy / tan_view_dir.z;
+  vec2 offsetLimit = tanViewDir.xy / tanViewDir.z;
   vec2 p = offsetLimit * u_height_scale;
   vec2 deltaTex = p / numSteps;
 
@@ -197,11 +193,11 @@ vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
   return occulated;
 }
 
-vec2 parallax(vec2 texCoords, vec3 tan_view_dir)
+vec2 parallax(vec2 texCoords, vec3 tanViewDir)
 {
-  return steepParallax(texCoords, tan_view_dir);
+  return steepParallax(texCoords, tanViewDir);
   // // adjust height depending on view angle, 0 perpendicular, 1 parallel
-  // vec2 offsetLimit = tan_view_dir.xy / tan_view_dir.z;
+  // vec2 offsetLimit = tanViewDir.xy / tanViewDir.z;
 
   // // extra control
   // const float height_scale = 0.1;

@@ -2,7 +2,7 @@
 #define PLAYGROUND_H
 
 #define POINTLIGHT_DEBUG
-// #define SHADOW_DEBUG
+#define NORMALS_DEBUG
 #define DEFERRED
 
 #include "box.h"
@@ -98,7 +98,7 @@ private:
     const Shader** shaders
   ) const;
 
-  void renderBlend(
+  void renderForward(
     const glm::mat4& projection,
     const glm::mat4& view,
     const glm::vec3& view_pos,
@@ -108,70 +108,46 @@ private:
 
   enum ShadersIndex {
     ISKELETAL,
+    ISKELETAL_NORMAL_MAP,
+    INORMAL_HEIGHT, // todo: line bug
+    IINSTANCED,
+#ifdef POINTLIGHT_DEBUG
+    IPLAIN,
+#endif
+#ifdef NORMALS_DEBUG
+    INORMALS,
+#endif
+    IREFLECT_SKYBOX,
+    ILIGHTING_DEFF,
     ILIGHTING,
     IFLOOR,
-    IINSTANCED,
-    IPLAIN,
-    INORMALS,
-    IREFLECT_SKYBOX,
     ISKYBOX,
-    INORMAL_MAP,
-    ISKELETAL_NORMAL_MAP,
   };
 
-  Shader mp_Skeletal_shadow;
-  Shader mp_Skeletal_cshadow;
   Tifa tifa;
   Dae dae;
   Whipper whipper;
 
-  Shader mpSkeletalNormalMap;
   Icarus icarus;
 
-  Shader mpLighting;
-  Shader mp_Lighting_shadow;
-  Shader mp_Lighting_cshadow;
   Model simpleModel;
   Grass grass;
   Window window;
   Mirror mirror;
 
-  Shader mpLightingNormalHeightMap;
   Wall wall;
   Toy toy;
 
-  Shader mpFloor;
-  Shader mp_Floor_shadow;
-  Shader mp_Floor_cshadow;
   Floor floor;
 
-  Shader mpInstanced;
-  Shader mp_Instanced_shadow;
-  Shader mp_Instanced_cshadow;
   Box box;
 
-  Shader mpSkybox;
   Skybox skybox;
 
-  Shader mpReflectSkybox;
-  Shader mp_ReflectSkybox_shadow;
-  Shader mp_ReflectSkybox_cshadow;
   SkyboxReflector skyboxReflector;
 
-#ifdef SHADOW_DEBUG
-  Shader mpShadowsDebug;
-#endif
-
 #ifdef POINTLIGHT_DEBUG
-  Shader mpPlain;
-  Shader mp_Plain_shadow;
-  Shader mp_Plain_cshadow;
   LightDebug pointLightDebug;
-#endif
-
-#define NORMALS_DEBUG
-#ifdef NORMALS_DEBUG
-  Shader mpNormals;
 #endif
 
   float mLastFrame;
@@ -179,13 +155,52 @@ private:
   float mLastY;
   bool mFirstMouse;
 
+  // renderers
 #ifdef DEFERRED
   GBuffer gBuffer;
-  Shader mpGeometryDeffSkele;
-  Shader mpLightingDeff;
+  Shader mpDeferredLighting;
+
+  Shader mpGSkeletal;
+  Shader mpGSkeletalNormal;
+  Shader mpGNormalHeight;
+  Shader mpGInstanced;
+  Shader mpGLighting;
 #else
   Shader mpSkeletal;
+  Shader mpSkeletalNormal;
+  Shader mpNormalHeight;
+  Shader mpInstanced;
 #endif
+#ifdef POINTLIGHT_DEBUG
+  Shader mpPlain;
+#endif
+#ifdef NORMALS_DEBUG
+  Shader mpNormals;
+#endif
+  Shader mpReflectSkybox;
+  Shader mpLighting;
+  Shader mpFloor;
+  Shader mpSkybox;
+
+  // dir shadow renderers
+  Shader mp_Skeletal_shadow;
+  Shader mp_Lighting_shadow;
+  Shader mp_Instanced_shadow;
+#ifdef POINTLIGHT_DEBUG
+  Shader mp_Plain_shadow;
+#endif
+  Shader mp_ReflectSkybox_shadow;
+  Shader mp_Floor_shadow;
+
+  // cube shadow renderers
+  Shader mp_Skeletal_cshadow;
+  Shader mp_Lighting_cshadow;
+  Shader mp_Instanced_cshadow;
+#ifdef POINTLIGHT_DEBUG
+  Shader mp_Plain_cshadow;
+#endif
+  Shader mp_ReflectSkybox_cshadow;
+  Shader mp_Floor_cshadow;
 
   ub_proj_x_view proj_x_view_ub;
   LightSettings lightingSettings;

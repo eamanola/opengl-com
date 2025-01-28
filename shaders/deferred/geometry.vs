@@ -31,10 +31,6 @@ out vsout
   vec3 frag_pos;
 #endif
 
-#ifdef VIEW_DIR
-  vec3 view_dir;
-#endif
-
 #ifdef TEX_COORDS
   vec2 tex_coords;
 #endif
@@ -125,10 +121,6 @@ void main()
   vs_out.frag_pos = vec3(position);
 #endif
 
-#ifdef VIEW_DIR
-  vs_out.view_dir = normalize(u_view_pos - vs_out.frag_pos);
-#endif
-
 #ifdef TEX_COORDS
   vs_out.tex_coords = in_tex_coords;
 #endif
@@ -151,7 +143,7 @@ void main()
 #endif
 
 #ifdef HEIGHT_MAP
-  vs_out.tan_view_dir = normalize(transpose(tbn) * vs_out.view_dir);
+  vs_out.tan_view_dir = normalize(transpose(tbn) * normalize(u_view_pos - vs_out.frag_pos));
 #endif
 
   gl_Position = proj_x_view * position;
