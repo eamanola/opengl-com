@@ -6,6 +6,7 @@ OBJS = glad/src/gl.c stb_image/src/stb_image.c \
 	disco/*.cpp \
 	gl-utils/*.cpp \
 	shaders/*.cpp \
+	shaders/deferred/*.cpp \
 	utils/*.cpp \
 	shadow-maps/*.cpp
 

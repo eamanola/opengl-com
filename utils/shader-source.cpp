@@ -17,7 +17,7 @@ std::string Utils::shaderSource(
       pFiles.push_back(Utils::readFile(prependFiles[i].c_str()));
     }
   } catch (std::ifstream::failure& e) {
-    std::cout << "Error loading shader" << e.what() << std::endl;
+    std::cout << "Error loading shader\n" << path << "\n" << e.what() << std::endl;
     return 0;
   }
 

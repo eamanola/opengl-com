@@ -12,18 +12,6 @@
 #define SAMPLES 4
 
 Playground::Playground() :
-  mpSkeletal(
-    "./shaders/lighting.vs",
-    nullptr,
-    "./shaders/lighting.fs",
-    {
-      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
-      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
-      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
-      "#define SKELETAL\n",
-    },
-    { "shaders/lighted-shader-defines" }
-  ),
   mp_Skeletal_shadow(
     "./shaders/lighting.vs", nullptr, "./shadow-maps/simple-depth.fs", { "#define SKELETAL\n" }
   ),
@@ -148,11 +136,56 @@ Playground::Playground() :
       "#define NORMAL\n",
     }
   ),
+#ifdef DEFERRED
+  gBuffer(800, 600),
+  mpGeometryDeffSkele(
+    "./shaders/deferred/geometry.vs",
+    nullptr,
+    "./shaders/deferred/geometry.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define SKELETAL\n",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
+  mpLightingDeff(
+    "./shaders/deferred/lighting.vs",
+    nullptr,
+    "./shaders/deferred/lighting.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define SKELETAL\n",
+      "#define IN_RENDER_SHADOWS\n",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
+#else
+  mpSkeletal(
+    "./shaders/lighting.vs",
+    nullptr,
+    "./shaders/lighting.fs",
+    {
+      "#define IN_NR_DIR_LIGHTS " + std::to_string(NUM_DIR_LIGHTS) + "\n",
+      "#define IN_NR_POINT_LIGHTS " + std::to_string(NUM_POINT_LIGHTS) + "\n",
+      "#define IN_NR_SPOT_LIGHTS " + std::to_string(NUM_SPOT_LIGHTS) + "\n",
+      "#define SKELETAL\n",
+    },
+    { "shaders/lighted-shader-defines" }
+  ),
+#endif
 #endif
   proj_x_view_ub(
     0,
     {
+#ifdef DEFERRED
+      mpGeometryDeffSkele,
+#else
       mpSkeletal,
+#endif
       mp_Skeletal_shadow,
       mp_Skeletal_cshadow,
       mpSkeletalNormalMap,
@@ -183,7 +216,11 @@ Playground::Playground() :
   lightingSettings(
     1,
     {
+#ifdef DEFERRED
+      mpLightingDeff,
+#else
       mpSkeletal,
+#endif
       mpSkeletalNormalMap,
       mpLighting,
       mpLightingNormalHeightMap,
@@ -257,7 +294,7 @@ void Playground::setup()
 
   floor.setModel(glm::rotate(glm::mat4(1.f), glm::radians(-90.f), glm::vec3(1.f, 0.f, 0.f)));
 
-  window.setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, -1.f)));
+  window.setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 2.f, -1.f)));
 
   wall.setModel(glm::translate(glm::mat4(1.f), glm::vec3(4.5f, 1.f, 0.f)));
   toy.setModel(glm::translate(glm::mat4(1.f), glm::vec3(4.5f, 3.f, 0.f)));
@@ -281,15 +318,13 @@ void Playground::setup()
     light_spaces.push_back(
       mShadows.light_space(-dirLight.direction * DIR_LIGHT_DISTANCE, glm::vec3(0.f))
     );
+  unsigned int first;
 
 #if (NUM_DIR_LIGHTS > 0) or (NUM_POINT_LIGHTS > 0)
   mShadows.bindTextures();
 #endif
 
 #define SHININESS 32.f
-  mpSkeletal.use();
-  mpSkeletal.setFloat("u_material.shininess", SHININESS);
-
   mpSkeletalNormalMap.use();
   mpSkeletalNormalMap.setFloat("u_material.shininess", SHININESS);
   mpSkeletalNormalMap.setVec4fv("u_material.specular_color", Color { 0.5f });
@@ -301,18 +336,40 @@ void Playground::setup()
   mpLightingNormalHeightMap.setFloat("u_material.shininess", SHININESS);
   mpLightingNormalHeightMap.setFloat("u_height_scale", 0.15);
 
+#ifdef DEFERRED
+  mpLightingDeff.use();
+  mpLightingDeff.setFloat("u_shininess", SHININESS);
+  // draw dir shadow map
+  for (unsigned int i = 0; i < light_spaces.size(); i++) {
+    mpLightingDeff.setMat4fv(("u_light_space[" + std::to_string(i) + "]").c_str(), light_spaces[i]);
+  }
+  first = LOCATIONS::TEXTURES::SHADOWMAPS0;
+  for (unsigned int i = 0; i < NUM_DIR_LIGHTS; i++) {
+    mpLightingDeff.setSampler(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
+  }
+  // draw cube shadow map
+  mpLightingDeff.setFloat("u_far", CUBE_FAR);
+  first += NUM_DIR_LIGHTS;
+  for (unsigned int i = 0; i < NUM_POINT_LIGHTS; i++) {
+    mpLightingDeff.setSampler(
+      ("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first
+    );
+  }
+#else
+  mpSkeletal.use();
+  mpSkeletal.setFloat("u_material.shininess", SHININESS);
+#endif
+
   mpFloor.use();
   mpFloor.setFloat("u_material.shininess", SHININESS);
-  // draw dir shadow map
   for (unsigned int i = 0; i < light_spaces.size(); i++) {
     mpFloor.setMat4fv(("u_light_space[" + std::to_string(i) + "]").c_str(), light_spaces[i]);
   }
-  // draw cube shadow map
-  mpFloor.setFloat("u_far", CUBE_FAR);
-  unsigned int first = LOCATIONS::TEXTURES::SHADOWMAPS0;
+  first = LOCATIONS::TEXTURES::SHADOWMAPS0;
   for (unsigned int i = 0; i < NUM_DIR_LIGHTS; i++) {
     mpFloor.setSampler(("u_dir_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
   }
+  mpFloor.setFloat("u_far", CUBE_FAR);
   first += NUM_DIR_LIGHTS;
   for (unsigned int i = 0; i < NUM_POINT_LIGHTS; i++) {
     mpFloor.setSampler(("u_point_shadow_maps[" + std::to_string(i) + "]").c_str(), i + first);
@@ -394,9 +451,7 @@ void Playground::render() const
 {
 #ifdef HDR
   // lighting
-  glBindFramebuffer(GL_FRAMEBUFFER, mHDRBuffer.fbo());
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  render(camera());
+  render(mHDRBuffer.fbo(), this->camera());
   mHDRBuffer.blit();
 
 #ifdef BLOOM
@@ -449,80 +504,151 @@ void Playground::render() const
 #else
   mDrawTexture.render(scene, 1);
 #endif
-  // mDrawTexture.render(&texs[1], 1);
+// mDrawTexture.render(&texs[1], 1);
 #else
   render(camera());
 #endif
 }
 
-void Playground::render(const Camera& camera) const
+void Playground::render(const unsigned int fbo, const Camera& camera) const
 {
-#ifdef NORMALS_DEBUG
-  const Shader* p_normals = &mpNormals;
+  const Shader* shaders[10];
+  shaders[ShadersIndex::ISKELETAL] =
+#ifdef DEFERRED
+    &mpGeometryDeffSkele
 #else
-  const Shader* p_normals = nullptr;
+    &mpSkeletal
 #endif
+    ;
+  shaders[ShadersIndex::ILIGHTING] = &mpLighting;
+  shaders[ShadersIndex::IFLOOR] = &mpFloor;
+  shaders[ShadersIndex::IINSTANCED] = &mpInstanced;
+  shaders[ShadersIndex::IPLAIN] =
 #ifdef POINTLIGHT_DEBUG
-  const Shader* p_plain = &mpPlain;
+    &mpPlain
 #else
-  const Shader* p_plain = nullptr;
+    nullptr
 #endif
-  const Shader* shaders[] = {
-    &mpSkeletal,          &mpLighting, &mpFloor,
-    &mpInstanced,         p_plain,     p_normals,
-    &mpReflectSkybox,     &mpSkybox,   &mpLightingNormalHeightMap,
-    &mpSkeletalNormalMap,
-  };
+    ;
+  shaders[ShadersIndex::INORMALS] =
+#ifdef NORMALS_DEBUG
+    &mpNormals
+#else
+    nullptr
+#endif
+    ;
+  shaders[ShadersIndex::IREFLECT_SKYBOX] = &mpReflectSkybox;
+  shaders[ShadersIndex::ISKYBOX] = &mpSkybox;
+  shaders[ShadersIndex::INORMAL_MAP] = &mpLightingNormalHeightMap;
+  shaders[ShadersIndex::ISKELETAL_NORMAL_MAP] = &mpSkeletalNormalMap;
+
+#ifdef DEFERRED
+  glBindFramebuffer(GL_FRAMEBUFFER, gBuffer.fbo());
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  const glm::mat4& projection = camera.projection();
+  const glm::mat4& view = camera.view();
+  const glm::vec3& view_pos = camera.position();
+  const glm::vec3& view_dir = camera.front();
+  const glm::mat4 proj_x_view = projection * view;
+
+  lightingSettings.updatePointLight0Position();
+  lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
+  proj_x_view_ub.set(proj_x_view);
+
+  renderDeffered(projection, view, view_pos, view_dir, shaders);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // mpBloom.use();
+  // mpBloom.setFloat("u_exposure", mExposure);
+  // mpBloom.setSampler("scene", 0);
+  // mpBloom.setBool("u_bloom_on", false);
+  // mDrawTexture.render(gBuffer.textures(4), 1);
+  // return;
+
+  mpLightingDeff.use();
+  mpLightingDeff.setSampler("in_position", 0);
+  mpLightingDeff.setSampler("in_normal", 1);
+  mpLightingDeff.setSampler("in_color", 2);
+  mpLightingDeff.setSampler("in_alpha", 3);
+  mpLightingDeff.setSampler("in_specular", 4);
+  mpLightingDeff.setSampler("in_emissive", 5);
+  mpLightingDeff.setSampler("in_depth", 6);
+  mpLightingDeff.setVec3fv("u_view_dir", view_dir);
+
+  mDrawTexture.render(gBuffer.textures(), gBuffer.count());
+
+  // glBindFramebuffer(GL_READ_FRAMEBUFFER, gBuffer.fbo());
+  // glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+  // glBlitFramebuffer(0, 0, 800.f, 600.f, 0, 0, 800.f, 600.f, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+  renderBlend(projection, view, view_pos, view_dir, shaders);
+
+#else
+
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   renderScene(camera.projection(), camera.view(), camera.position(), camera.front(), shaders);
+#endif
 }
 
-void Playground::renderShadowMap(const glm::mat4& projection, const glm::mat4& view) const
+void Playground::renderShadowMap(
+  const unsigned int fbo, const glm::mat4& projection, const glm::mat4& view
+) const
 {
+  const Shader* shaders[10];
+  shaders[ShadersIndex::ISKELETAL] = &mp_Skeletal_shadow;
+  shaders[ShadersIndex::ILIGHTING] = &mp_Lighting_shadow;
+  shaders[ShadersIndex::IFLOOR] = &mp_Floor_shadow;
+  shaders[ShadersIndex::IINSTANCED] = &mp_Instanced_shadow;
+  shaders[ShadersIndex::IPLAIN] =
 #ifdef POINTLIGHT_DEBUG
-  const Shader* p_plain = &mp_Plain_shadow;
+    &mp_Plain_shadow
 #else
-  const Shader* p_plain = nullptr;
+    nullptr
 #endif
+    ;
+  shaders[ShadersIndex::INORMALS] = nullptr;
+  shaders[ShadersIndex::IREFLECT_SKYBOX] = &mp_ReflectSkybox_shadow;
+  shaders[ShadersIndex::ISKYBOX] = nullptr;
+  shaders[ShadersIndex::INORMAL_MAP] = &mp_Lighting_shadow;
+  shaders[ShadersIndex::ISKELETAL_NORMAL_MAP] = &mp_Skeletal_shadow;
 
-  const Shader* shaders[] = {
-    &mp_Skeletal_shadow,
-    &mp_Lighting_shadow,
-    &mp_Floor_shadow,
-    &mp_Instanced_shadow,
-    p_plain,
-    nullptr,
-    &mp_ReflectSkybox_shadow,
-    nullptr,
-    &mp_Lighting_shadow,
-    &mp_Skeletal_shadow,
-  };
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  return renderScene(projection, view, glm::vec3(0), glm::vec3(0), shaders);
+  renderScene(projection, view, glm::vec3(0), glm::vec3(0), shaders);
 }
 
 void Playground::renderCubeMap(
-  const std::vector<glm::mat4>& cube_space, const glm::vec3& lightPos, const float& far
+  const unsigned int fbo,
+  const std::vector<glm::mat4>& cube_space,
+  const glm::vec3& lightPos,
+  const float& far
 ) const
 {
+  const Shader* shaders[10];
+  shaders[ShadersIndex::ISKELETAL] = &mp_Skeletal_cshadow;
+  shaders[ShadersIndex::ILIGHTING] = &mp_Lighting_cshadow;
+  shaders[ShadersIndex::IFLOOR] = &mp_Floor_cshadow;
+  shaders[ShadersIndex::IINSTANCED] = &mp_Instanced_cshadow;
+  shaders[ShadersIndex::IPLAIN] =
 #ifdef POINTLIGHT_DEBUG
-  const Shader* p_plain = &mp_Plain_cshadow;
+    &mp_Plain_cshadow
 #else
-  const Shader* p_plain = nullptr;
+    nullptr
 #endif
-
-  const Shader* shaders[] = {
-    &mp_Skeletal_cshadow,
-    &mp_Lighting_cshadow,
-    &mp_Floor_cshadow,
-    &mp_Instanced_cshadow,
-    p_plain,
-    nullptr,
-    &mp_ReflectSkybox_cshadow,
-    nullptr,
-    &mp_Lighting_cshadow,
-    &mp_Skeletal_cshadow,
-  };
+    ;
+  shaders[ShadersIndex::INORMALS] = nullptr;
+  shaders[ShadersIndex::IREFLECT_SKYBOX] = &mp_ReflectSkybox_cshadow;
+  shaders[ShadersIndex::ISKYBOX] = nullptr;
+  shaders[ShadersIndex::INORMAL_MAP] = &mp_Lighting_cshadow;
+  shaders[ShadersIndex::ISKELETAL_NORMAL_MAP] = &mp_Skeletal_cshadow;
 
   for (unsigned int j = 0; j < 8; j++) {
     const Shader* s = shaders[j];
@@ -536,10 +662,13 @@ void Playground::renderCubeMap(
     }
   }
 
-  return renderScene(glm::mat4(1.0), glm::mat4(1.0), glm::vec3(0), glm::vec3(0), shaders);
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  renderScene(glm::mat4(1.0), glm::mat4(1.0), glm::vec3(0), glm::vec3(0), shaders);
 }
 
-void Playground::renderScene(
+void Playground::renderDeffered(
   const glm::mat4& projection,
   const glm::mat4& view,
   const glm::vec3& view_pos,
@@ -547,21 +676,16 @@ void Playground::renderScene(
   const Shader** shaders
 ) const
 {
-  const glm::mat4 proj_x_view = projection * view;
-  const Shader& p_skeletal = *shaders[0];
-  const Shader& p_lighting = *shaders[1];
-  const Shader& p_floor = *shaders[2];
-  const Shader& p_instanced = *shaders[3];
-  const Shader* p_plain = shaders[4];
-  const Shader* p_normals = shaders[5];
-  const Shader& p_reflect_skybox = *shaders[6];
-  const Shader* p_skybox = shaders[7];
-  const Shader& p_normal_map = *shaders[8];
-  const Shader& p_skeletal_normal_map = *shaders[9];
-
-  lightingSettings.updatePointLight0Position();
-  lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
-  proj_x_view_ub.set(proj_x_view);
+  const Shader& p_skeletal = *shaders[ShadersIndex::ISKELETAL];
+  // const Shader& p_lighting = *shaders[ShadersIndex::ILIGHTING];
+  // const Shader& p_floor = *shaders[ShadersIndex::IFLOOR];
+  // const Shader& p_instanced = *shaders[ShadersIndex::IINSTANCED];
+  // const Shader* p_plain = shaders[ShadersIndex::IPLAIN];
+  // const Shader* p_normals = shaders[ShadersIndex::INORMALS];
+  // const Shader& p_reflect_skybox = *shaders[ShadersIndex::IREFLECT_SKYBOX];
+  // const Shader* p_skybox = shaders[ShadersIndex::ISKYBOX];
+  // const Shader& p_normal_map = *shaders[ShadersIndex::INORMAL_MAP];
+  // const Shader& p_skeletal_normal_map = *shaders[ShadersIndex::ISKELETAL_NORMAL_MAP];
 
   p_skeletal.use();
   p_skeletal.setVec3fv("u_view_pos", view_pos);
@@ -574,6 +698,25 @@ void Playground::renderScene(
 
   // whipper
   whipper.render(p_skeletal);
+}
+void Playground::renderBlend(
+  const glm::mat4& projection,
+  const glm::mat4& view,
+  const glm::vec3& view_pos,
+  const glm::vec3& view_dir,
+  const Shader** shaders
+) const
+{
+  // const Shader& p_skeletal = *shaders[ShadersIndex::ISKELETAL];
+  const Shader& p_lighting = *shaders[ShadersIndex::ILIGHTING];
+  const Shader& p_floor = *shaders[ShadersIndex::IFLOOR];
+  const Shader& p_instanced = *shaders[ShadersIndex::IINSTANCED];
+  const Shader* p_plain = shaders[ShadersIndex::IPLAIN];
+  const Shader* p_normals = shaders[ShadersIndex::INORMALS];
+  const Shader& p_reflect_skybox = *shaders[ShadersIndex::IREFLECT_SKYBOX];
+  const Shader* p_skybox = shaders[ShadersIndex::ISKYBOX];
+  const Shader& p_normal_map = *shaders[ShadersIndex::INORMAL_MAP];
+  const Shader& p_skeletal_normal_map = *shaders[ShadersIndex::ISKELETAL_NORMAL_MAP];
 
   p_skeletal_normal_map.use();
   p_skeletal_normal_map.setVec3fv("u_view_pos", view_pos);
@@ -648,9 +791,26 @@ void Playground::renderScene(
   floor.render(p_floor);
 }
 
+void Playground::renderScene(
+  const glm::mat4& projection,
+  const glm::mat4& view,
+  const glm::vec3& view_pos,
+  const glm::vec3& view_dir,
+  const Shader** shaders
+) const
+{
+  const glm::mat4 proj_x_view = projection * view;
+
+  lightingSettings.updatePointLight0Position();
+  lightingSettings.updateSpotLight(view_pos, view_dir, !mSpotlightOn);
+  proj_x_view_ub.set(proj_x_view);
+
+  renderDeffered(projection, view, view_pos, view_dir, shaders);
+  renderBlend(projection, view, view_pos, view_dir, shaders);
+}
+
 void Playground::teardown()
 {
-  mpSkeletal.free();
   mp_Skeletal_shadow.free();
   mp_Skeletal_cshadow.free();
   tifa.free();
@@ -696,6 +856,14 @@ void Playground::teardown()
 
   mpReflectSkybox.free();
   skyboxReflector.free();
+
+#ifdef DEFERRED
+  gBuffer.free();
+  mpGeometryDeffSkele.free();
+  mpLightingDeff.free();
+#else
+  mpSkeletal.free();
+#endif
 
   lightingSettings.free();
   proj_x_view_ub.free();

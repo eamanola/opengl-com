@@ -24,6 +24,24 @@ bool createFramebufferTexture2D(
   GLenum type
 );
 
+bool addColorAttachment(
+  unsigned int& outTextureId,
+  GLenum attachement,
+  const unsigned int samples,
+  GLenum internal,
+  const std::size_t width,
+  const std::size_t height,
+  GLenum format,
+  GLenum type
+);
+
+bool addDepthStencilAttachment(
+  unsigned int& outRBO,
+  const unsigned int samples,
+  const std::size_t width,
+  const std::size_t height
+);
+
 } // namespace Framebuffer
 
 namespace Textures

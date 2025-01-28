@@ -190,14 +190,11 @@ bool ShadowMaps::updateDirMaps(
 {
   glViewport(0, 0, WIDTH, HEIGHT);
   for (unsigned int i = 0; i < mDirLights.size(); i++) {
-    glBindFramebuffer(GL_FRAMEBUFFER, mDirLights[i].first);
-    glClear(GL_DEPTH_BUFFER_BIT);
-
     // glm::vec3 lightPos = glm::vec3(-2.f, 4.f, -1.f);
     // glm::vec3 pointTo = glm::vec3(0.f);
     // glm::vec3 direction = glm::normalize(pointTo - lightPos)
 
-    scene.renderShadowMap(proj(), view(lightPos[i], pointTo[i]));
+    scene.renderShadowMap(mDirLights[i].first, proj(), view(lightPos[i], pointTo[i]));
   }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glViewport(0, 0, 800, 600);
@@ -210,10 +207,7 @@ bool ShadowMaps::updateCubeMaps(
 {
   glViewport(0, 0, WIDTH, HEIGHT);
   for (unsigned int i = 0; i < mPointLights.size(); i++) {
-    glBindFramebuffer(GL_FRAMEBUFFER, mPointLights[i].first);
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    scene.renderCubeMap(cube_space(far, lightPos[i]), lightPos[i], far);
+    scene.renderCubeMap(mPointLights[i].first, cube_space(far, lightPos[i]), lightPos[i], far);
   }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glViewport(0, 0, 800, 600);

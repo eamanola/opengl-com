@@ -98,9 +98,7 @@ float calcShadow_cube(vec3 frag_pos, vec3 lightPos, samplerCube shadowMap, vec3 
 PhongColor calcMaterialColor(Material material, vec2 texCoords);
 #endif
 
-PhongColor calcColor(vec2 texCoords);
-
-PhongColor calcLight(vec3 normal);
+PhongColor calcLight(vec3 fragPos, vec3 normal);
 
 #ifdef HEIGHT_MAP
 vec2 parallax(vec2 texCoords, vec3 tan_view_dir);
@@ -108,44 +106,6 @@ vec2 parallax(vec2 texCoords, vec3 tan_view_dir);
 // end typedefs
 
 out vec4 f_color;
-
-in vsout
-{
-#ifndef NORMAL_MAP
-#ifdef NORMAL
-  vec3 normal;
-#endif
-#endif
-
-#ifdef FRAG_POS
-  vec3 frag_pos;
-#endif
-
-#ifdef VIEW_DIR
-  vec3 view_dir;
-#endif
-
-#ifdef TEX_COORDS
-  vec2 tex_coords;
-#endif
-
-#ifdef IN_V_COLOR
-  vec4 color;
-#endif
-
-#ifdef ENABLE_DIR_SHADOWS
-  vec4 light_space_frag_pos[IN_NR_DIR_LIGHTS];
-#endif
-
-#ifdef NORMAL_MAP
-  mat3 tbn;
-#endif
-
-#ifdef HEIGHT_MAP
-  vec3 tan_view_dir;
-#endif
-}
-fs_in;
 
 // layout(std140) uniform ub_lights
 layout(packed) uniform ub_lights
@@ -163,37 +123,30 @@ layout(packed) uniform ub_lights
 #endif
 };
 
-#ifdef MATERIAL
-uniform Material u_material;
-#endif
-
 #ifdef ENABLE_DIR_SHADOWS
 uniform sampler2D u_dir_shadow_maps[IN_NR_DIR_LIGHTS];
+uniform mat4 u_light_space[IN_NR_DIR_LIGHTS];
 #endif
 #ifdef ENABLE_CUBE_SHADOWS
 uniform samplerCube u_point_shadow_maps[IN_NR_POINT_LIGHTS];
 uniform float u_far;
 #endif
 
-#ifdef HEIGHT_MAP
-uniform float u_height_scale;
-#endif
+in vec2 texCoords;
+uniform sampler2D in_position;
+uniform sampler2D in_normal;
+uniform sampler2D in_color;
+uniform sampler2D in_alpha;
+uniform sampler2D in_specular;
+uniform sampler2D in_emissive;
+uniform sampler2D in_depth;
+uniform vec3 u_view_dir;
+uniform float u_shininess;
 
 void main()
 {
-  vec2 texCoords = fs_in.tex_coords;
 
-#ifdef HEIGHT_MAP
-  texCoords = parallax(texCoords, fs_in.tan_view_dir);
-  if (texCoords.x < 0.0 || texCoords.x > 1.0 || texCoords.y < 0.0 || texCoords.y > 1.0) {
-    discard;
-    return;
-  }
-#endif
-
-  // calc color
-  PhongColor color = calcColor(texCoords);
-  float alpha = color.diffuse.a;
+  float alpha = texture(in_alpha, texCoords).r;
 
   if (alpha < 0.1) {
     discard;
@@ -201,67 +154,41 @@ void main()
   }
 
   // calc normal
-  vec3 normal;
-#ifdef NORMAL_MAP
-  normal = texture(u_material.texture_normal1, texCoords).rgb;
-  normal = normal * 2.0 - 1.0;
-  normal = normalize(fs_in.tbn * normal);
-#else
-#ifdef NORMAL
-  normal = normalize(fs_in.normal);
-#endif
-#endif
-  // #ifdef NORMAL_MAP
-  //   f_color = vec4(normal, 1.0) * 2 - 1;
-  //   return;
-  // #endif
+  vec3 fragPos = texture(in_position, texCoords).rgb;
+  vec3 normal = texture(in_normal, texCoords).rgb;
+  vec4 diffuseColor = vec4(texture(in_color, texCoords).rgb, 1.0);
+  float specularColor = texture(in_specular, texCoords).r;
+  vec3 emissive = texture(in_emissive, texCoords).rgb;
+  float depth = texture(in_depth, texCoords).r;
 
   // calc light
-  PhongColor lightColor = calcLight(normal);
+  PhongColor lightColor = calcLight(fragPos, normal);
 
   // combine
-  vec4 ambient = lightColor.ambient * color.diffuse;
-  vec4 diffuse = lightColor.diffuse * color.diffuse;
-  vec4 specular = lightColor.specular * color.specular;
+  vec4 ambient = lightColor.ambient * diffuseColor;
+  vec4 diffuse = lightColor.diffuse * diffuseColor;
+  vec4 specular = lightColor.specular * specularColor;
 
-  vec4 emissive;
-#ifdef MATERIAL
-  emissive = texture(u_material.texture_emissive1, texCoords);
-#endif
+  vec3 color = vec3(ambient + diffuse + specular) + emissive;
 
-  f_color = vec4(vec3(ambient + diffuse + specular + emissive), alpha);
+  f_color = vec4(color, alpha);
+  gl_FragDepth = depth;
+
+  // f_color = vec4(vec3(depth), 1.0);
 }
 
-PhongColor calcColor(vec2 texCoords)
-{
-  vec4 diffuseColor = vec4(0.0);
-  vec4 specularColor = vec4(0.0);
-
-#ifdef MATERIAL
-  PhongColor materialColor = calcMaterialColor(u_material, texCoords);
-  diffuseColor += materialColor.diffuse;
-  specularColor += materialColor.specular;
-#endif
-
-#ifdef IN_V_COLOR
-  diffuseColor += fs_in.color;
-  specularColor += fs_in.color;
-#endif
-
-  return PhongColor(vec4(0), diffuseColor, specularColor);
-}
-
-PhongColor calcLight(vec3 normal)
+PhongColor calcLight(vec3 fragPos, vec3 normal)
 {
   mat3x4 lightColor = mat3x4(0);
 
 #ifdef HAS_DIR_LIGHTS
   for (int i = 0; i < IN_NR_DIR_LIGHTS; i++) {
     if (!u_dir_lights[i].light.off) {
-      mat3x4 lc = calcDirLight(u_dir_lights[i], normal, fs_in.view_dir);
+      mat3x4 lc = calcDirLight(u_dir_lights[i], normal, u_view_dir);
 
 #ifdef ENABLE_DIR_SHADOWS
-      float shadow = calcShadow(fs_in.light_space_frag_pos[i], u_dir_shadow_maps[i]);
+      vec4 light_space_frag_pos = u_light_space[i] * vec4(fragPos, 1.0);
+      float shadow = calcShadow(light_space_frag_pos, u_dir_shadow_maps[i]);
       lc[1] *= (1 - shadow);
       lc[2] *= (1 - shadow);
 #endif
@@ -274,11 +201,11 @@ PhongColor calcLight(vec3 normal)
 #ifdef HAS_POINT_LIGHTS
   for (int i = 0; i < IN_NR_POINT_LIGHTS; i++) {
     if (!u_point_lights[i].light.off) {
-      mat3x4 lc = calcPointLight(u_point_lights[i], normal, fs_in.view_dir, fs_in.frag_pos);
+      mat3x4 lc = calcPointLight(u_point_lights[i], normal, u_view_dir, fragPos);
 
 #ifdef ENABLE_CUBE_SHADOWS
       float shadow =
-        calcShadow_cube(fs_in.frag_pos, u_point_lights[i].position, u_point_shadow_maps[i], normal);
+        calcShadow_cube(fragPos, u_point_lights[i].position, u_point_shadow_maps[i], normal);
       lc[1] *= (1 - shadow);
       lc[2] *= (1 - shadow);
 #endif
@@ -291,82 +218,13 @@ PhongColor calcLight(vec3 normal)
 #ifdef HAS_SPOT_LIGHTS
   for (int i = 0; i < IN_NR_SPOT_LIGHTS; i++) {
     if (!u_spot_lights[i].light.off) {
-      lightColor += calcSpotLight(u_spot_lights[i], normal, fs_in.view_dir, fs_in.frag_pos);
+      lightColor += calcSpotLight(u_spot_lights[i], normal, u_view_dir, fragPos);
     }
   }
 #endif
 
   return PhongColor(lightColor[0], lightColor[1], lightColor[2]);
 }
-
-#ifdef HEIGHT_MAP
-vec2 steepParallax(vec2 texCoords, vec3 tan_view_dir)
-{
-  const float minSteps = 8.0;
-  const float maxSteps = 32.0;
-  float numSteps = mix(maxSteps, minSteps, max(dot(vec3(0.0, 0.0, 1.0), tan_view_dir), 0.0));
-
-  if (numSteps < minSteps)
-    // discard;
-    return vec2(-1.0);
-
-  float stepSize = 1.0 / numSteps;
-
-  vec2 offsetLimit = tan_view_dir.xy / tan_view_dir.z;
-  vec2 p = offsetLimit * u_height_scale;
-  vec2 deltaTex = p / numSteps;
-
-  vec2 tex = texCoords;
-  float height = texture(u_material.texture_height1, tex).r;
-  float current = 0.0;
-
-  while (current < height) {
-    tex -= deltaTex;
-    height = texture(u_material.texture_height1, tex).r;
-    current += stepSize;
-  }
-
-  // Parallax Occlusion
-  vec2 prevTex = tex + deltaTex;
-
-  float after = height - current;
-  float before = texture(u_material.texture_height1, prevTex).r - current + stepSize;
-
-  float weight = after / (after - before);
-  vec2 occulated = prevTex * weight + tex * (1 - weight);
-
-  return occulated;
-}
-
-vec2 parallax(vec2 texCoords, vec3 tan_view_dir)
-{
-  return steepParallax(texCoords, tan_view_dir);
-  // // adjust height depending on view angle, 0 perpendicular, 1 parallel
-  // vec2 offsetLimit = tan_view_dir.xy / tan_view_dir.z;
-
-  // // extra control
-  // const float height_scale = 0.1;
-
-  // float height = texture(u_material.texture_height1, texCoords).r;
-
-  // vec2 p = offsetLimit * height * height_scale;
-
-  // return texCoords - p;
-}
-#endif
-
-#ifdef MATERIAL
-PhongColor calcMaterialColor(Material material, vec2 texCoords)
-{
-  vec4 diffuseColor = texture(material.texture_diffuse1, texCoords);
-  vec4 specularColor = vec4(vec3(texture(material.texture_specular1, texCoords).r), 0.0);
-
-  diffuseColor += material.diffuse_color;
-  specularColor += material.specular_color;
-
-  return PhongColor(vec4(0), diffuseColor, specularColor);
-}
-#endif
 
 #ifdef CALC_ATTENUATION
 float calcAttenuation(Attenuation atte, float dist)
@@ -379,7 +237,7 @@ float calcAttenuation(Attenuation atte, float dist)
 float blinnPhong(vec3 lightDir, vec3 normal, vec3 viewDir)
 {
   vec3 halfway = normalize(lightDir + viewDir);
-  return pow(max(dot(normal, halfway), 0.0), u_material.shininess);
+  return pow(max(dot(normal, halfway), 0.0), u_shininess);
 }
 
 mat3x4 calcDirLight(DirLight dirLight, vec3 normal, vec3 viewDir)
@@ -489,9 +347,9 @@ float calcShadow(vec4 light_space_frag_pos, sampler2D shadowMap)
 #endif
 
 #ifdef ENABLE_CUBE_SHADOWS
-float calcShadow_cube(vec3 frag_pos, vec3 lightPos, samplerCube shadowMap, vec3 normal)
+float calcShadow_cube(vec3 fragPos, vec3 lightPos, samplerCube shadowMap, vec3 normal)
 {
-  vec3 diff = frag_pos - lightPos;
+  vec3 diff = fragPos - lightPos;
 
   float current = length(diff);
 

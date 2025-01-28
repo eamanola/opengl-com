@@ -39,13 +39,8 @@ void Mirror::screenshot(const Scene& scene, const glm::vec3& positionOffset) con
   camera.setPosition(position);
   camera.setDirection(reflection);
 
-  glBindFramebuffer(GL_FRAMEBUFFER, mRenderBuffer.fbo());
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  scene.render(camera);
+  scene.render(mRenderBuffer.fbo(), camera);
   mRenderBuffer.blit();
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Mirror::screenshot(const Scene& scene) const { screenshot(scene, glm::vec3(0.f)); }

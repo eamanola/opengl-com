@@ -15,11 +15,17 @@ public:
 
   virtual void setup() { }
   virtual void update(const float& time) { }
-  virtual void render(const Camera& camera) const { }
-  virtual void render() const { render(camera()); }
-  virtual void renderShadowMap(const glm::mat4& projection, const glm::mat4& view) const { }
+  virtual void render(const unsigned int fbo, const Camera& camera) const { }
+  virtual void render() const { render(0, camera()); }
+  virtual void
+  renderShadowMap(const unsigned int fbo, const glm::mat4& projection, const glm::mat4& view) const
+  {
+  }
   virtual void renderCubeMap(
-    const std::vector<glm::mat4>& shadowMatrices, const glm::vec3& lightPos, const float& far
+    const unsigned int fbo,
+    const std::vector<glm::mat4>& shadowMatrices,
+    const glm::vec3& lightPos,
+    const float& far
   ) const
   {
   }

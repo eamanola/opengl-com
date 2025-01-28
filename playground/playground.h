@@ -3,23 +3,21 @@
 
 #define POINTLIGHT_DEBUG
 // #define SHADOW_DEBUG
+#define DEFERRED
 
+#include "box.h"
 #include "camera.h"
 #include "characters/dae.h"
 #include "characters/icarus.h"
 #include "characters/tifa.h"
 #include "characters/whipper.h"
-#include "light-settings.h"
-#include "scene.h"
-#ifdef POINTLIGHT_DEBUG
-#include "light-debug.h"
-#endif
-#include "box.h"
 #include "disco/floor.h"
 #include "draw-texture.h"
 #include "grass.h"
+#include "light-settings.h"
 #include "mirror.h"
 #include "render-buffer.h"
+#include "scene.h"
 #include "shaders/ub-proj-x-view.h"
 #include "shadow-maps/shadow-maps.h"
 #include "skybox/skybox-reflector.h"
@@ -27,6 +25,12 @@
 #include "toy.h"
 #include "wall.h"
 #include "window.h"
+#ifdef POINTLIGHT_DEBUG
+#include "light-debug.h"
+#endif
+#ifdef DEFERRED
+#include "shaders/deferred/g-buffer.h"
+#endif
 
 class Playground : public Scene
 {
@@ -36,14 +40,20 @@ public:
 
   void setup() override;
   void update(const float& time) override;
-  void render(const Camera& camera) const override;
+  void render(unsigned int fbo, const Camera& camera) const override;
   void render() const override;
   using Scene::render;
 
-  void renderShadowMap(const glm::mat4& projection, const glm::mat4& view) const override;
+  void renderShadowMap(const unsigned int fbo, const glm::mat4& projection, const glm::mat4& view)
+    const override;
+
   void renderCubeMap(
-    const std::vector<glm::mat4>& shadowMatrices, const glm::vec3& lightPos, const float& far
+    const unsigned int fbo,
+    const std::vector<glm::mat4>& shadowMatrices,
+    const glm::vec3& lightPos,
+    const float& far
   ) const override;
+
   void teardown() override;
 
   void handleInput(const GLFWwindow* window) override;
@@ -80,7 +90,35 @@ private:
     const Shader** shaders
   ) const;
 
-  Shader mpSkeletal;
+  void renderDeffered(
+    const glm::mat4& projection,
+    const glm::mat4& view,
+    const glm::vec3& view_pos,
+    const glm::vec3& view_dir,
+    const Shader** shaders
+  ) const;
+
+  void renderBlend(
+    const glm::mat4& projection,
+    const glm::mat4& view,
+    const glm::vec3& view_pos,
+    const glm::vec3& view_dir,
+    const Shader** shaders
+  ) const;
+
+  enum ShadersIndex {
+    ISKELETAL,
+    ILIGHTING,
+    IFLOOR,
+    IINSTANCED,
+    IPLAIN,
+    INORMALS,
+    IREFLECT_SKYBOX,
+    ISKYBOX,
+    INORMAL_MAP,
+    ISKELETAL_NORMAL_MAP,
+  };
+
   Shader mp_Skeletal_shadow;
   Shader mp_Skeletal_cshadow;
   Tifa tifa;
@@ -140,6 +178,14 @@ private:
   float mLastX;
   float mLastY;
   bool mFirstMouse;
+
+#ifdef DEFERRED
+  GBuffer gBuffer;
+  Shader mpGeometryDeffSkele;
+  Shader mpLightingDeff;
+#else
+  Shader mpSkeletal;
+#endif
 
   ub_proj_x_view proj_x_view_ub;
   LightSettings lightingSettings;

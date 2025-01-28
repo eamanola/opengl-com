@@ -3,7 +3,7 @@
 #include <cstring>
 #include <iostream>
 
-bool GLUtils_Framebuffer_addColorAttachment(
+bool GLUtils::Framebuffer::addColorAttachment(
   unsigned int& outTextureId,
   GLenum attachement,
   const unsigned int samples,
@@ -43,7 +43,7 @@ bool GLUtils_Framebuffer_addColorAttachment(
   return success;
 }
 
-bool GLUtils_Framebuffer_addDepthStencilAttachment(
+bool GLUtils::Framebuffer::addDepthStencilAttachment(
   unsigned int& outRBO,
   const unsigned int samples,
   const std::size_t width,
@@ -91,7 +91,7 @@ bool GLUtils::Framebuffer::createFramebufferTexture2D(
   unsigned int textureIds[texturesLen];
   if (texturesLen > 0) {
     for (unsigned int i = 0; i < texturesLen; i++) {
-      GLUtils_Framebuffer_addColorAttachment(
+      addColorAttachment(
         textureIds[i], GL_COLOR_ATTACHMENT0 + i, samples, internal, width, height, format, type
       );
     }
@@ -102,7 +102,7 @@ bool GLUtils::Framebuffer::createFramebufferTexture2D(
 
   unsigned int RBO = 0;
   if (outRBO != nullptr) {
-    GLUtils_Framebuffer_addDepthStencilAttachment(RBO, samples, width, height);
+    addDepthStencilAttachment(RBO, samples, width, height);
   }
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {

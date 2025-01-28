@@ -19,7 +19,7 @@ Grass::Grass() :
     Utils::Textures::loadTexture2D("assets/grass.png", TEXTURE_TYPE_DIFFUSE, true, GL_CLAMP_TO_EDGE)
   )
 {
-  setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, 0.f)));
+  setModel(glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, -1.f)));
   setupBuffers();
 }
 
